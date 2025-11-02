@@ -12,7 +12,7 @@ const App = () => {
     <div className="relative w-screen h-96 md:h-screen">
       {/* Model Viewer */}
         <model-viewer
-        src="..."
+        src="https://vr.kiraproject.id/models/box-sample.glb"
         camera-controls
         auto-rotate
         loading="lazy"
@@ -25,7 +25,13 @@ const App = () => {
           </div>
         </div>
 
-        <button slot="ar-button" className="...">
+        <button
+          slot="ar-button"
+          className="absolute bottom-5 left-1/2 -translate-x-1/2 
+                     bg-black text-white px-6 py-3 rounded-lg 
+                     text-base font-medium z-10 shadow-lg 
+                     hover:bg-gray-800 transition-colors"
+        >
           Lihat di Ruangan Anda
         </button>
       </model-viewer>
