@@ -79,7 +79,7 @@ function ARScene() {
       {/* Model setelah tap */}
       {modelMatrix && (
         <group matrixAutoUpdate={false} matrix={new THREE.Matrix4().fromArray(modelMatrix)}>
-          <Model url="/box-sample.glb" position={[0, 0, 0]} />
+          <Model url="https://vr.kiraproject.id/models/box-sample.glb" position={[0, 0, 0]} />
         </group>
       )}
     </>
