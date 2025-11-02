@@ -11,22 +11,21 @@ const App = () => {
   return (
     <div className="relative w-screen h-96 md:h-screen">
       {/* Model Viewer */}
-      <model-viewer
-        src="https://vr.kiraproject.id/models/box-sample.glb"
-        ar
-        ar-modes="webxr scene-viewer quick-look"
+        <model-viewer
+        src="..."
         camera-controls
         auto-rotate
+        loading="lazy"
         className="w-full h-full"
       >
-        {/* Tombol AR */}
-        <button
-          slot="ar-button"
-          className="absolute bottom-5 left-1/2 -translate-x-1/2 
-                     bg-black text-white px-6 py-3 rounded-lg 
-                     text-base font-medium z-10 shadow-lg 
-                     hover:bg-gray-800 transition-colors"
-        >
+        <div slot="poster" className="w-full h-full bg-gray-200 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Memuat model 3D...</p>
+          </div>
+        </div>
+
+        <button slot="ar-button" className="...">
           Lihat di Ruangan Anda
         </button>
       </model-viewer>
