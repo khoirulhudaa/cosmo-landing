@@ -1,129 +1,153 @@
-import { Canvas } from '@react-three/fiber';
-import { useGLTF, OrbitControls } from '@react-three/drei';
-import { Suspense, useEffect, useRef } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { useGLTF } from '@react-three/drei';
+import { Suspense, useRef, useState } from 'react';
+import * as THREE from 'three';
 import './App.css';
 
-function Model({ rotation }) {
-  const { scene } = useGLTF('/box-sample.glb'); // Pastikan di public/
-  return <primitive object={scene} scale={1.5} position={[0, -1, -3]} rotation={rotation} />;
+function Model({ url, position }) {
+  const { scene } = useGLTF(url);
+  return <primitive object={scene} scale={0.5} position={position} />;
 }
 
 function ARScene() {
-  const modelRef = useRef();
-  const initialAlpha = useRef(null);
+  const { gl, camera, scene } = useThree();
+  const reticleRef = useRef();
+  const [modelMatrix, setModelMatrix] = useState(null);
+  const hitTestSource = useRef(null);
+  const hitTestSourceRequested = useRef(false);
 
-  useEffect(() => {
-    const handleOrientation = (event) => {
-      if (!modelRef.current) return;
+  useFrame((state, delta) => {
+    const session = gl.xr.getSession();
+    if (!session || !reticleRef.current) return;
 
-      const { alpha, beta, gamma } = event;
+    const referenceSpace = gl.xr.getReferenceSpace();
+    const frame = state.xrFrame;
+    if (!frame || !referenceSpace) return;
 
-      // Kalibrasi pertama kali
-      if (initialAlpha.current === null && alpha !== null) {
-        initialAlpha.current = alpha;
-      }
-
-      if (initialAlpha.current === null) return;
-
-      // Hitung rotasi relatif dari posisi awal
-      const relAlpha = ((alpha - initialAlpha.current) * Math.PI) / 180;
-      const relBeta = (beta * Math.PI) / 180;
-      const relGamma = (gamma * Math.PI) / 180;
-
-      // Terapkan rotasi ke model (Y untuk putar horizontal, X untuk miring)
-      modelRef.current.rotation.y = -relAlpha;
-      modelRef.current.rotation.x = -relBeta;
-      modelRef.current.rotation.z = -relGamma;
-    };
-
-    // Minta izin iOS (wajib)
-    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-      DeviceOrientationEvent.requestPermission()
-        .then((response) => {
-          if (response === 'granted') {
-            window.addEventListener('deviceorientation', handleOrientation);
-          }
-        })
-        .catch(console.error);
-    } else {
-      // Android & browser lain
-      window.addEventListener('deviceorientation', handleOrientation);
+    if (!hitTestSourceRequested.current) {
+      session.requestReferenceSpace('viewer').then((refSpace) => {
+        session.requestHitTestSource({ space: refSpace }).then((source) => {
+          hitTestSource.current = source;
+        });
+      });
+      hitTestSourceRequested.current = true;
     }
 
-    return () => {
-      window.removeEventListener('deviceorientation', handleOrientation);
-    };
-  }, []);
+    if (hitTestSource.current) {
+      const hitTestResults = frame.getHitTestResults(hitTestSource.current);
+      if (hitTestResults.length > 0) {
+        const hit = hitTestResults[0];
+        const hitPose = hit.getPose(referenceSpace);
+        if (hitPose) {
+          const matrix = new THREE.Matrix4().fromArray(hitPose.transform.matrix);
+          const pos = new THREE.Vector3();
+          const quat = new THREE.Quaternion();
+          const scale = new THREE.Vector3();
+          matrix.decompose(pos, quat, scale);
+
+          reticleRef.current.position.copy(pos);
+          reticleRef.current.quaternion.copy(quat);
+          reticleRef.current.visible = true;
+        }
+      } else {
+        reticleRef.current.visible = false;
+      }
+    }
+  });
+
+  const handleTap = (e) => {
+    if (reticleRef.current && reticleRef.current.visible) {
+      const pos = reticleRef.current.position.clone();
+      const quat = reticleRef.current.quaternion.clone();
+      const matrix = new THREE.Matrix4().compose(pos, quat, new THREE.Vector3(1, 1, 1));
+      setModelMatrix(matrix.toArray());
+    }
+  };
 
   return (
-    <group ref={modelRef}>
-      <Model rotation={[0, 0, 0]} />
-    </group>
+    <>
+      {/* Reticle */}
+      <mesh
+        ref={reticleRef}
+        visible={false}
+        onPointerDown={handleTap}
+      >
+        <ringGeometry args={[0.15, 0.2, 32]} />
+        <meshBasicMaterial color="yellow" />
+      </mesh>
+
+      {/* Model setelah tap */}
+      {modelMatrix && (
+        <group matrixAutoUpdate={false} matrix={new THREE.Matrix4().fromArray(modelMatrix)}>
+          <Model url="/box-sample.glb" position={[0, 0, 0]} />
+        </group>
+      )}
+    </>
   );
 }
 
 export default function App() {
-  const videoRef = useRef(null);
+  const [arSession, setArSession] = useState(null);
 
-  // Kamera belakang
-  useEffect(() => {
-    const startCamera = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: 'environment',
-            width: { ideal: 1280 },
-            height: { ideal: 720 },
-          },
-        });
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play();
-        }
-      } catch (err) {
-        console.error('Kamera error:', err);
-      }
-    };
-    startCamera();
-  }, []);
+  const startAR = async () => {
+    if (!navigator.xr) {
+      alert('WebXR tidak didukung');
+      return;
+    }
+
+    try {
+      const session = await navigator.xr.requestSession('immersive-ar', {
+        requiredFeatures: ['hit-test'],
+        optionalFeatures: ['dom-overlay'],
+        domOverlay: { root: document.body },
+      });
+      setArSession(session);
+    } catch (err) {
+      console.error('AR gagal:', err);
+    }
+  };
 
   return (
-    <div className="app-container">
-      <video ref={videoRef} className="video-background" playsInline muted />
+    <>
+      {/* Tombol Masuk AR */}
+      {!arSession && (
+        <button
+          onClick={startAR}
+          style={{
+            position: 'fixed',
+            bottom: 20,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 999,
+            padding: '12px 24px',
+            background: 'rgba(0,0,0,0.8)',
+            color: 'white',
+            border: 'none',
+            borderRadius: 8,
+            fontSize: 16,
+          }}
+        >
+          Masuk AR
+        </button>
+      )}
 
-      <Canvas
-        camera={{ position: [0, 0, 0], fov: 60 }}
-        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
-      >
-        <Suspense fallback={null}>
+      {arSession && (
+        <Canvas
+          gl={{
+            antialias: true,
+            xrCompatible: true,
+          }}
+          onCreated={({ gl }) => {
+            gl.xr.enabled = true;
+            gl.xr.setReferenceSpaceType('local-floor');
+            gl.xr.setSession(arSession);
+          }}
+        >
           <ambientLight intensity={1} />
-          <directionalLight position={[5, 5, 5]} intensity={1.5} />
+          <directionalLight position={[10, 10, 5]} intensity={1.5} />
           <ARScene />
-          {/* Hapus OrbitControls agar tidak bisa sentuh */}
-        </Suspense>
-      </Canvas>
-
-      {/* Tombol kalibrasi ulang (opsional) */}
-      <button
-        onClick={() => {
-          initialAlpha.current = null;
-          alert('Kalibrasi ulang! Arahkan HP ke depan.');
-        }}
-        style={{
-          position: 'absolute',
-          bottom: 20,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 10,
-          padding: '10px 20px',
-          background: 'rgba(0,0,0,0.7)',
-          color: 'white',
-          border: 'none',
-          borderRadius: 8,
-        }}
-      >
-        Reset Arah
-      </button>
-    </div>
+        </Canvas>
+      )}
+    </>
   );
 }
