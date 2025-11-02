@@ -50,7 +50,6 @@ const App = () => {
       <model-viewer
         ref={modelViewerRef}
         src="https://vr.kiraproject.id/models/product-sample.glb"
-        ios-src="https://vr.kiraproject.id/models/product-sample.usdz" // WAJIB untuk iOS
         alt="Model 3D AR"
         ar
         ar-modes="webxr scene-viewer quick-look"
