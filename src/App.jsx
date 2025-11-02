@@ -10,77 +10,61 @@ function Model({ url, position }) {
 }
 
 function ARScene() {
-  const { gl, camera, scene } = useThree();
-  const reticleRef = useRef();
-  const [modelMatrix, setModelMatrix] = useState(null);
-  const hitTestSource = useRef(null);
-  const hitTestSourceRequested = useRef(false);
+  const { gl, camera } = useThree();
+  const [modelPosition, setModelPosition] = useState(null);
 
-  useFrame((state, delta) => {
-    const session = gl.xr.getSession();
-    if (!session || !reticleRef.current) return;
-
-    const referenceSpace = gl.xr.getReferenceSpace();
-    const frame = state.xrFrame;
-    if (!frame || !referenceSpace) return;
-
-    if (!hitTestSourceRequested.current) {
-      session.requestReferenceSpace('viewer').then((refSpace) => {
-        session.requestHitTestSource({ space: refSpace }).then((source) => {
-          hitTestSource.current = source;
-        });
-      });
-      hitTestSourceRequested.current = true;
-    }
-
-    if (hitTestSource.current) {
-      const hitTestResults = frame.getHitTestResults(hitTestSource.current);
-      if (hitTestResults.length > 0) {
-        const hit = hitTestResults[0];
-        const hitPose = hit.getPose(referenceSpace);
-        if (hitPose) {
-          const matrix = new THREE.Matrix4().fromArray(hitPose.transform.matrix);
-          const pos = new THREE.Vector3();
-          const quat = new THREE.Quaternion();
-          const scale = new THREE.Vector3();
-          matrix.decompose(pos, quat, scale);
-
-          reticleRef.current.position.copy(pos);
-          reticleRef.current.quaternion.copy(quat);
-          reticleRef.current.visible = true;
-        }
-      } else {
-        reticleRef.current.visible = false;
-      }
-    }
-  });
-
+  // Tap di layar → letakkan model di tengah
   const handleTap = (e) => {
-    if (reticleRef.current && reticleRef.current.visible) {
-      const pos = reticleRef.current.position.clone();
-      const quat = reticleRef.current.quaternion.clone();
-      const matrix = new THREE.Matrix4().compose(pos, quat, new THREE.Vector3(1, 1, 1));
-      setModelMatrix(matrix.toArray());
-    }
+    if (modelPosition) return;
+
+    const { clientX, clientY } = e.touches ? e.touches[0] : e;
+    const x = (clientX / window.innerWidth) * 2 - 1;
+    const y = -(clientY / window.innerHeight) * 2 + 1;
+
+    const vector = new THREE.Vector3(x, y, 0.5).unproject(camera);
+    const dir = vector.sub(camera.position).normalize();
+    const distance = -camera.position.z / dir.z;
+    const pos = camera.position.clone().add(dir.multiplyScalar(distance));
+
+    setModelPosition(pos);
   };
 
   return (
     <>
-      {/* Reticle */}
-      <mesh
-        ref={reticleRef}
-        visible={false}
+      {/* Overlay untuk tap */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: 10,
+          pointerEvents: modelPosition ? 'none' : 'auto',
+        }}
         onPointerDown={handleTap}
-      >
-        <ringGeometry args={[0.15, 0.2, 32]} />
-        <meshBasicMaterial color="yellow" />
-      </mesh>
+      />
 
-      {/* Model setelah tap */}
-      {modelMatrix && (
-        <group matrixAutoUpdate={false} matrix={new THREE.Matrix4().fromArray(modelMatrix)}>
-          <Model url="https://vr.kiraproject.id/models/box-sample.glb" position={[0, 0, 0]} />
-        </group>
+      {/* Model */}
+      {modelPosition && <Model url="https://vr.kiraproject.id/models/box-sample.glb" position={modelPosition} />}
+
+      {/* Instruksi */}
+      {!modelPosition && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            color: 'white',
+             fontSize: '18px',
+            textAlign: 'center',
+            zIndex: 11,
+            pointerEvents: 'none',
+          }}
+        >
+          Tap layar untuk letakkan model
+        </div>
       )}
     </>
   );
@@ -91,63 +75,60 @@ export default function App() {
 
   const startAR = async () => {
     if (!navigator.xr) {
-      alert('WebXR tidak didukung');
+      alert('WebXR tidak didukung di browser ini');
       return;
     }
 
     try {
       const session = await navigator.xr.requestSession('immersive-ar', {
-        requiredFeatures: ['hit-test'],
         optionalFeatures: ['dom-overlay'],
-        domOverlay: { root: document.body },
+        domOverlay: { root: document.getElementById('root') },
       });
+
       setArSession(session);
     } catch (err) {
       console.error('AR gagal:', err);
+      alert('AR tidak didukung di device ini. Coba aktifkan flag WebXR.');
     }
   };
 
-  return (
-    <>
-      {/* Tombol Masuk AR */}
-      {!arSession && (
+  if (!arSession) {
+    return (
+      <div style={{ textAlign: 'center', paddingTop: '50px' }}>
+        <h1>AR Lantai Sederhana</h1>
         <button
           onClick={startAR}
           style={{
-            position: 'fixed',
-            bottom: 20,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 999,
-            padding: '12px 24px',
-            background: 'rgba(0,0,0,0.8)',
+            marginTop: 20,
+            padding: '15px 30px',
+            fontSize: 18,
+            background: '#007bff',
             color: 'white',
             border: 'none',
             borderRadius: 8,
-            fontSize: 16,
           }}
         >
           Masuk AR
         </button>
-      )}
+        <p style={{ marginTop: 20, color: '#666' }}>
+          Pastikan: Chrome 91+, HTTPS, ARCore
+        </p>
+      </div>
+    );
+  }
 
-      {arSession && (
-        <Canvas
-          gl={{
-            antialias: true,
-            xrCompatible: true,
-          }}
-          onCreated={({ gl }) => {
-            gl.xr.enabled = true;
-            gl.xr.setReferenceSpaceType('local-floor');
-            gl.xr.setSession(arSession);
-          }}
-        >
-          <ambientLight intensity={1} />
-          <directionalLight position={[10, 10, 5]} intensity={1.5} />
-          <ARScene />
-        </Canvas>
-      )}
-    </>
+  return (
+    <Canvas
+      gl={{ antialias: true, xrCompatible: true }}
+      onCreated={({ gl }) => {
+        gl.xr.enabled = true;
+        gl.xr.setReferenceSpaceType('local');
+        gl.xr.setSession(arSession);
+      }}
+    >
+      <ambientLight intensity={1} />
+      <directionalLight position={[10, 10, 5]} intensity={1.5} />
+      <ARScene />
+    </Canvas>
   );
 }
