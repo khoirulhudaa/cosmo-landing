@@ -1,59 +1,69 @@
-import { Upload } from 'lucide-react';
-import { useState } from 'react';
+import { Grid3X3 } from 'lucide-react';
 
-export default function ModelUploader({ onModelSelect }) {
-  const [selectedFile, setSelectedFile] = useState(null);
+const MODELS = [
+  {
+    id: 'box',
+    name: 'Box Sample',
+    url: 'https://vr.kiraproject.id/models/box-sample.glb'
+  },
+  {
+    id: 'toilet',
+    name: 'Toilet',
+    url: 'https://vr.kiraproject.id/models/toilet.glb'
+  },
+  {
+    id: 'shoe',
+    name: 'Shoe',
+    url: 'https://vr.kiraproject.id/models/shoe.glb'
+  },
+  {
+    id: 'product',
+    name: 'Product Sample',
+    url: 'https://vr.kiraproject.id/models/product-sample.glb'
+  },
+  {
+    id: 'machine',
+    name: 'Machine',
+    url: 'https://vr.kiraproject.id/models/machine.glb'
+  },
+  {
+    id: 'astronaut',
+    name: 'Astronaut',
+    url: 'http://vr.kiraproject.id/models/astronaut.glb'
+  }
+];
 
-  const handleFileChange = (event) => {
-    const file = event.target.files?.[0];
-    if (file && file.name.endsWith('.glb')) {
-      setSelectedFile(file);
-      const url = URL.createObjectURL(file);
-      onModelSelect(url);
-    } else {
-      alert('Mohon pilih file .glb');
-    }
-  };
-
+export default function ModelSelector({ onModelSelect }) {
   return (
     <div className="p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-4 text-gray-800">Upload Model 3D</h2>
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-500 transition-colors">
-        <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center">
-          <Upload size={48} className="text-gray-400 mb-4" />
-          <span className="text-sm text-gray-600 mb-2">
-            {selectedFile ? selectedFile.name : 'Klik untuk upload file .glb'}
-          </span>
-          <span className="text-xs text-gray-500">
-            File format: .glb (GLTF Binary)
-          </span>
-          <input
-            id="file-upload"
-            type="file"
-            accept=".glb"
-            onChange={handleFileChange}
-            className="hidden"
-          />
-        </label>
+      <div className="flex items-center gap-2 mb-6">
+        <Grid3X3 size={28} className="text-blue-600" />
+        <h2 className="text-2xl font-bold text-gray-800">Pilih Model 3D</h2>
       </div>
 
-      {selectedFile && (
-        <div className="mt-4 p-4 bg-green-50 rounded-lg">
-          <p className="text-sm text-green-800">
-            ✓ Model berhasil dimuat: {selectedFile.name}
-          </p>
-          <p className="text-xs text-green-600 mt-2">
-            Tekan tombol "Mulai AR" untuk melihat model dalam AR
-          </p>
-        </div>
-      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {MODELS.map((model) => (
+          <button
+            key={model.id}
+            onClick={() => onModelSelect(model.url)}
+            className="p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all group cursor-pointer"
+          >
+            <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mb-3 flex items-center justify-center group-hover:from-blue-100 group-hover:to-blue-200 transition-all">
+              <Grid3X3 size={40} className="text-gray-400 group-hover:text-blue-600 transition-colors" />
+            </div>
+            <p className="font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
+              {model.name}
+            </p>
+          </button>
+        ))}
+      </div>
 
-      <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-        <h3 className="font-semibold text-blue-900 mb-2">Catatan:</h3>
+      <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <h3 className="font-semibold text-blue-900 mb-2">Petunjuk:</h3>
         <ul className="text-sm text-blue-800 space-y-1">
-          <li>• Gunakan browser Chrome di Android untuk pengalaman terbaik</li>
-          <li>• Pastikan izin kamera sudah diaktifkan</li>
-          <li>• Arahkan kamera ke permukaan datar untuk menempatkan model</li>
+          <li>• Pilih salah satu model untuk menampilkannya</li>
+          <li>• Gunakan browser Chrome di Android untuk pengalaman AR terbaik</li>
+          <li>• Pastikan izin kamera sudah diaktifkan di perangkat Anda</li>
         </ul>
       </div>
     </div>

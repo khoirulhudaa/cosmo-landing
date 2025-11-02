@@ -127,11 +127,10 @@
 //     </div>
 //   );
 // }
-
 import { Box } from 'lucide-react';
 import { useState } from 'react';
-import ModelUploader from './modelUploader';
 import ARViewer from './arViewer';
+import ModelSelector from './modelUploader';
 
 function App() {
   const [modelUrl, setModelUrl] = useState('');
@@ -152,21 +151,21 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen py-12 px-4">
-      <div className="max-w-2xl mx-auto">
-        <div className="text-center mb-8">
+    <div className="min-h-screen overflow-auto bg-gradient-to-br from-blue-50 to-slate-100 py-12 px-4">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-4">
-            <Box size={48} className="text-blue-600" />
+            <Box size={56} className="text-blue-600" />
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+          <h1 className="text-5xl font-bold text-gray-900 mb-3">
             AR Viewer 3D
           </h1>
-          <p className="text-gray-600">
-            Lihat model 3D Anda dalam Augmented Reality
+          <p className="text-lg text-gray-600">
+            Lihat model 3D dalam Augmented Reality secara real-time
           </p>
         </div>
 
-        <ModelUploader onModelSelect={handleModelSelect} />
+        <ModelSelector onModelSelect={handleModelSelect} />
       </div>
     </div>
   );
