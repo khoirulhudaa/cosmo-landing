@@ -1,134 +1,129 @@
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useGLTF } from '@react-three/drei';
-import { Suspense, useRef, useState } from 'react';
-import * as THREE from 'three';
+import { Canvas } from '@react-three/fiber';
+import { Suspense, useEffect, useRef } from 'react';
 import './App.css';
 
-function Model({ url, position }) {
-  const { scene } = useGLTF(url);
-  return <primitive object={scene} scale={0.5} position={position} />;
+function Model({ rotation }) {
+  const { scene } = useGLTF('https://vr.kiraproject.id/models/box-sample.glb'); // Pastikan di public/
+  return <primitive object={scene} scale={1.5} position={[0, -1, -3]} rotation={rotation} />;
 }
 
 function ARScene() {
-  const { gl, camera } = useThree();
-  const [modelPosition, setModelPosition] = useState(null);
+  const modelRef = useRef();
+  const initialAlpha = useRef(null);
 
-  // Tap di layar → letakkan model di tengah
-  const handleTap = (e) => {
-    if (modelPosition) return;
+  useEffect(() => {
+    const handleOrientation = (event) => {
+      if (!modelRef.current) return;
 
-    const { clientX, clientY } = e.touches ? e.touches[0] : e;
-    const x = (clientX / window.innerWidth) * 2 - 1;
-    const y = -(clientY / window.innerHeight) * 2 + 1;
+      const { alpha, beta, gamma } = event;
 
-    const vector = new THREE.Vector3(x, y, 0.5).unproject(camera);
-    const dir = vector.sub(camera.position).normalize();
-    const distance = -camera.position.z / dir.z;
-    const pos = camera.position.clone().add(dir.multiplyScalar(distance));
+      // Kalibrasi pertama kali
+      if (initialAlpha.current === null && alpha !== null) {
+        initialAlpha.current = alpha;
+      }
 
-    setModelPosition(pos);
-  };
+      if (initialAlpha.current === null) return;
+
+      // Hitung rotasi relatif dari posisi awal
+      const relAlpha = ((alpha - initialAlpha.current) * Math.PI) / 180;
+      const relBeta = (beta * Math.PI) / 180;
+      const relGamma = (gamma * Math.PI) / 180;
+
+      // Terapkan rotasi ke model (Y untuk putar horizontal, X untuk miring)
+      modelRef.current.rotation.y = -relAlpha;
+      modelRef.current.rotation.x = -relBeta;
+      modelRef.current.rotation.z = -relGamma;
+    };
+
+    // Minta izin iOS (wajib)
+    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+      DeviceOrientationEvent.requestPermission()
+        .then((response) => {
+          if (response === 'granted') {
+            window.addEventListener('deviceorientation', handleOrientation);
+          }
+        })
+        .catch(console.error);
+    } else {
+      // Android & browser lain
+      window.addEventListener('deviceorientation', handleOrientation);
+    }
+
+    return () => {
+      window.removeEventListener('deviceorientation', handleOrientation);
+    };
+  }, []);
 
   return (
-    <>
-      {/* Overlay untuk tap */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          zIndex: 10,
-          pointerEvents: modelPosition ? 'none' : 'auto',
-        }}
-        onPointerDown={handleTap}
-      />
-
-      {/* Model */}
-      {modelPosition && <Model url="https://vr.kiraproject.id/models/box-sample.glb" position={modelPosition} />}
-
-      {/* Instruksi */}
-      {!modelPosition && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            color: 'white',
-             fontSize: '18px',
-            textAlign: 'center',
-            zIndex: 11,
-            pointerEvents: 'none',
-          }}
-        >
-          Tap layar untuk letakkan model
-        </div>
-      )}
-    </>
+    <group ref={modelRef}>
+      <Model rotation={[0, 0, 0]} />
+    </group>
   );
 }
 
 export default function App() {
-  const [arSession, setArSession] = useState(null);
+  const videoRef = useRef(null);
 
-  const startAR = async () => {
-    if (!navigator.xr) {
-      alert('WebXR tidak didukung di browser ini');
-      return;
-    }
-
-    try {
-      const session = await navigator.xr.requestSession('immersive-ar', {
-        optionalFeatures: ['dom-overlay'],
-        domOverlay: { root: document.getElementById('root') },
-      });
-
-      setArSession(session);
-    } catch (err) {
-      console.error('AR gagal:', err);
-      alert('AR tidak didukung di device ini. Coba aktifkan flag WebXR.');
-    }
-  };
-
-  if (!arSession) {
-    return (
-      <div style={{ textAlign: 'center', paddingTop: '50px' }}>
-        <h1>AR Lantai Sederhana</h1>
-        <button
-          onClick={startAR}
-          style={{
-            marginTop: 20,
-            padding: '15px 30px',
-            fontSize: 18,
-            background: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: 8,
-          }}
-        >
-          Masuk AR
-        </button>
-        <p style={{ marginTop: 20, color: '#666' }}>
-          Pastikan: Chrome 91+, HTTPS, ARCore
-        </p>
-      </div>
-    );
-  }
+  // Kamera belakang
+  useEffect(() => {
+    const startCamera = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: 'environment',
+            width: { ideal: 1280 },
+            height: { ideal: 720 },
+          },
+        });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play();
+        }
+      } catch (err) {
+        console.error('Kamera error:', err);
+      }
+    };
+    startCamera();
+  }, []);
 
   return (
-    <Canvas
-      gl={{ antialias: true, xrCompatible: true }}
-      onCreated={({ gl }) => {
-        gl.xr.enabled = true;
-        gl.xr.setReferenceSpaceType('local');
-        gl.xr.setSession(arSession);
-      }}
-    >
-      <ambientLight intensity={1} />
-      <directionalLight position={[10, 10, 5]} intensity={1.5} />
-      <ARScene />
-    </Canvas>
+    <div className="app-container">
+      <video ref={videoRef} className="video-background" playsInline muted />
+
+      <Canvas
+        camera={{ position: [0, 0, 0], fov: 60 }}
+        style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }}
+      >
+        <Suspense fallback={null}>
+          <ambientLight intensity={1} />
+          <directionalLight position={[5, 5, 5]} intensity={1.5} />
+          <ARScene />
+          {/* Hapus OrbitControls agar tidak bisa sentuh */}
+        </Suspense>
+      </Canvas>
+
+      {/* Tombol kalibrasi ulang (opsional) */}
+      <button
+        onClick={() => {
+          initialAlpha.current = null;
+          alert('Kalibrasi ulang! Arahkan HP ke depan.');
+        }}
+        style={{
+          position: 'absolute',
+          bottom: 50,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 10,
+          padding: '10px 20px',
+          background: 'rgba(0,0,0,0.7)',
+          color: 'white',
+          border: 'none',
+          borderRadius: 8,
+        }}
+      >
+        Reset Arah
+      </button>
+    </div>
   );
 }
