@@ -50,7 +50,7 @@ const App = () => {
             <strong className="font-bold">Chrome</strong> atau <strong className="font-bold">Safari</strong>
           </p>
           <p className="text-sm md:text-base mt-3 opacity-90">
-            Arahkan kamera ke lantai → model akan muncul!
+            Arahkan kamera HP ke lantai → model akan muncul!
           </p>
         </div>
       )}
