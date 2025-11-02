@@ -1,19 +1,32 @@
-import '@google/model-viewer'; // Import web component
-import { useRef } from 'react';
+import '@google/model-viewer';
+import { useRef, useEffect } from 'react';
 
 const App = () => {
   const modelViewerRef = useRef(null);
 
-  // Fungsi untuk memulai AR session (opsional, bisa dipanggil via button)
   const startAR = () => {
     if (modelViewerRef.current) {
       modelViewerRef.current.activateAR();
     }
   };
 
+  useEffect(() => {
+    const viewer = modelViewerRef.current;
+    if (!viewer) return;
+
+    const handleStatus = (e) => {
+      console.log('AR Status:', e.detail.status);
+      if (e.detail.status === 'session-started') {
+        console.log('AR aktif! Arahkan ke lantai.');
+      }
+    };
+
+    viewer.addEventListener('ar-status', handleStatus);
+    return () => viewer.removeEventListener('ar-status', handleStatus);
+  }, []);
+
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
-      {/* Tombol untuk memulai AR */}
       <button
         onClick={startAR}
         style={{
@@ -21,41 +34,52 @@ const App = () => {
           top: '20px',
           left: '20px',
           zIndex: 10,
-          padding: '10px',
-          background: 'rgba(0, 0, 0, 0.7)',
+          padding: '12px 16px',
+          background: 'rgba(0, 0, 0, 0.8)',
           color: 'white',
           border: 'none',
-          borderRadius: '5px',
+          borderRadius: '8px',
+          fontSize: '16px',
+          fontWeight: 'bold',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
         }}
       >
         Mulai AR
       </button>
 
-      {/* Model Viewer Component */}
       <model-viewer
         ref={modelViewerRef}
-        src="https://vr.kiraproject.id/models/product-sample.glb" // Ganti dengan path atau URL GLB kamu (misalnya: 'https://example.com/model.glb')
+        src="https://vr.kiraproject.id/models/product-sample.glb"
+        ios-src="https://vr.kiraproject.id/models/product-sample.usdz" // WAJIB untuk iOS
         alt="Model 3D AR"
-        auto-rotate
+        ar
+        ar-modes="webxr scene-viewer quick-look"
+        ar-scale="auto"
+        ar-placement="floor"
         camera-controls
-        ar // Aktifkan AR mode (menggunakan kamera belakang)
-        ar-modes="webxr scene-viewer quick-look" // Dukung WebXR (universal), Scene Viewer (Android), Quick Look (iOS)
-        ar-scale="auto" // Skala otomatis berdasarkan plane detection
+        auto-rotate
         shadow-intensity="1"
         exposure="1"
         style={{
           width: '100%',
           height: '100%',
-          backgroundColor: '#cccccc', // Background sementara saat loading
+          backgroundColor: '#f0f0f0',
         }}
-        // Event listener untuk AR ready (opsional)
-        onarstatuschange={(event) => {
-          console.log('AR Status:', event.detail.status);
-          if (event.detail.status === 'sessionStarted') {
-            console.log('AR dimulai! Arahkan kamera ke lantai kosong.');
-          }
-        }}
-      ></model-viewer>
+      >
+        {/* Optional: loading indicator */}
+        <div slot="poster" style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+          height: '100%',
+          background: '#ccc',
+          color: '#000',
+          fontSize: '18px',
+        }}>
+          Loading 3D Model...
+        </div>
+      </model-viewer>
     </div>
   );
 };
