@@ -1,8 +1,10 @@
+import { useRef, useState, useEffect } from 'react';
 import '@google/model-viewer';
-import { useRef, useEffect } from 'react';
 
 const App = () => {
   const modelViewerRef = useRef(null);
+  const [arSupported, setArSupported] = useState(false);
+  const [arStatus, setArStatus] = useState('unknown');
 
   const startAR = () => {
     if (modelViewerRef.current) {
@@ -14,71 +16,81 @@ const App = () => {
     const viewer = modelViewerRef.current;
     if (!viewer) return;
 
-    const handleStatus = (e) => {
+    // Cek support AR modes
+    if ('xr' in window.navigator || viewer.arModes?.includes('webxr')) {
+      setArSupported(true);
+    }
+
+    // Event listener untuk status
+    const handleARStatus = (e) => {
+      setArStatus(e.detail.status);
       console.log('AR Status:', e.detail.status);
-      if (e.detail.status === 'session-started') {
-        console.log('AR aktif! Arahkan ke lantai.');
+      if (e.detail.status === 'sessionStarted') {
+        console.log('AR dimulai!');
+      } else if (e.detail.status === 'notPresenting') {
+        // Fallback jika gagal
+        alert('AR tidak support di device ini. Gunakan mode 3D biasa atau coba di HP lain.');
       }
     };
+    viewer.addEventListener('ar-status', handleARStatus);
 
-    viewer.addEventListener('ar-status', handleStatus);
-    return () => viewer.removeEventListener('ar-status', handleStatus);
+    return () => viewer.removeEventListener('ar-status', handleARStatus);
   }, []);
 
   return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
-      <button
-        onClick={startAR}
-        style={{
-          position: 'absolute',
-          top: '20px',
-          left: '20px',
-          zIndex: 10,
-          padding: '12px 16px',
-          background: 'rgba(0, 0, 0, 0.8)',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          fontSize: '16px',
-          fontWeight: 'bold',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-        }}
-      >
-        Mulai AR
-      </button>
+      {arSupported ? (
+        <button
+          onClick={startAR}
+          disabled={arStatus !== 'unknown'}
+          style={{
+            position: 'absolute',
+            top: '20px',
+            left: '20px',
+            zIndex: 10,
+            padding: '12px 16px',
+            background: arStatus === 'sessionStarted' ? 'green' : 'rgba(0, 0, 0, 0.8)',
+            color: 'white',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '16px',
+            fontWeight: 'bold',
+          }}
+        >
+          {arStatus === 'sessionStarted' ? 'AR Aktif' : 'Mulai AR'}
+        </button>
+      ) : (
+        <div
+          style={{
+            position: 'absolute',
+            top: '20px',
+            left: '20px',
+            zIndex: 10,
+            padding: '12px 16px',
+            background: 'rgba(255, 0, 0, 0.8)',
+            color: 'white',
+            borderRadius: '8px',
+          }}
+        >
+          AR tidak support di HP ini. Gunakan mode 3D!
+        </div>
+      )}
 
       <model-viewer
         ref={modelViewerRef}
-        src="/box-sample.glb"
+        src="/astronaut.glb"
+        // ios-src="https://vr.kiraproject.id/models/product-sample.usdz"
         alt="Model 3D AR"
         ar
-        ar-modes="webxr scene-viewer quick-look"
+        ar-modes="webxr quick-look"  // Prioritas WebXR
         ar-scale="auto"
         ar-placement="floor"
         camera-controls
         auto-rotate
         shadow-intensity="1"
         exposure="1"
-        style={{
-          width: '100%',
-          height: '100%',
-          backgroundColor: '#f0f0f0',
-        }}
-      >
-        {/* Optional: loading indicator */}
-        <div slot="poster" style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          width: '100%',
-          height: '100%',
-          background: '#ccc',
-          color: '#000',
-          fontSize: '18px',
-        }}>
-          Loading 3D Model...
-        </div>
-      </model-viewer>
+        style={{ width: '100%', height: '100%', backgroundColor: '#f0f0f0' }}
+      />
     </div>
   );
 };
