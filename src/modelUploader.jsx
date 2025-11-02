@@ -1,14 +1,10 @@
-import { useState } from 'react';
 import { Upload } from 'lucide-react';
+import { useState } from 'react';
 
-interface ModelUploaderProps {
-  onModelSelect: (url: string) => void;
-}
+export default function ModelUploader({ onModelSelect }) {
+  const [selectedFile, setSelectedFile] = useState(null);
 
-export default function ModelUploader({ onModelSelect }: ModelUploaderProps) {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (event) => {
     const file = event.target.files?.[0];
     if (file && file.name.endsWith('.glb')) {
       setSelectedFile(file);
