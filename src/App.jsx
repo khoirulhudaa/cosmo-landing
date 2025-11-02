@@ -1,123 +1,66 @@
-import React, { useState, Suspense } from 'react';
-import { Canvas, useThree } from '@react-three/fiber';
-import { useGLTF } from '@react-three/drei';
-import { XR } from '@react-three/xr';
-import './App.css';
+import '@google/model-viewer'; // Import web component
+import { useRef } from 'react';
 
-function Model({ url, position }) {
-  const { scene } = useGLTF(url);
-  return <primitive object={scene} position={position} scale={0.5} />;
-}
+const App = () => {
+  const modelViewerRef = useRef(null);
 
-function ARScene() {
-  const [modelPosition, setModelPosition] = useState(null);
-  const { gl, camera } = useThree();
-
-  const handleSelect = (e) => {
-    const frame = e.target.getXRFrame();
-    if (!frame) return;
-
-    const referenceSpace = gl.xr.getReferenceSpace();
-    const hitTestSource = gl.xr.getHitTestSource();
-
-    if (hitTestSource) {
-      const hitTestResults = frame.getHitTestResults(hitTestSource);
-      if (hitTestResults.length > 0) {
-        const hit = hitTestResults[0];
-        const pose = hit.getPose(referenceSpace);
-        if (pose) {
-          setModelPosition([pose.transform.position.x, pose.transform.position.y, pose.transform.position.z]);
-        }
-      }
+  // Fungsi untuk memulai AR session (opsional, bisa dipanggil via button)
+  const startAR = () => {
+    if (modelViewerRef.current) {
+      modelViewerRef.current.activateAR();
     }
   };
 
   return (
-    <>
-      <XR
-        referenceSpace="local-floor"
-        onSessionStart={() => console.log('AR dimulai')}
-      >
-        <ambientLight intensity={0.6} />
-        <pointLight position={[5, 5, 5]} />
-
-        {modelPosition && (
-          <Model
-            url="/model.glb"
-            position={modelPosition}
-          />
-        )}
-
-        {/* Tap untuk tempatkan model */}
-        <mesh visible={false} onClick={handleSelect}>
-          <planeGeometry args={[100, 100]} />
-          <meshBasicMaterial transparent opacity={0} />
-        </mesh>
-      </XR>
-    </>
-  );
-}
-
-export default function App() {
-  const [arStarted, setArStarted] = useState(false);
-
-  return (
     <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
-      {!arStarted ? (
-        <div style={{
-          position: 'absolute', inset: 0,
-          display: 'flex', flexDirection: 'column',
-          justifyContent: 'center', alignItems: 'center',
-          background: '#000', color: '#fff', zIndex: 10
-        }}>
-          <h1>AR Viewer</h1>
-          <p>Arahkan ke lantai, lalu tap layar</p>
-          <button
-            onClick={async () => {
-              if (navigator.xr) {
-                try {
-                  await navigator.xr.requestSession('immersive-ar', {
-                    requiredFeatures: ['hit-test'],
-                    optionalFeatures: ['dom-overlay'],
-                    domOverlay: { root: document.body }
-                  });
-                  setArStarted(true);
-                } catch (err) {
-                  alert('AR gagal: ' + err.message);
-                }
-              } else {
-                alert('Browser tidak mendukung WebXR');
-              }
-            }}
-            style={{
-              padding: '12px 24px', fontSize: '18px',
-              background: '#007bff', color: 'white',
-              border: 'none', borderRadius: '8px', cursor: 'pointer'
-            }}
-          >
-            Mulai AR
-          </button>
-        </div>
-      ) : (
-        <Canvas xr style={{ position: 'absolute', top: 0, left: 0 }}>
-          <Suspense fallback={null}>
-            <ARScene />
-          </Suspense>
-        </Canvas>
-      )}
+      {/* Tombol untuk memulai AR */}
+      <button
+        onClick={startAR}
+        style={{
+          position: 'absolute',
+          top: '20px',
+          left: '20px',
+          zIndex: 10,
+          padding: '10px',
+          background: 'rgba(0, 0, 0, 0.7)',
+          color: 'white',
+          border: 'none',
+          borderRadius: '5px',
+        }}
+      >
+        Mulai AR
+      </button>
 
-      {arStarted && !modelPosition && (
-        <div style={{
-          position: 'absolute', bottom: 20, left: 20,
-          background: 'rgba(0,0,0,0.7)', color: 'white',
-          padding: '10px', borderRadius: '8px', fontSize: '14px'
-        }}>
-          Tap di lantai untuk letakkan model
-        </div>
-      )}
+      {/* Model Viewer Component */}
+      <model-viewer
+        ref={modelViewerRef}
+        src="https://vr.kiraproject.id/models/product-sample.glb" // Ganti dengan path atau URL GLB kamu (misalnya: 'https://example.com/model.glb')
+        alt="Model 3D AR"
+        auto-rotate
+        camera-controls
+        ar // Aktifkan AR mode (menggunakan kamera belakang)
+        ar-modes="webxr scene-viewer quick-look" // Dukung WebXR (universal), Scene Viewer (Android), Quick Look (iOS)
+        ar-scale="auto" // Skala otomatis berdasarkan plane detection
+        shadow-intensity="1"
+        exposure="1"
+        style={{
+          width: '100%',
+          height: '100%',
+          backgroundColor: '#cccccc', // Background sementara saat loading
+        }}
+        // Event listener untuk AR ready (opsional)
+        onarstatuschange={(event) => {
+          console.log('AR Status:', event.detail.status);
+          if (event.detail.status === 'sessionStarted') {
+            console.log('AR dimulai! Arahkan kamera ke lantai kosong.');
+          }
+        }}
+      ></model-viewer>
     </div>
   );
-}
+};
+
+export default App;
 
 
 // import { Box } from 'lucide-react';
