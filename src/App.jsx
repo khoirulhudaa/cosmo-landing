@@ -92,7 +92,7 @@ import { OrbitControls, useGLTF, Environment } from '@react-three/drei';
 import './App.css'; // Untuk styling video background
 
 function Model(props) {
-  const { scene } = useGLTF('https://vr.kiraproject.id/models/box-sample.glb'); // Ganti dengan path model GLB kamu
+  const { scene } = useGLTF('/box-sample.glb'); // Ganti dengan path model GLB kamu
   return <primitive object={scene} {...props} />;
 }
 
