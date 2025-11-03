@@ -9,56 +9,56 @@ const API_DATA = [
     name: "toilet",
     size: 6602832,
     sizeFormatted: "6.3 MB",
-    fullUrl: "http://vr.kiraproject.id/models/toilet.glb"
+    fullUrl: "https://vr.kiraproject.id/models/toilet.glb"
   },
   {
     filename: "shoe.glb",
     name: "shoe",
     size: 8947140,
     sizeFormatted: "8.53 MB",
-    fullUrl: "http://vr.kiraproject.id/models/shoe.glb"
+    fullUrl: "https://vr.kiraproject.id/models/shoe.glb"
   },
   {
     filename: "product-sample.glb",
     name: "product-sample",
     size: 6540,
     sizeFormatted: "6.39 KB",
-    fullUrl: "http://vr.kiraproject.id/models/product-sample.glb"
+    fullUrl: "https://vr.kiraproject.id/models/product-sample.glb"
   },
   {
     filename: "machine.glb",
     name: "machine",
     size: 27500964,
     sizeFormatted: "26.23 MB",
-    fullUrl: "http://vr.kiraproject.id/models/machine.glb"
+    fullUrl: "https://vr.kiraproject.id/models/machine.glb"
   },
   {
     filename: "box-sample.glb",
     name: "box-sample",
     size: 1664,
     sizeFormatted: "1.63 KB",
-    fullUrl: "http://vr.kiraproject.id/models/box-sample.glb"
+    fullUrl: "https://vr.kiraproject.id/models/box-sample.glb"
   },
   {
     filename: "astronaut.glb",
     name: "astronaut",
     size: 2869044,
     sizeFormatted: "2.74 MB",
-    fullUrl: "http://vr.kiraproject.id/models/astronaut.glb"
+    fullUrl: "https://vr.kiraproject.id/models/astronaut.glb"
   },
   {
     filename: "TissueCosmo.glb",
     name: "TissueCosmo",
     size: 70817700,
     sizeFormatted: "67.54 MB",
-    fullUrl: "http://vr.kiraproject.id/models/TissueCosmo.glb"
+    fullUrl: "https://vr.kiraproject.id/models/TissueCosmo.glb"
   },
   {
     filename: "BSP_TORRENS.glb",
     name: "BSP_TORRENS",
     size: 66046832,
     sizeFormatted: "62.99 MB",
-    fullUrl: "http://vr.kiraproject.id/models/BSP_TORRENS.glb"
+    fullUrl: "https://vr.kiraproject.id/models/BSP_TORRENS.glb"
   },
 ];
 
