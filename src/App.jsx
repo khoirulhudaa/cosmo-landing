@@ -307,7 +307,7 @@ export default function App() {
               </motion.div>
             </div>
             <h1 className="text-4xl md:text-7xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600">
-              AR VIEWER 3D
+              AR VIEWER COSMO
             </h1>
           </div>
 
@@ -326,7 +326,7 @@ export default function App() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3, duration: 0.6 }}
-          className="relative w-full md:max-w-2xl mx-auto z-10"
+          className="relative w-full md:mt-30 md:max-w-2xl mx-auto z-10"
         >
           <div className="md:p-8 shadow-2xl h-max">
             <ModelSelector onModelSelect={handleModelSelect} />
