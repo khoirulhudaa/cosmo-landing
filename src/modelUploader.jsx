@@ -666,7 +666,7 @@ export default function ModelSelector({ onModelSelect }) {
 
   return (
     <>
-      <div className="min-h-screen flex items-center justify-center md:mt-20 p-4 md:p-8">
+      <div className="md:min-h-screen flex items-center justify-center md:mt-20 px-4 md:p-8">
         <div 
           className="w-full md:w-7xl mx-auto"
           style={{ perspective: '1600px' }}

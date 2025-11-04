@@ -1,3 +1,18 @@
 {
-  "installCommand": "npm install --legacy-peer-deps"
+  "installCommand": "npm install --legacy-peer-deps",
+  "headers": [
+    {
+      "source": "/unity-build/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
+  "mimeTypes": {
+    ".unityweb": "application/octet-stream",
+    ".wasm": "application/wasm"
+  }
 }

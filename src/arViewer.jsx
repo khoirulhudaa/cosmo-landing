@@ -332,7 +332,7 @@ export default function ARViewer({ modelUrl, model, onBack }) {
         </div>
       </model-viewer>
       {/* === DESKRIPSI KIRI & KANAN - 3D PERSPEKTIF + GARIS DEKORASI TETAP === */}
-      <div className="w-[94vw] mx-auto absolute inset-0 flex items-center justify-center px-6 md:px-12 pointer-events-none z-40">
+      <div className="w-[94vw] mx-auto absolute inset-0 hidden md:flex items-center justify-center px-6 md:px-12 pointer-events-none z-40">
         <div className="relative w-full flex justify-between items-center perspective-1000">
 
           {/* KIRI - Fungsi (3D Card + Garis Biru & Merah) */}
@@ -500,10 +500,13 @@ export default function ARViewer({ modelUrl, model, onBack }) {
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-md py-1.5 px-3">
                 <Zap className="w-4 h-4 text-cyan-400 animate-pulse" />
-                <span className="text-white font-medium text-xs md:text-sm">
+                <span className="md:flex hidden text-white font-medium text-xs md:text-sm">
                   {isARActive ? 'AR Mode Aktif' : 'Preview 3D'}
                 </span>
-                <span className="text-white font-medium text-xs md:text-sm truncate max-w-[140px]">
+                <span className="flex md:hidden text-white font-medium text-xs md:text-sm">
+                  {isARActive ? 'AR Mode Aktif' : 'Preview'}
+                </span>
+                <span className="md:flex hidden text-white font-medium text-xs md:text-sm truncate max-w-[140px]">
                   {model?.name ? formatName(model.name) : 'Model 3D'}
                 </span>
               </div>
@@ -523,8 +526,8 @@ export default function ARViewer({ modelUrl, model, onBack }) {
                       <Camera className="w-3.5 h-3.5" /> <span className="hidden md:inline">Keluar AR</span>
                     </motion.button>
                   ) : (
-                    <motion.button key="start" initial={{ y: 10 }} animate={{ y: 0 }} onClick={startAR} className="cursor-pointer hover:scale-103 hover:brightness-95 bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-2 px-4 rounded-full text-xs md:text-sm flex items-center gap-1.5">
-                      <Box className="w-3.5 h-3.5" /> <span className="hidden md:inline">Masuk AR</span>
+                    <motion.button key="start" initial={{ y: 10 }} animate={{ y: 0 }} onClick={startAR} className="h-[40px] w-[40px] md:w-max cursor-pointer hover:scale-103 hover:brightness-95 bg-gradient-to-r from-cyan-500 to-blue-600 text-white md:py-2 md:px-4 justify-center rounded-full text-xs md:text-sm flex items-center gap-1.5">
+                      <Box className="w-4 md:w-3.5 h-4 md:h-3.5" /> <span className="hidden md:inline">Masuk AR</span>
                     </motion.button>
                   )}
                 </AnimatePresence>

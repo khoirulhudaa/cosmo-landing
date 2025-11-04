@@ -251,7 +251,7 @@ export default function App() {
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-cyan-950 to-slate-950 text-white">
       
       <div className='w-screen flex justify-center items-center'>
-        <div className='fixed bg-white/14 w-max px-20 h-[16vh] flex flex-col items-center backdrop-blur-xl justify-center bottom-4 rounded-3xl shadow-xl z-[2333] mt-12 text-center flex items-center'>
+        <div className='fixed bg-white/14 w-max px-20 h-[16vh] flex flex-col items-center backdrop-blur-xl justify-center bottom-0 md:bottom-4 rounded-3xl shadow-xl z-[2333] mt-12 text-center flex items-center'>
           {/* Tombol AR Unity */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -333,7 +333,7 @@ export default function App() {
           transition={{ delay: 0.3, duration: 0.6 }}
           className="relative w-full md:max-w-2xl mx-auto z-10"
         >
-          <div className="p-4 md:p-8 h-max">
+          <div className="p-0 md:p-8 h-max">
             <ModelSelector onModelSelect={handleModelSelect} />
           </div>
         </motion.div>
@@ -377,7 +377,7 @@ export default function App() {
           className="mt-20 text-center"
         >
           <p className="text-sm text-cyan-300/60 font-mono tracking-widest">
-            POWERED BY <span className="text-cyan-400">Cosmo AR</span> • <span className="text-pink-400">2025</span>
+            <span>AR</span>
           </p>
         </motion.div>
       </div>

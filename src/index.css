@@ -49,3 +49,7 @@ canvas {
   0%, 100% { opacity: 0.3; }
   50% { opacity: 0.9; }
 }
+
+::-webkit-scrollbar {
+  display: none;
+}
