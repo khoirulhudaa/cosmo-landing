@@ -1,0 +1,198 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+  <title>AR Loader</title>
+  <style>
+    body, html { margin: 0; padding: 0; overflow: hidden; background: #000; }
+    #unity-canvas { width: 100vw; height: 100vh; display: block; }
+    #loading { position: fixed; inset: 0; background: #111; color: #0ff;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      font-family: Arial; z-index: 999; }
+    .spinner { width: 60px; height: 60px; border: 6px solid #333;
+      border-top: 6px solid #0ff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div id="loading">
+    <div class="spinner"></div>
+    <div>Memuat AR... <span id="progress">0</span>%</div>
+  </div>
+  <canvas id="unity-canvas"></canvas>
+
+  <script>
+    const buildUrl = "/unity-build/Build";
+    const config = {
+      dataUrl: buildUrl + "/5e30b6e1da5853808344359921df6a0b.data.unityweb",
+      frameworkUrl: buildUrl + "/f52347dc2ab1959d1e759a6f582b4b30.js.unityweb",
+      codeUrl: buildUrl + "/73b6b973f99e58b13f9e27103060aa86.wasm.unityweb",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "DefaultCompany",
+      productName: "WebAR Product Cosmo",
+      productVersion: "0.1",
+    };
+
+    const canvas = document.getElementById("unity-canvas");
+    const loading = document.getElementById("loading");
+    const progressEl = document.getElementById("progress");
+
+    // Fungsi memulai Unity
+    function startUnity() {
+      const script = document.createElement("script");
+      script.src = buildUrl + "/Build1.loader.js";
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          progressEl.textContent = Math.round(progress * 100);
+        }).then((instance) => {
+          loading.style.display = "none";
+          window.unityInstance = instance;
+          window.parent.postMessage({ type: "UNITY_LOADED" }, "*");
+        }).catch((err) => {
+          alert("Gagal load AR: " + err.message);
+        });
+      };
+      document.body.appendChild(script);
+    }
+
+    // ✅ Urutan aman dan cepat
+    async function startAR() {
+      try {
+        // 1️⃣ Muat library Zappar CV
+        await new Promise((resolve, reject) => {
+          const zapparScript = document.createElement("script");
+          zapparScript.src = "https://libs.zappar.com/zappar-cv/2.1.3/zappar-cv.js";
+          zapparScript.onload = resolve;
+          zapparScript.onerror = () => reject(new Error("Gagal memuat Zappar CV"));
+          document.head.appendChild(zapparScript);
+        });
+
+        // 2️⃣ Minta izin kamera (otomatis belakang)
+        let stream;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { exact: "environment" } }
+          });
+        } catch {
+          // fallback ke depan jika environment tidak tersedia
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "user" }
+          });
+        }
+
+        // 3️⃣ Inisialisasi Zappar
+        const zappar = window.ZCV.initialize();
+        await zappar.permission_request_ui_promise();
+
+        // 4️⃣ Jalankan Unity setelah Zappar siap
+        const waitLoaded = () => {
+          if (zappar.loaded()) startUnity();
+          else setTimeout(waitLoaded, 100);
+        };
+        waitLoaded();
+
+      } catch (err) {
+        alert("Akses kamera ditolak atau tidak tersedia: " + err.message);
+        console.error(err);
+      }
+    }
+
+    window.addEventListener("load", startAR);
+  </script>
+</body>
+</html> -->
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+  <title>AR Loader</title>
+  <style>
+    body, html { margin: 0; padding: 0; overflow: hidden; background: #000; }
+    #unity-canvas { width: 100vw; height: 100vh; display: block; }
+    #loading { position: fixed; inset: 0; background: #111; color: #0ff;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      font-family: Arial; z-index: 999; }
+    .spinner { width: 60px; height: 60px; border: 6px solid #333;
+      border-top: 6px solid #0ff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div id="loading">
+    <div class="spinner"></div>
+    <div>Memuat AR... <span id="progress">0</span>%</div>
+  </div>
+  <canvas id="unity-canvas"></canvas>
+
+  <script>
+    const buildUrl = "/unity-build/Build";
+    const config = {
+      dataUrl: buildUrl + "/5e30b6e1da5853808344359921df6a0b.data.unityweb",
+      frameworkUrl: buildUrl + "/f52347dc2ab1959d1e759a6f582b4b30.js.unityweb",
+      codeUrl: buildUrl + "/73b6b973f99e58b13f9e27103060aa86.wasm.unityweb",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "DefaultCompany",
+      productName: "WebAR Product Cosmo",
+      productVersion: "0.1",
+    };
+
+    const canvas = document.getElementById("unity-canvas");
+    const loading = document.getElementById("loading");
+    const progressEl = document.getElementById("progress");
+
+    function startUnity() {
+      const script = document.createElement("script");
+      script.src = buildUrl + "/Build1.loader.js";
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          progressEl.textContent = Math.round(progress * 100);
+        }).then((instance) => {
+          loading.style.display = "none";
+          window.unityInstance = instance;
+          window.parent.postMessage({ type: "UNITY_LOADED" }, "*");
+        }).catch((err) => {
+          alert("Gagal load AR: " + err.message);
+        });
+      };
+      document.body.appendChild(script);
+    }
+
+    async function startAR() {
+      try {
+        // 1️⃣ Muat library Zappar CV
+        await new Promise((resolve, reject) => {
+          const zapparScript = document.createElement("script");
+          zapparScript.src = "https://libs.zappar.com/zappar-cv/2.1.3/zappar-cv.js";
+          zapparScript.onload = resolve;
+          zapparScript.onerror = () => reject(new Error("Gagal memuat Zappar CV"));
+          document.head.appendChild(zapparScript);
+        });
+
+        // 2️⃣ Inisialisasi Zappar dengan kamera belakang
+        const zappar = window.ZCV.initialize({ cameraFacing: "back" });
+
+        // 3️⃣ Minta izin kamera melalui Zappar (popup otomatis)
+        await zappar.permission_request_ui_promise();
+
+        // 4️⃣ Tunggu Zappar siap, lalu jalankan Unity
+        const waitLoaded = () => {
+          if (zappar.loaded()) startUnity();
+          else setTimeout(waitLoaded, 100);
+        };
+        waitLoaded();
+
+      } catch (err) {
+        alert("Akses kamera ditolak atau tidak tersedia: " + err.message);
+        console.error(err);
+      }
+    }
+
+    window.addEventListener("load", startAR);
+  </script>
+</body>
+</html>
