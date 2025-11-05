@@ -19,14 +19,25 @@
   const loading = document.getElementById('loading');
   const progressEl = document.getElementById('progress');
 
-  async function requestCamera() {
+  // ✅ Pastikan ZCV sudah ada
+  function waitForZCV() {
+    if (window.ZCV) {
+      startAR();
+    } else {
+      console.log("Menunggu Zappar CV...");
+      setTimeout(waitForZCV, 100);
+    }
+  }
+
+  async function startAR() {
     try {
-      // 🔸 Minta izin kamera — ini yang memicu popup bawaan browser
+      // ✅ Memicu popup izin kamera bawaan browser
       await navigator.mediaDevices.getUserMedia({ video: true });
 
-      // Setelah diizinkan, baru inisialisasi Zappar
+      // ✅ Baru inisialisasi Zappar
       window.zappar = ZCV.initialize();
       await window.zappar.permission_request_ui_promise();
+
       waitForZappar();
     } catch (err) {
       alert('Akses kamera ditolak atau tidak tersedia: ' + err.message);
@@ -58,6 +69,6 @@
     document.body.appendChild(script);
   }
 
-  // 🔹 Jalankan langsung saat halaman dimuat
-  window.addEventListener('load', requestCamera);
+  // 🔹 Jalankan hanya setelah halaman selesai dan ZCV siap
+  window.addEventListener('load', waitForZCV);
 </script>
