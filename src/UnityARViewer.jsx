@@ -135,12 +135,12 @@ export default function UnityARViewer({ onBack }) {
       />
 
       {/* Footer */}
-      <div className="absolute bottom-4 left-0 right-0 text-center px-4 z-10">
+      {/* <div className="absolute bottom-4 left-0 right-0 text-center px-4 z-10">
         <div className="inline-flex items-center gap-2 bg-black/50 backdrop-blur-md px-4 py-2 rounded-full text-xs text-cyan-300">
           <AlertCircle className="w-4 h-4" />
           <span>HP + Chrome + HTTPS + Izinkan Kamera</span>
         </div>
-      </div>
+      </div> */}
     </motion.div>
   );
 }
