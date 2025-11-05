@@ -93,6 +93,8 @@
 </body>
 </html> -->
 
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -113,23 +115,27 @@
       animation: spin 1s linear infinite; margin-bottom: 20px; 
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    #debug-btn {
-      position: fixed; top: 80px; right: 20px; z-index: 1000;
-      padding: 10px; background: #0ff; color: #000; border: none; border-radius: 8px;
+
+    /* Debug Info (hapus di produksi) */
+    #debug-info {
+      position: fixed; top: 10px; left: 10px; z-index: 1000;
+      background: rgba(0,0,0,0.7); color: #0ff; padding: 8px; border-radius: 6px;
+      font-size: 12px; font-family: monospace;
     }
   </style>
 </head>
 <body>
+  <!-- Loading -->
   <div id="loading">
     <div class="spinner"></div>
     <div>Memuat AR... <span id="progress">0</span>%</div>
-    <div style="margin-top:10px; font-size:12px; opacity:0.8;">Tunggu izin kamera...</div>
+    <div style="margin-top:10px; font-size:12px; opacity:0.8;">Izinkan kamera</div>
   </div>
 
-  <canvas id="unity-canvas"></canvas>
-  <video id="camera-feed" autoplay playsinline style="display:none;"></video>
+  <!-- Debug Info -->
+  <div id="debug-info">Memuat...</div>
 
-  <button id="debug-btn" onclick="retryCamera()">Coba Lagi</button>
+  <canvas id="unity-canvas"></canvas>
 
   <script>
     const buildUrl = "/unity-build/Build";
@@ -146,82 +152,54 @@
     const canvas = document.getElementById("unity-canvas");
     const loading = document.getElementById("loading");
     const progressEl = document.getElementById("progress");
-    const video = document.getElementById("camera-feed");
+    const debugInfo = document.getElementById("debug-info");
 
-    let stream = null;
-    let isFrontCamera = false;
-    let needsTextureFlip = false;
+    let needsTextureFlip = false; // Unity perlu flip texture?
 
-    // FUNGSI UTAMA: MINTA KAMERA DENGAN AUDIO
-    async function requestCamera() {
-      try {
-        // PAKAI VIDEO + AUDIO AGAR TIDAK TIMEOUT
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { ideal: 1280 }, height: { ideal: 720 } },
-          audio: true  // PENTING UNTUK ANDROID
-        });
-
-        video.srcObject = stream;
-        await video.play();
-
-        // Deteksi kamera
-        const track = stream.getVideoTracks()[0];
-        const settings = track.getSettings();
-        isFrontCamera = settings.facingMode === "user";
-        const isAndroid = /Android/i.test(navigator.userAgent);
-        needsTextureFlip = isAndroid && !isFrontCamera;
-
-        console.log("Kamera berhasil:", settings.facingMode);
-        return true;
-
-      } catch (err) {
-        console.error("Gagal akses kamera:", err);
-        alert("Gagal akses kamera: " + (err.message || "Timeout"));
-        return false;
-      }
-    }
-
-    // COBA LAGI (tombol)
-    window.retryCamera = async () => {
-      if (stream) stream.getTracks().forEach(t => t.stop());
-      document.getElementById('loading').style.display = 'flex';
-      await startAR();
-    };
-
-    // MULAI AR
-    async function startAR() {
-      try {
-        const success = await requestCamera();
-        if (!success) return;
-
-        // Load Zappar
-        await loadZappar();
-
-        // Tunggu Zappar siap
-        const zappar = window.ZCV.initialize();
-        await zappar.permission_request_ui_promise();
-
-        const check = () => {
-          if (zappar.loaded()) startUnity();
-          else setTimeout(check, 100);
-        };
-        check();
-
-      } catch (err) {
-        alert("Error: " + err.message);
-      }
-    }
-
-    function loadZappar() {
+    // === 1. LOAD ZAPPAR ===
+    async function loadZappar() {
       return new Promise((resolve, reject) => {
         const script = document.createElement("script");
         script.src = "https://libs.zappar.com/zappar-cv/2.1.3/zappar-cv.js";
         script.onload = resolve;
-        script.onerror = reject;
+        script.onerror = () => reject(new Error("Gagal load Zappar"));
         document.head.appendChild(script);
       });
     }
 
+    // === 2. REQUEST CAMERA + DETEKSI MIRRORING ===
+    async function requestCamera() {
+      const constraints = {
+        video: {
+          facingMode: "environment",  // PAKSA KAMERA BELAKANG
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        },
+        audio: true  // Penting untuk Android
+      };
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        const track = stream.getVideoTracks()[0];
+        const settings = track.getSettings();
+
+        const isAndroid = /Android/i.test(navigator.userAgent);
+        const isRearCamera = settings.facingMode === "environment";
+
+        // Unity di Android flip rear camera → kita balikkan di texture
+        needsTextureFlip = isAndroid && isRearCamera;
+
+        debugInfo.textContent = `Kamera: ${settings.facingMode} | Flip: ${needsTextureFlip ? 'YES' : 'NO'}`;
+
+        return true;
+      } catch (err) {
+        console.error("Kamera gagal:", err);
+        alert("Kamera gagal: " + err.message);
+        return false;
+      }
+    }
+
+    // === 3. START UNITY ===
     function startUnity() {
       const script = document.createElement("script");
       script.src = buildUrl + "/Build.loader.js";
@@ -232,9 +210,10 @@
           loading.style.display = "none";
           window.unityInstance = instance;
 
-          // Kirim ke Unity: perlu flip?
+          // KIRIM KE UNITY: apakah perlu flip texture?
           window.unityInstance.SendMessage('ARController', 'SetMirrorMode', needsTextureFlip ? 1 : 0);
 
+          // Beri tahu React
           window.parent.postMessage({ type: "UNITY_LOADED" }, "*");
         }).catch((err) => {
           alert("Gagal load Unity: " + err.message);
@@ -243,7 +222,37 @@
       document.body.appendChild(script);
     }
 
-    // MULAI
+    // === 4. MAIN FLOW ===
+    async function startAR() {
+      try {
+        // Load Zappar dulu
+        await loadZappar();
+
+        // Minta kamera + deteksi flip
+        const cameraOK = await requestCamera();
+        if (!cameraOK) return;
+
+        // Inisialisasi Zappar
+        const zappar = window.ZCV.initialize();
+        await zappar.permission_request_ui_promise();
+
+        // Tunggu Zappar siap
+        const wait = () => {
+          if (zappar.loaded()) {
+            startUnity();
+          } else {
+            setTimeout(wait, 100);
+          }
+        };
+        wait();
+
+      } catch (err) {
+        alert("Error: " + err.message);
+        console.error(err);
+      }
+    }
+
+    // === MULAI ===
     window.addEventListener("load", startAR);
   </script>
 </body>
