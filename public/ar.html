@@ -93,7 +93,6 @@
 </body>
 </html> -->
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -101,14 +100,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
   <title>AR Loader</title>
   <style>
-    body, html { 
-      margin: 0; padding: 0; overflow: hidden; background: #000; 
-      touch-action: none;
-    }
-    #unity-canvas { 
-      width: 100vw; height: 100vh; display: block; 
-      /* JANGAN PAKAI scaleX(-1) di sini! */
-    }
+    body, html { margin: 0; padding: 0; overflow: hidden; background: #000; }
+    #unity-canvas { width: 100vw; height: 100vh; display: block; }
     #loading { 
       position: fixed; inset: 0; background: #111; color: #0ff;
       display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -120,13 +113,9 @@
       animation: spin 1s linear infinite; margin-bottom: 20px; 
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Tombol debug (bisa dihapus di produksi) */
     #debug-btn {
       position: fixed; top: 80px; right: 20px; z-index: 1000;
-      padding: 10px 12px; background: #0ff; color: #000; 
-      border: none; border-radius: 8px; font-weight: bold;
-      font-size: 12px;
+      padding: 10px; background: #0ff; color: #000; border: none; border-radius: 8px;
     }
   </style>
 </head>
@@ -134,14 +123,13 @@
   <div id="loading">
     <div class="spinner"></div>
     <div>Memuat AR... <span id="progress">0</span>%</div>
-    <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">Izinkan kamera</div>
+    <div style="margin-top:10px; font-size:12px; opacity:0.8;">Tunggu izin kamera...</div>
   </div>
 
   <canvas id="unity-canvas"></canvas>
-  <video id="camera-feed" autoplay playsinline style="display: none;"></video>
+  <video id="camera-feed" autoplay playsinline style="display:none;"></video>
 
-  <!-- Tombol debug: Flip Manual -->
-  <button id="debug-btn" onclick="toggleManualFlip()">Flip</button>
+  <button id="debug-btn" onclick="retryCamera()">Coba Lagi</button>
 
   <script>
     const buildUrl = "/unity-build/Build";
@@ -162,44 +150,65 @@
 
     let stream = null;
     let isFrontCamera = false;
-    let needsTextureFlip = false; // Unity perlu flip texture?
-    let manualFlip = false;
+    let needsTextureFlip = false;
 
-    // --- FUNGSI UTAMA ---
-    async function startAR() {
+    // FUNGSI UTAMA: MINTA KAMERA DENGAN AUDIO
+    async function requestCamera() {
       try {
-        // 1. Minta akses kamera BELAKANG
+        // PAKAI VIDEO + AUDIO AGAR TIDAK TIMEOUT
         stream = await navigator.mediaDevices.getUserMedia({
-          video: {
-            facingMode: "environment",  // PAKSA BELAKANG
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
-          }
+          video: { width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: true  // PENTING UNTUK ANDROID
         });
 
         video.srcObject = stream;
         await video.play();
 
-        // 2. Deteksi: Android + rear camera → Unity flip otomatis
-        const isAndroid = /Android/i.test(navigator.userAgent);
+        // Deteksi kamera
         const track = stream.getVideoTracks()[0];
         const settings = track.getSettings();
         isFrontCamera = settings.facingMode === "user";
-
-        // Logika flip:
-        // - Android + rear camera → Unity flip X → kita balikkan di texture
-        // - iOS / depan → biarkan seperti cermin
+        const isAndroid = /Android/i.test(navigator.userAgent);
         needsTextureFlip = isAndroid && !isFrontCamera;
 
-        // 3. Load Zappar CV
-        await loadZappar();
-
-        // 4. Tunggu Zappar siap → jalankan Unity
-        waitForZapparAndStartUnity();
+        console.log("Kamera berhasil:", settings.facingMode);
+        return true;
 
       } catch (err) {
-        alert("Akses kamera ditolak: " + err.message);
-        console.error(err);
+        console.error("Gagal akses kamera:", err);
+        alert("Gagal akses kamera: " + (err.message || "Timeout"));
+        return false;
+      }
+    }
+
+    // COBA LAGI (tombol)
+    window.retryCamera = async () => {
+      if (stream) stream.getTracks().forEach(t => t.stop());
+      document.getElementById('loading').style.display = 'flex';
+      await startAR();
+    };
+
+    // MULAI AR
+    async function startAR() {
+      try {
+        const success = await requestCamera();
+        if (!success) return;
+
+        // Load Zappar
+        await loadZappar();
+
+        // Tunggu Zappar siap
+        const zappar = window.ZCV.initialize();
+        await zappar.permission_request_ui_promise();
+
+        const check = () => {
+          if (zappar.loaded()) startUnity();
+          else setTimeout(check, 100);
+        };
+        check();
+
+      } catch (err) {
+        alert("Error: " + err.message);
       }
     }
 
@@ -208,22 +217,8 @@
         const script = document.createElement("script");
         script.src = "https://libs.zappar.com/zappar-cv/2.1.3/zappar-cv.js";
         script.onload = resolve;
-        script.onerror = () => reject(new Error("Gagal load Zappar"));
+        script.onerror = reject;
         document.head.appendChild(script);
-      });
-    }
-
-    function waitForZapparAndStartUnity() {
-      const zappar = window.ZCV.initialize();
-      zappar.permission_request_ui_promise().then(() => {
-        const check = () => {
-          if (zappar.loaded()) {
-            startUnity();
-          } else {
-            setTimeout(check, 100);
-          }
-        };
-        check();
       });
     }
 
@@ -237,10 +232,9 @@
           loading.style.display = "none";
           window.unityInstance = instance;
 
-          // Kirim ke Unity: apakah perlu flip texture?
+          // Kirim ke Unity: perlu flip?
           window.unityInstance.SendMessage('ARController', 'SetMirrorMode', needsTextureFlip ? 1 : 0);
 
-          // Kirim event loaded ke parent (React)
           window.parent.postMessage({ type: "UNITY_LOADED" }, "*");
         }).catch((err) => {
           alert("Gagal load Unity: " + err.message);
@@ -249,15 +243,7 @@
       document.body.appendChild(script);
     }
 
-    // --- FITUR TAMBAHAN: FLIP MANUAL (DEBUG) ---
-    function toggleManualFlip() {
-      manualFlip = !manualFlip;
-      const scale = manualFlip ? -1 : 1;
-      canvas.style.transform = `scaleX(${scale})`;
-      document.getElementById('debug-btn').textContent = manualFlip ? 'Unflip' : 'Flip';
-    }
-
-    // --- MULAI ---
+    // MULAI
     window.addEventListener("load", startAR);
   </script>
 </body>
