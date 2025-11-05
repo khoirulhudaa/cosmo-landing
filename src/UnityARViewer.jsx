@@ -1,6 +1,6 @@
 // src/UnityARViewer.jsx
 import { motion } from 'framer-motion';
-import { AlertCircle, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 export default function UnityARViewer({ onBack }) {

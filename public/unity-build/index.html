@@ -1,6 +1,4 @@
-<!-- Zappar WebGL template for Unity 2020 and above versions -->
-<!-- NFYNT -->
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en-us">
 
 <head>
@@ -146,9 +144,7 @@
             companyName: "DefaultCompany",
             productName: "WebAR Product Cosmo",
             productVersion: "0.1",
-        //Useful when used along with Filename as Hashes option
             cacheControl: function (url) {
-            // typically includes: .data, .bundle, .zpt
             if (url.match(/\.data/) || url.match(/\.bundle/) || url.match(/\.zpt/)) {
              return "immutable";
 }
@@ -156,8 +152,6 @@
             if (url.match(/\.mp4/) || url.match(/\.custom/) || url.match(/\.zbin/)) {
                 return "immutable";
             }   
-            // Disable explicit caching for all other files.
-            // Note: the default browser cache may cache them anyway.
             return "no-store";
             },
         };
@@ -171,8 +165,6 @@
 
         if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
             container.className = "unity-mobile";
-            //config.matchWebGLToCanvasSize = false;    
-            //set devicePixelRatio=1; to avoid draining fillrate performance on mobile and override low DPI mode
             config.devicePixelRatio = window.devicePixelRatio;
         }
         loadingCover.style.display = "";
@@ -181,7 +173,6 @@
 
         const script = document.createElement("script");
         script.src = loaderUrl;
-        //script.onload = () => { CreateUnityLoader();   };
         document.body.appendChild(script);
 
         window.zappar.permission_request_ui_promise().then(WaitForZCVLoad);
@@ -210,4 +201,127 @@
     </script>
 </body>
 
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
+  <title>AR Image Tracking</title>
+  <style>
+    body, html { margin: 0; padding: 0; overflow: hidden; background: #000; }
+    #unity-canvas { width: 100vw; height: 100vh; display: block; }
+    #loading { position: fixed; inset: 0; background: #111; color: #0ff;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      font-family: Arial; z-index: 999; }
+    .spinner { width: 60px; height: 60px; border: 6px solid #333;
+      border-top: 6px solid #0ff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div id="loading">
+    <div class="spinner"></div>
+    <div>Memuat AR... <span id="progress">0</span>%</div>
+    <div style="margin-top: 10px; font-size: 14px; color: #0af;">
+      Arahkan ke <strong>COSMO 1417-02 marker</strong>
+    </div>
+  </div>
+  <canvas id="unity-canvas"></canvas>
+
+  <script>
+    // AMBIL DARI StreamingAssets — PATH YANG BENAR!
+    const ZPT_URL = "/unity-build/StreamingAssets/COSMO 1417-02 marker.zpt";
+
+    const buildUrl = "/unity-build/Build";
+    const config = {
+      dataUrl: buildUrl + "/3dfc59c974755dee151d250cb020d8bd.data.unityweb",
+      frameworkUrl: buildUrl + "/f52347dc2ab1959d1e759a6f582b4b30.js.unityweb",
+      codeUrl: buildUrl + "/73b6b973f99e58b13f9e27103060aa86.wasm.unityweb",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "DefaultCompany",
+      productName: "WebAR COSMO",
+      productVersion: "1.0",
+    };
+
+    const canvas = document.getElementById("unity-canvas");
+    const loading = document.getElementById("loading");
+    const progressEl = document.getElementById("progress");
+
+    let unityInstance = null;
+    let unityStarted = false;
+
+    // Mulai Unity
+    function startUnity() {
+      if (unityStarted) return;
+      unityStarted = true;
+
+      const script = document.createElement("script");
+      script.src = buildUrl + "/Build.loader.js";
+      script.onload = () => {
+        createUnityInstance(canvas, config, (progress) => {
+          progressEl.textContent = Math.round(progress * 100);
+        }).then((instance) => {
+          unityInstance = instance;
+          loading.style.display = "none";
+          window.parent.postMessage({ type: "UNITY_LOADED" }, "*");
+        }).catch((err) => {
+          alert("Gagal load Unity: " + err.message);
+        });
+      };
+      document.body.appendChild(script);
+    }
+
+    // Image Tracking — AMBIL DARI ZPT_URL
+    async function startImageTracking() {
+      try {
+        // 1. Load Zappar CV
+        await new Promise((resolve, reject) => {
+          if (window.ZCV) return resolve();
+          const script = document.createElement("script");
+          script.src = "https://libs.zappar.com/zappar-cv/2.1.3/zappar-cv.js";
+          script.onload = resolve;
+          script.onerror = () => reject(new Error("Gagal load Zappar CV"));
+          document.head.appendChild(script);
+        });
+
+        // 2. Minta izin kamera
+        await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+
+        // 3. Load .zpt dari StreamingAssets
+        console.log("Loading target dari:", ZPT_URL);
+        const tracker = window.ZCV.image_tracker(ZPT_URL);
+        await tracker.load();
+
+        console.log("Target berhasil dimuat!");
+
+        // 4. Saat target terlihat
+        tracker.on_visible(() => {
+          console.log("Target terdeteksi!");
+          if (!unityStarted) startUnity();
+          setTimeout(() => {
+            if (unityInstance) {
+              unityInstance.SendMessage('ARController', 'OnTargetFound');
+            }
+          }, 300);
+        });
+
+        tracker.on_not_visible(() => {
+          if (unityInstance) {
+            unityInstance.SendMessage('ARController', 'OnTargetLost');
+          }
+        });
+
+      } catch (err) {
+        alert("Gagal load target: " + err.message + "\nCek URL: " + ZPT_URL);
+        console.error(err);
+      }
+    }
+
+    // Jalankan
+    window.addEventListener("load", startImageTracking);
+  </script>
+</body>
 </html>
