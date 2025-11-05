@@ -25,7 +25,7 @@
   <script>
     const buildUrl = "/unity-build/Build";
     const config = {
-      dataUrl: buildUrl + "/5e30b6e1da5853808344359921df6a0b.data.unityweb",
+      dataUrl: buildUrl + "/3dfc59c974755dee151d250cb020d8bd.data.unityweb",
       frameworkUrl: buildUrl + "/f52347dc2ab1959d1e759a6f582b4b30.js.unityweb",
       codeUrl: buildUrl + "/73b6b973f99e58b13f9e27103060aa86.wasm.unityweb",
       streamingAssetsUrl: "StreamingAssets",
@@ -41,7 +41,7 @@
     // Fungsi memulai Unity
     function startUnity() {
       const script = document.createElement("script");
-      script.src = buildUrl + "/Build1.loader.js";
+      script.src = buildUrl + "/Build.loader.js";
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
           progressEl.textContent = Math.round(progress * 100);
