@@ -104,13 +104,12 @@
 </body>
 </html> -->
 
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>WebAR - getUserMedia + Zappar</title>
+  <title>WebAR Cosmo - v6.0</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body, html { width: 100%; height: 100%; overflow: hidden; background: #000; }
@@ -133,11 +132,7 @@
     }
     #fallback.show { display: flex; }
 
-    .btn {
-      background: rgba(0,255,255,0.2); color: #0ff; border: 2px solid #0ff;
-      padding: 12px 20px; border-radius: 50px; font-size: 15px; cursor: pointer;
-      backdrop-filter: blur(10px); transition: 0.3s;
-    }
+    .btn { background: rgba(0,255,255,0.2); color: #0ff; border: 2px solid #0ff; padding: 12px 20px; border-radius: 50px; font-size: 15px; cursor: pointer; backdrop-filter: blur(10px); transition: 0.3s; }
     .btn:hover { background: #0ff; color: #000; }
 
     #hint {
@@ -169,7 +164,7 @@
 
   <div id="fallback">
     <h2>AR Gagal</h2>
-    <p id="fallback-msg">Izinkan akses kamera untuk melanjutkan.</p>
+    <p id="fallback-msg">Lihat debug.</p>
     <button class="btn" onclick="restartAR()">Coba Lagi</button>
   </div>
 
@@ -178,17 +173,16 @@
 
   <div id="hint">
     <svg class="icon" viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 3.5L18.3 20H5.7L12 5.5z"/></svg>
-    <span>Arahkan kamera ke gambar target</span>
+    <span>Arahkan ke gambar target</span>
   </div>
 
   <div id="debug"></div>
-
-  <script src="https://libs.zappar.com/zappar-threejs/2.1.3/zappar-threejs.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.130.0/build/three.min.js"></script>
+  <script src="https://libs.zappar.com/zappar-threejs/2.4.6/zappar-threejs.js"></script>
 
   <script>
-    // ================= CONFIG =================
     const BUILD_PATH = "/unity-build/Build";
-    const TARGET_IMAGE = "/unity-build/Build/StreamingAssets/COSMO 1417-02 marker.zpt";
+    const TARGET_IMAGE = "cosmo-marker.zpt";  // DI public/
 
     const UNITY_CONFIG = {
       dataUrl: BUILD_PATH + "/3dfc59c974755dee151d250cb020d8bd.data.unityweb",
@@ -200,7 +194,6 @@
       productVersion: "0.1",
     };
 
-    // ================= DOM & DEBUG =================
     const progressEl = document.getElementById("progress");
     const loading = document.getElementById("loading");
     const fallback = document.getElementById("fallback");
@@ -214,8 +207,7 @@
 
     const log = (msg, type = "info") => {
       const time = new Date().toLocaleTimeString();
-      const line = `<div class="${type}"><small>${time}</small> ${msg}</div>`;
-      debug.innerHTML += line;
+      debug.innerHTML += `<div class="${type}"><small>${time}</small> ${msg}</div>`;
       debug.scrollTop = debug.scrollHeight;
       console.log(`[AR] ${msg}`);
     };
@@ -229,40 +221,104 @@
       if (success) setTimeout(() => hint.classList.remove("show"), 2000);
     };
 
-    // ================= IZIN KAMERA DENGAN getUserMedia =================
-    const requestCameraPermission = async () => {
-      log("Minta izin kamera via getUserMedia...", "info");
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "environment" } // belakang
-        });
-        log("Izin kamera DIIZINKAN!", "success");
-        return stream;
-      } catch (err) {
-        log("Izin kamera DITOLAK: " + err.message, "error");
-        throw new Error("Izin kamera ditolak. Izinkan akses kamera.");
+    const showFallback = (msg) => {
+      log("ERROR: " + msg, "error");
+      fallbackMsg.innerHTML = msg.replace(/\n/g, '<br>');
+      fallback.classList.add("show");
+      loading.style.display = "none";
+    };
+
+    // CEK FILE DENGAN RETRY + TIMEOUT
+    const checkZptFile = async () => {
+      log(`Cek file: ${TARGET_IMAGE}`, "info");
+      const maxRetries = 3;
+      for (let i = 0; i < maxRetries; i++) {
+        try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 5000);
+          const res = await fetch(TARGET_IMAGE, { 
+            method: 'GET', 
+            signal: controller.signal,
+            cache: 'no-cache'
+          });
+          clearTimeout(timeout);
+          if (res.ok) {
+            log("File .zpt ditemukan!", "success");
+            return true;
+          }
+        } catch (err) {
+          log(`Coba lagi (${i + 1}/${maxRetries})...`, "warn");
+          if (i === maxRetries - 1) {
+            throw new Error(
+              `Gagal akses ${TARGET_IMAGE}\n\n` +
+              `TAPI file bisa di-download!\n` +
+              `Cek: http://localhost:5173/cosmo-marker.zpt\n\n` +
+              `Coba: Incognito / Matikan cache`
+            );
+          }
+          await new Promise(r => setTimeout(r, 500));
+        }
       }
     };
 
-    // ================= SETUP ZAPPAR DENGAN STREAM =================
-    const setupZappar = async (videoStream) => {
-      log("Setup Zappar dengan stream...", "info");
+    // const requestCamera = async () => {
+    //   log("Minta izin kamera...", "info");
+    //   stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+    //   log("Kamera AKTIF!", "success");
+    //   return stream;
+    // };
 
-      const manager = ZapparThree.cameraManager();
-      manager.setVideoElement(videoStream.getVideoTracks()[0]);
-      manager.start();
+    const waitForZappar = () => {
+      return new Promise((resolve) => {
+        if (typeof ZapparThree !== "undefined") {
+          log("ZapparThree READY!", "success");
+          resolve();
+        } else {
+          log("Menunggu ZapparThree...", "info");
+          setTimeout(() => waitForZappar().then(resolve), 100);
+        }
+      });
+    };
 
-      three = new ZapparThree.ThreeScene();
-      three.camera = manager.camera;
-      three.renderer.setSize(innerWidth, innerHeight);
-      document.getElementById("three-canvas").width = innerWidth;
-      document.getElementById("three-canvas").height = innerHeight;
-      document.body.appendChild(three.renderer.domElement);
+   const setupZappar = async () => {
+      log("Setup Zappar...", "info");
+      await checkZptFile();
+      await waitForZappar();
 
+      // Akses kamera
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+      log("Kamera diakses via Zappar", "success");
+
+      const camera = new ZapparThree.Camera();
+      camera.userCameraMirrorMode = ZapparThree.CameraMirrorMode.Poses;
+
+      if (!three?.renderer) throw new Error("Three.js renderer belum dibuat!");
+
+      // Hubungkan WebGL
+      ZapparThree.glContextSet(three.renderer.getContext());
+
+      // Start kamera
+      camera.start(false);
+      three.camera = camera;
+      three.scene.background = camera.backgroundTexture;
+
+      // Load tracker
       const loader = new ZapparThree.ImageTrackerLoader();
-      const tracker = await loader.load(TARGET_IMAGE);
+      log("Loading .zpt...", "info");
+      let tracker;
+      try {
+        tracker = await loader.load(TARGET_IMAGE);
+      } catch (err) {
+        throw new Error("Gagal load .zpt → File rusak!");
+      }
+
       const imageTracker = new ZapparThree.ImageTracker(tracker);
-      three.scene.add(imageTracker.group);
+      if (imageTracker.group) {
+        three.scene.add(imageTracker.group);
+        log("Tracker group ditambahkan", "success");
+      } else {
+        log("Tracker group NULL", "error");
+      }
 
       imageTracker.onVisible.bind(() => {
         log("TARGET TERDETEKSI!", "success");
@@ -274,21 +330,16 @@
         showHint("Arahkan ke gambar target");
       });
 
-      log("Zappar SIAP!", "success");
+      log("Zappar v2+ SIAP SEBELUM UNITY!", "success");
     };
 
-    // ================= LOAD UNITY =================
-    const loadUnity = () => {
+const loadUnity = () => {
       return new Promise((resolve, reject) => {
-        log("Load Unity WebGL...", "info");
+        log("Load Unity...", "info");
         const script = document.createElement("script");
         script.src = BUILD_PATH + "/Build.loader.js";
-
         script.onload = () => {
-          if (typeof createUnityInstance === "undefined") {
-            return reject(new Error("createUnityInstance tidak ada"));
-          }
-
+          if (typeof createUnityInstance === "undefined") return reject(new Error("createUnityInstance tidak ada"));
           createUnityInstance(document.getElementById("unity-canvas"), UNITY_CONFIG, (p) => {
             progressEl.textContent = Math.round(p * 100);
           }).then(instance => {
@@ -297,55 +348,68 @@
             resolve();
           }).catch(reject);
         };
-
         script.onerror = () => reject(new Error("Gagal load Build.loader.js"));
         document.body.appendChild(script);
       });
     };
 
-    // ================= START AR =================
-    const startAR = async () => {
-      debug.innerHTML = "";
-      log("=== MULAI WEBAR ===", "warn");
+    let hasPermission = false;
 
-      try {
-        loading.style.display = "flex";
+   const startAR = async () => {
+  debug.innerHTML = "";
+  log("=== v6.5 START ===", "warn");
 
-        // 1. Izin kamera via getUserMedia
-        const videoStream = await requestCameraPermission();
+  try {
+    loading.style.display = "flex";
 
-        // 2. Setup Zappar
-        await setupZappar(videoStream);
+    // 1. BUAT THREE.JS
+    const threeScene = new THREE.Scene();
+    const threeRenderer = new THREE.WebGLRenderer({
+      canvas: document.getElementById("three-canvas"),
+      antialias: true,
+      alpha: true,
+      preserveDrawingBuffer: true
+    });
+    threeRenderer.setSize(innerWidth, innerHeight);
+    threeRenderer.setPixelRatio(window.devicePixelRatio);
+    three = { scene: threeScene, renderer: threeRenderer, camera: null };
 
-        // 3. Load Unity
-        await loadUnity();
+    // 2. SETUP ZAPPAR DULU (SEBELUM UNITY!)
+    await setupZappar(); // ← KUNCI UTAMA
+    log("Zappar SIAP 100% sebelum Unity!", "success");
 
-        // 4. Sembunyikan loading
-        loading.style.opacity = "0";
-        setTimeout(() => {
-          loading.style.display = "none";
-          showHint("Arahkan ke gambar target");
-          log("AR SIAP!", "success");
-        }, 600);
+    // 3. BARU LOAD UNITY (sekarang aman)
+    await loadUnity();
 
-        // 5. Render loop
-        const animate = () => {
-          requestAnimationFrame(animate);
-          three?.update();
-        };
-        animate();
+    // 4. Minta izin kamera (setelah Zappar & Unity siap)
+    await ZapparThree.permissionRequestUI();
+    await new Promise(r => setTimeout(r, 500)); // beri waktu sync
+    log("Izin diberikan", "success");
 
-      } catch (err) {
-        showFallback(err.message);
-      }
-    };
-
-    const showFallback = (msg) => {
-      log("ERROR: " + msg, "error");
-      fallbackMsg.textContent = msg;
-      fallback.classList.add("show");
+    // 5. Sembunyikan loading
+    loading.style.opacity = "0";
+    setTimeout(() => {
       loading.style.display = "none";
+      showHint("Arahkan ke gambar target");
+      log("AR SIAP PAKAI!", "success");
+    }, 600);
+
+    // 6. Render loop
+    const animate = () => {
+      requestAnimationFrame(animate);
+      if (three.camera) {
+        three.camera.updateFrame(three.renderer);
+      }
+      three.renderer.autoClear = false;
+      three.renderer.clearDepth();
+      three.renderer.render(three.scene, three.camera);
     };
+    animate();
+
+  } catch (err) {
+    showFallback(err.message || "Gagal memulai AR");
+  }
+};
 
     window.restartAR = () => {
       if (stream) stream.getTracks().forEach(t => t.stop());

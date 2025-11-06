@@ -919,7 +919,7 @@ export default function App() {
               </motion.div>
             </div>
             <h1 className="text-4xl md:text-7xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600">
-              AR VIEWER COSMO NEW
+              AR VIEWER COSMO
             </h1>
           </div>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-sm md:text-xl text-cyan-200 font-light max-w-3xl mx-auto">

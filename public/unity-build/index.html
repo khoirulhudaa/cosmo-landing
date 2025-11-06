@@ -1,215 +1,9 @@
 <!-- <!DOCTYPE html>
-<html lang="en-us">
-
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <link rel="shortcut icon" href="favicon.ico">
-    <title>WebAR Product Cosmo</title>
-    <style>
-        html {
-            box-sizing: border-box;
-        }
-
-        *,
-        *:before,
-        *:after {
-            box-sizing: inherit;
-        }
-
-        html,
-        body {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-        }
-
-        canvas {
-            display: block;
-        }
-
-        body {
-            margin: 0;
-        }
-
-        #unity-container {
-            width: 100%;
-            height: 100%;
-        }
-
-        #unity-canvas {
-            width: 100%;
-            height: 100%;
-
-            background: #231F20;
-        }
-
-        #loading-cover {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        #unity-loading-bar {
-            flex: 1 1 auto;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        #unity-progress-bar-empty {
-            width: 80%;
-            height: 24px;
-            margin: 10px 20px 20px 10px;
-            text-align: left;
-            border: 1px solid white;
-            padding: 2px;
-        }
-
-        #unity-progress-bar-full {
-            width: 0%;
-            height: 100%;
-            background: white;
-        }
-
-        .light #unity-progress-bar-empty {
-            border-color: black;
-        }
-
-        .light #unity-progress-bar-full {
-            background: black;
-        }
-
-        .spinner,
-        .spinner:after {
-            border-radius: 50%;
-            width: 5em;
-            height: 5em;
-        }
-
-        .spinner {
-            margin: 10px;
-            font-size: 10px;
-            position: relative;
-            text-indent: -9999em;
-            border-top: 1.1em solid rgba(255, 255, 255, 0.2);
-            border-right: 1.1em solid rgba(255, 255, 255, 0.2);
-            border-bottom: 1.1em solid rgba(255, 255, 255, 0.2);
-            border-left: 1.1em solid #ffffff;
-            transform: translateZ(0);
-            animation: spinner-spin 1.1s infinite linear;
-        }
-
-        @keyframes spinner-spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-    </style>
-</head>
-
-<body class="dark">
-    <div id="unity-container" class="unity-desktop">
-        <canvas id="unity-canvas"></canvas>
-    </div>
-    <div id="loading-cover" style="display:none;">
-        <div id="unity-loading-bar">
-            <div id="unity-progress-bar-empty" style="display: none;">
-                <div id="unity-progress-bar-full"></div>
-            </div>
-            <div class="spinner"></div>
-        </div>
-    </div>
-    <script type="text/javascript" src="https://libs.zappar.com/zappar-cv/2.1.3/zappar-cv.js"></script>
-    <script>
-        var db = indexedDB.open("dummy_indexdb", 1); // iOS 14.6 fix; the call to open indexdb hangs forever otherwise
-
-        const buildUrl = "Build";
-        const loaderUrl = buildUrl + "/Build.loader.js";
-        const config = {
-            dataUrl: buildUrl + "/3dfc59c974755dee151d250cb020d8bd.data.unityweb",
-            frameworkUrl: buildUrl + "/f52347dc2ab1959d1e759a6f582b4b30.js.unityweb",
-            codeUrl: buildUrl + "/73b6b973f99e58b13f9e27103060aa86.wasm.unityweb",
-            streamingAssetsUrl: "StreamingAssets",
-            companyName: "DefaultCompany",
-            productName: "WebAR Product Cosmo",
-            productVersion: "0.1",
-            cacheControl: function (url) {
-            if (url.match(/\.data/) || url.match(/\.bundle/) || url.match(/\.zpt/)) {
-             return "immutable";
-}
-   
-            if (url.match(/\.mp4/) || url.match(/\.custom/) || url.match(/\.zbin/)) {
-                return "immutable";
-            }   
-            return "no-store";
-            },
-        };
-
-        const container = document.querySelector("#unity-container");
-        const canvas = document.querySelector("#unity-canvas");
-        const loadingCover = document.querySelector("#loading-cover");
-        const progressBarEmpty = document.querySelector("#unity-progress-bar-empty");
-        const progressBarFull = document.querySelector("#unity-progress-bar-full");
-        const spinner = document.querySelector('.spinner');
-
-        if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-            container.className = "unity-mobile";
-            config.devicePixelRatio = window.devicePixelRatio;
-        }
-        loadingCover.style.display = "";
-
-        window.zappar = ZCV.initialize();
-
-        const script = document.createElement("script");
-        script.src = loaderUrl;
-        document.body.appendChild(script);
-
-        window.zappar.permission_request_ui_promise().then(WaitForZCVLoad);
-
-        function WaitForZCVLoad() {
-            if (zappar.loaded()) {
-                CreateUnityLoader();
-                return;
-            }
-            setTimeout(WaitForZCVLoad, 500);
-        }
-
-        function CreateUnityLoader() {
-            createUnityInstance(canvas, config, (progress) => {
-                spinner.style.display = "none";
-                progressBarEmpty.style.display = "";
-                progressBarFull.style.width = `${100 * progress}%`;
-            }).then((unityInstance) => {
-                loadingCover.style.display = "none";
-                window.uarGameInstance = unityInstance;
-            }).catch((message) => {
-                alert(message);
-            });
-        }
-
-    </script>
-</body>
-
-</html> -->
-
-
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
-  <title>AR Image Tracking</title>
+  <title>AR Loader</title>
   <style>
     body, html { margin: 0; padding: 0; overflow: hidden; background: #000; }
     #unity-canvas { width: 100vw; height: 100vh; display: block; }
@@ -225,16 +19,10 @@
   <div id="loading">
     <div class="spinner"></div>
     <div>Memuat AR... <span id="progress">0</span>%</div>
-    <div style="margin-top: 10px; font-size: 14px; color: #0af;">
-      Arahkan ke <strong>COSMO 1417-02 marker</strong>
-    </div>
   </div>
   <canvas id="unity-canvas"></canvas>
 
   <script>
-    // AMBIL DARI StreamingAssets — PATH YANG BENAR!
-    const ZPT_URL = "/unity-build/StreamingAssets/COSMO 1417-02 marker.zpt";
-
     const buildUrl = "/unity-build/Build";
     const config = {
       dataUrl: buildUrl + "/3dfc59c974755dee151d250cb020d8bd.data.unityweb",
@@ -242,86 +30,332 @@
       codeUrl: buildUrl + "/73b6b973f99e58b13f9e27103060aa86.wasm.unityweb",
       streamingAssetsUrl: "StreamingAssets",
       companyName: "DefaultCompany",
-      productName: "WebAR COSMO",
-      productVersion: "1.0",
+      productName: "WebAR Product Cosmo",
+      productVersion: "0.1",
     };
 
     const canvas = document.getElementById("unity-canvas");
     const loading = document.getElementById("loading");
     const progressEl = document.getElementById("progress");
 
-    let unityInstance = null;
-    let unityStarted = false;
-
-    // Mulai Unity
+    // Fungsi memulai Unity
     function startUnity() {
-      if (unityStarted) return;
-      unityStarted = true;
-
       const script = document.createElement("script");
       script.src = buildUrl + "/Build.loader.js";
       script.onload = () => {
         createUnityInstance(canvas, config, (progress) => {
           progressEl.textContent = Math.round(progress * 100);
         }).then((instance) => {
-          unityInstance = instance;
           loading.style.display = "none";
+          window.unityInstance = instance;
           window.parent.postMessage({ type: "UNITY_LOADED" }, "*");
         }).catch((err) => {
-          alert("Gagal load Unity: " + err.message);
+          alert("Gagal load AR: " + err.message);
         });
       };
       document.body.appendChild(script);
     }
 
-    // Image Tracking — AMBIL DARI ZPT_URL
-    async function startImageTracking() {
+    // ✅ Urutan aman dan cepat
+    async function startAR() {
       try {
-        // 1. Load Zappar CV
+        // 1️⃣ Muat library Zappar CV
         await new Promise((resolve, reject) => {
-          if (window.ZCV) return resolve();
-          const script = document.createElement("script");
-          script.src = "https://libs.zappar.com/zappar-cv/2.1.3/zappar-cv.js";
-          script.onload = resolve;
-          script.onerror = () => reject(new Error("Gagal load Zappar CV"));
-          document.head.appendChild(script);
+          const zapparScript = document.createElement("script");
+          zapparScript.src = "https://libs.zappar.com/zappar-cv/2.1.3/zappar-cv.js";
+          zapparScript.onload = resolve;
+          zapparScript.onerror = () => reject(new Error("Gagal memuat Zappar CV"));
+          document.head.appendChild(zapparScript);
         });
 
-        // 2. Minta izin kamera
-        await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+        // 2️⃣ Dapatkan izin kamera lebih dulu (memicu pop-up)
+        await navigator.mediaDevices.getUserMedia({ video: true });
 
-        // 3. Load .zpt dari StreamingAssets
-        console.log("Loading target dari:", ZPT_URL);
-        const tracker = window.ZCV.image_tracker(ZPT_URL);
-        await tracker.load();
-
-        console.log("Target berhasil dimuat!");
-
-        // 4. Saat target terlihat
-        tracker.on_visible(() => {
-          console.log("Target terdeteksi!");
-          if (!unityStarted) startUnity();
-          setTimeout(() => {
-            if (unityInstance) {
-              unityInstance.SendMessage('ARController', 'OnTargetFound');
+        // 3️⃣ Inisialisasi Zappar
+        const zappar = window.ZCV.initialize();
+        
+        // **4️⃣ Tunggu Zappar Engine siap (Penting untuk Image Tracking)**
+        await new Promise((resolve) => {
+          const waitLoaded = () => {
+            // Cek status loaded() dari Zappar CV Engine
+            if (zappar.loaded()) {
+              resolve(); // Engine siap!
+            } else {
+              // Lanjut polling setiap 100ms
+              setTimeout(waitLoaded, 100); 
             }
-          }, 300);
+          };
+          waitLoaded();
         });
 
-        tracker.on_not_visible(() => {
-          if (unityInstance) {
-            unityInstance.SendMessage('ARController', 'OnTargetLost');
-          }
-        });
+        // 5️⃣ Zappar CV Engine siap dan izin kamera didapat. Muat Unity.
+        startUnity();
 
       } catch (err) {
-        alert("Gagal load target: " + err.message + "\nCek URL: " + ZPT_URL);
+        // Penanganan kesalahan
+        alert("Gagal load AR. Pastikan izin kamera diberikan: " + err.message);
         console.error(err);
+        loading.style.backgroundColor = "#500";
+        loading.textContent = "Gagal memuat AR. Periksa akses kamera dan koneksi internet.";
       }
     }
+    window.addEventListener("load", startAR);
+  </script>
+</body>
+</html> -->
 
-    // Jalankan
-    window.addEventListener("load", startImageTracking);
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>WebAR - getUserMedia + Zappar</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body, html { width: 100%; height: 100%; overflow: hidden; background: #000; }
+    canvas { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; }
+    #unity-canvas { z-index: 1; }
+    #three-canvas { z-index: 0; pointer-events: none; }
+
+    #loading {
+      position: fixed; inset: 0; background: #111; color: #0ff;
+      display: flex; flex-direction: column; justify-content: center; align-items: center;
+      z-index: 999; transition: opacity 0.6s;
+    }
+    .spinner { width: 64px; height: 64px; border: 6px solid #333; border-top: 6px solid #0ff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #fallback {
+      position: fixed; inset: 0; background: #300; color: #fff;
+      display: none; flex-direction: column; justify-content: center; align-items: center;
+      z-index: 1000; padding: 20px; text-align: center; gap: 16px;
+    }
+    #fallback.show { display: flex; }
+
+    .btn {
+      background: rgba(0,255,255,0.2); color: #0ff; border: 2px solid #0ff;
+      padding: 12px 20px; border-radius: 50px; font-size: 15px; cursor: pointer;
+      backdrop-filter: blur(10px); transition: 0.3s;
+    }
+    .btn:hover { background: #0ff; color: #000; }
+
+    #hint {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+      background: rgba(0,0,0,0.8); color: #fff; padding: 12px 24px;
+      border-radius: 50px; font-size: 15px; z-index: 100;
+      display: flex; align-items: center; gap: 10px; opacity: 0; transition: 0.5s;
+    }
+    #hint.show { opacity: 1; }
+    .icon { width: 22px; height: 22px; fill: #0ff; }
+
+    #debug {
+      position: fixed; bottom: 10px; right: 10px; background: rgba(0,0,0,0.9); color: #0f0;
+      padding: 10px; border-radius: 8px; font-family: monospace; font-size: 12px;
+      max-width: 340px; max-height: 220px; overflow-y: auto; z-index: 101;
+      border: 1px solid #0f0;
+    }
+    #debug div { margin: 3px 0; }
+    .error { color: #f88; }
+    .success { color: #0f0; }
+  </style>
+</head>
+<body>
+
+  <div id="loading">
+    <div class="spinner"></div>
+    <div>Memuat AR... <span id="progress">0</span>%</div>
+  </div>
+
+  <div id="fallback">
+    <h2>AR Gagal</h2>
+    <p id="fallback-msg">Izinkan akses kamera untuk melanjutkan.</p>
+    <button class="btn" onclick="restartAR()">Coba Lagi</button>
+  </div>
+
+  <canvas id="unity-canvas"></canvas>
+  <canvas id="three-canvas"></canvas>
+
+  <div id="hint">
+    <svg class="icon" viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 3.5L18.3 20H5.7L12 5.5z"/></svg>
+    <span>Arahkan kamera ke gambar target</span>
+  </div>
+
+  <div id="debug"></div>
+
+  <script src="https://libs.zappar.com/zappar-threejs/2.1.3/zappar-threejs.js"></script>
+
+  <script>
+    // ================= CONFIG =================
+    const BUILD_PATH = "/unity-build/Build";
+    const TARGET_IMAGE = "/unity-build/Build/StreamingAssets/COSMO 1417-02 marker.zpt";
+
+    const UNITY_CONFIG = {
+      dataUrl: BUILD_PATH + "/3dfc59c974755dee151d250cb020d8bd.data.unityweb",
+      frameworkUrl: BUILD_PATH + "/f52347dc2ab1959d1e759a6f582b4b30.js.unityweb",
+      codeUrl: BUILD_PATH + "/73b6b973f99e58b13f9e27103060aa86.wasm.unityweb",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "DefaultCompany",
+      productName: "WebAR Product Cosmo",
+      productVersion: "0.1",
+    };
+
+    // ================= DOM & DEBUG =================
+    const progressEl = document.getElementById("progress");
+    const loading = document.getElementById("loading");
+    const fallback = document.getElementById("fallback");
+    const fallbackMsg = document.getElementById("fallback-msg");
+    const hint = document.getElementById("hint");
+    const debug = document.getElementById("debug");
+
+    let unityInstance = null;
+    let three = null;
+    let stream = null;
+
+    const log = (msg, type = "info") => {
+      const time = new Date().toLocaleTimeString();
+      const line = `<div class="${type}"><small>${time}</small> ${msg}</div>`;
+      debug.innerHTML += line;
+      debug.scrollTop = debug.scrollHeight;
+      console.log(`[AR] ${msg}`);
+    };
+
+    const showHint = (text, success = false) => {
+      const icon = success
+        ? `<svg class="icon" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>`
+        : `<svg class="icon" viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 3.5L18.3 20H5.7L12 5.5z"/></svg>`;
+      hint.innerHTML = `${icon}<span>${text}</span>`;
+      hint.classList.add("show");
+      if (success) setTimeout(() => hint.classList.remove("show"), 2000);
+    };
+
+    // ================= IZIN KAMERA DENGAN getUserMedia =================
+    const requestCameraPermission = async () => {
+      log("Minta izin kamera via getUserMedia...", "info");
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" } // belakang
+        });
+        log("Izin kamera DIIZINKAN!", "success");
+        return stream;
+      } catch (err) {
+        log("Izin kamera DITOLAK: " + err.message, "error");
+        throw new Error("Izin kamera ditolak. Izinkan akses kamera.");
+      }
+    };
+
+    // ================= SETUP ZAPPAR DENGAN STREAM =================
+    const setupZappar = async (videoStream) => {
+      log("Setup Zappar dengan stream...", "info");
+
+      const manager = ZapparThree.cameraManager();
+      manager.setVideoElement(videoStream.getVideoTracks()[0]);
+      manager.start();
+
+      three = new ZapparThree.ThreeScene();
+      three.camera = manager.camera;
+      three.renderer.setSize(innerWidth, innerHeight);
+      document.getElementById("three-canvas").width = innerWidth;
+      document.getElementById("three-canvas").height = innerHeight;
+      document.body.appendChild(three.renderer.domElement);
+
+      const loader = new ZapparThree.ImageTrackerLoader();
+      const tracker = await loader.load(TARGET_IMAGE);
+      const imageTracker = new ZapparThree.ImageTracker(tracker);
+      three.scene.add(imageTracker.group);
+
+      imageTracker.onVisible.bind(() => {
+        log("TARGET TERDETEKSI!", "success");
+        showHint("Target terdeteksi!", true);
+        unityInstance?.SendMessage("ImageTracker", "OnTrackingFound");
+      });
+
+      imageTracker.onNotVisible.bind(() => {
+        showHint("Arahkan ke gambar target");
+      });
+
+      log("Zappar SIAP!", "success");
+    };
+
+    // ================= LOAD UNITY =================
+    const loadUnity = () => {
+      return new Promise((resolve, reject) => {
+        log("Load Unity WebGL...", "info");
+        const script = document.createElement("script");
+        script.src = BUILD_PATH + "/Build.loader.js";
+
+        script.onload = () => {
+          if (typeof createUnityInstance === "undefined") {
+            return reject(new Error("createUnityInstance tidak ada"));
+          }
+
+          createUnityInstance(document.getElementById("unity-canvas"), UNITY_CONFIG, (p) => {
+            progressEl.textContent = Math.round(p * 100);
+          }).then(instance => {
+            unityInstance = instance;
+            log("UNITY LOADED!", "success");
+            resolve();
+          }).catch(reject);
+        };
+
+        script.onerror = () => reject(new Error("Gagal load Build.loader.js"));
+        document.body.appendChild(script);
+      });
+    };
+
+    // ================= START AR =================
+    const startAR = async () => {
+      debug.innerHTML = "";
+      log("=== MULAI WEBAR ===", "warn");
+
+      try {
+        loading.style.display = "flex";
+
+        // 1. Izin kamera via getUserMedia
+        const videoStream = await requestCameraPermission();
+
+        // 2. Setup Zappar
+        await setupZappar(videoStream);
+
+        // 3. Load Unity
+        await loadUnity();
+
+        // 4. Sembunyikan loading
+        loading.style.opacity = "0";
+        setTimeout(() => {
+          loading.style.display = "none";
+          showHint("Arahkan ke gambar target");
+          log("AR SIAP!", "success");
+        }, 600);
+
+        // 5. Render loop
+        const animate = () => {
+          requestAnimationFrame(animate);
+          three?.update();
+        };
+        animate();
+
+      } catch (err) {
+        showFallback(err.message);
+      }
+    };
+
+    const showFallback = (msg) => {
+      log("ERROR: " + msg, "error");
+      fallbackMsg.textContent = msg;
+      fallback.classList.add("show");
+      loading.style.display = "none";
+    };
+
+    window.restartAR = () => {
+      if (stream) stream.getTracks().forEach(t => t.stop());
+      fallback.classList.remove("show");
+      startAR();
+    };
+
+    window.addEventListener("load", () => {
+      setTimeout(startAR, 300);
+    });
   </script>
 </body>
 </html>
