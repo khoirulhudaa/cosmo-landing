@@ -37,13 +37,13 @@ export default function UnityARViewer({ onBack }) {
       </div>
 
       {/* Loading */}
-      {!isLoaded && (
+      {/* {!isLoaded && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-gradient-to-br from-slate-950 to-cyan-950">
           <div className="w-32 h-32 border-4 border-cyan-500/30 border-t-cyan-400 rounded-full animate-spin" />
           <p className="text-cyan-300 font-medium">Memuat AR...</p>
           <p className="text-sm text-cyan-400/70">Izinkan kamera</p>
         </div>
-      )}
+      )} */}
 
       {/* Iframe AR */}
       <iframe

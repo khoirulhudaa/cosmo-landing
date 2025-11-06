@@ -6,7 +6,6 @@
   <title>AR Loader</title>
   <style>
     body, html { margin: 0; padding: 0; overflow: hidden; background: #000; }
-    #unity-canvas { width: 100vw; height: 100vh; display: block; }
     #loading { position: fixed; inset: 0; background: #111; color: #0ff;
       display: flex; flex-direction: column; justify-content: center; align-items: center;
       font-family: Arial; z-index: 999; }
@@ -22,7 +21,102 @@
   </div>
   <canvas id="unity-canvas"></canvas>
 
+  <!-- Three.js dulu -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- ZapparThree sesudahnya -->
+  <script src="https://libs.zappar.com/zappar-threejs/2.4.6/zappar-threejs.js"></script>
+
   <script>
+
+    const send = (type, data = {}) => {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type, ...data }, '*');
+      }
+    };
+    
+    const canvas = document.getElementById('unity-canvas');
+    const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    ZapparThree.glContextSet(renderer.getContext());
+
+    const scene = new THREE.Scene();
+    const camera = new ZapparThree.Camera();
+    scene.background = camera.backgroundTexture;
+
+    // Izin kamera
+    // ZapparThree.permissionRequestUI().then(granted => {
+    //   if (granted) camera.start();
+    //   else ZapparThree.permissionDeniedUI();
+    // });
+
+    ZapparThree.permissionRequestUI().then(granted => {
+    if (granted) {
+        camera.start();
+        console.log('CAMERA READY!')
+        send('AR_CAMERA_GRANTED'); // React tahu kamera OK
+      } else {
+        console.log('CAMERA ERROR!')
+        send('AR_ERROR', { message: 'Kamera ditolak' });
+        ZapparThree.permissionDeniedUI();
+      }
+    });
+    
+    // Load tracker dengan callback
+    const trackerLoader = new ZapparThree.ImageTrackerLoader();
+    // Load tracker
+    trackerLoader.load(
+      "/unity-build/StreamingAssets/COSMO 1417-02 marker.zpt",
+      (progress) => {
+        const p = Math.round(progress * 100);
+        document.getElementById('progress').textContent = p;
+        console.log('AR PROGRESS...!')
+        send('AR_PROGRESS', { progress: p }); // Kirim progress
+      },
+      (tracker) => {
+        console.log("Tracker loaded!");
+        send('AR_LOADED'); // INI YANG PENTING! React dengar ini
+
+        const trackerGroup = new ZapparThree.ImageAnchorGroup(camera, tracker);
+        scene.add(trackerGroup);
+
+        const cube = new THREE.Mesh(
+          new THREE.BoxGeometry(0.5, 0.5, 0.5),
+          new THREE.MeshBasicMaterial({ color: 0x00ff00 })
+        );
+        trackerGroup.add(cube);
+
+        function animate() {
+          requestAnimationFrame(animate);
+          cube.rotation.x += 0.01;
+          cube.rotation.y += 0.01;
+          camera.updateFrame(renderer);
+          renderer.render(scene, camera);
+        }
+        animate();
+
+        document.getElementById('loading').style.display = 'none';
+      },
+      (error) => {
+        console.error("Load failed:", error);
+        console.log('AR ERROR...!')
+        send('AR_ERROR', { message: 'Gagal load marker' });
+      }
+    );
+    
+    // Resize
+    window.addEventListener('resize', () => {
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
+
+
+
+  <!-- <script>
     const buildUrl = "/unity-build/Build";
     const config = {
       dataUrl: buildUrl + "/3dfc59c974755dee151d250cb020d8bd.data.unityweb",
@@ -57,49 +151,118 @@
     }
 
     // ✅ Urutan aman dan cepat
+    // async function startAR() {
+    //   try {
+    //     // 1️⃣ Muat library Zappar CV
+    //     await new Promise((resolve, reject) => {
+    //       const zapparScript = document.createElement("script");
+    //       zapparScript.src = "https://libs.zappar.com/zappar-cv/2.1.3/zappar-cv.js";
+    //       zapparScript.onload = resolve;
+    //       zapparScript.onerror = () => reject(new Error("Gagal memuat Zappar CV"));
+    //       document.head.appendChild(zapparScript);
+    //     });
+
+    //     // 2️⃣ Dapatkan izin kamera lebih dulu (memicu pop-up)
+    //     await navigator.mediaDevices.getUserMedia({ video: true });
+
+    //     // 3️⃣ Inisialisasi Zappar
+    //     const zappar = window.ZCV.initialize();
+        
+    //     // **4️⃣ Tunggu Zappar Engine siap (Penting untuk Image Tracking)**
+    //     await new Promise((resolve) => {
+    //       const waitLoaded = () => {
+    //         // Cek status loaded() dari Zappar CV Engine
+    //         if (zappar.loaded()) {
+    //           resolve(); // Engine siap!
+    //         } else {
+    //           // Lanjut polling setiap 100ms
+    //           setTimeout(waitLoaded, 100); 
+    //         }
+    //       };
+    //       waitLoaded();
+    //     });
+
+    //     // 5️⃣ Zappar CV Engine siap dan izin kamera didapat. Muat Unity.
+    //     startUnity();
+
+    //   } catch (err) {
+    //     // Penanganan kesalahan
+    //     alert("Gagal load AR. Pastikan izin kamera diberikan: " + err.message);
+    //     console.error(err);
+    //     loading.style.backgroundColor = "#500";
+    //     loading.textContent = "Gagal memuat AR. Periksa akses kamera dan koneksi internet.";
+    //   }
+    // }
+    
+    // ✅ Fungsi startAR() LENGKAP untuk Image Tracking
+    
     async function startAR() {
+      const loading = document.getElementById("loading");
+      const progressEl = document.getElementById("progress");
+
       try {
         // 1️⃣ Muat library Zappar CV
+        loading.textContent = "Memuat Zappar...";
         await new Promise((resolve, reject) => {
           const zapparScript = document.createElement("script");
-          zapparScript.src = "https://libs.zappar.com/zappar-cv/2.1.3/zappar-cv.js";
+          zapparScript.src = "https://libs.zappar.com/zappar-threejs/2.4.6/zappar-threejs.js";
           zapparScript.onload = resolve;
           zapparScript.onerror = () => reject(new Error("Gagal memuat Zappar CV"));
           document.head.appendChild(zapparScript);
         });
 
-        // 2️⃣ Dapatkan izin kamera lebih dulu (memicu pop-up)
-        await navigator.mediaDevices.getUserMedia({ video: true });
+        // 2️⃣ Dapatkan izin kamera (pemicu pop-up)
+        loading.textContent = "Minta izin kamera...";
+        await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
 
         // 3️⃣ Inisialisasi Zappar
         const zappar = window.ZCV.initialize();
-        
-        // **4️⃣ Tunggu Zappar Engine siap (Penting untuk Image Tracking)**
+        console.log('zappar', zappar)
+        if (!zappar) throw new Error("Zappar gagal diinisialisasi");
+
+        // 4️⃣ Tunggu engine Zappar siap
+        loading.textContent = "Menyiapkan engine AR...";
         await new Promise((resolve) => {
-          const waitLoaded = () => {
-            // Cek status loaded() dari Zappar CV Engine
-            if (zappar.loaded()) {
-              resolve(); // Engine siap!
-            } else {
-              // Lanjut polling setiap 100ms
-              setTimeout(waitLoaded, 100); 
-            }
+          const check = () => {
+            if (zappar.loaded()) resolve();
+            else setTimeout(check, 100);
           };
-          waitLoaded();
+          check();
         });
 
-        // 5️⃣ Zappar CV Engine siap dan izin kamera didapat. Muat Unity.
+        // 5️⃣ Load file .zpt (Image Target) — GANTI PATH SESUAIKAN!
+        loading.textContent = "Memuat target gambar...";
+        const targetResponse = await fetch("/unity-build/StreamingAssets/COSMO 1417-02 marker.zpt"); // Pastikan file ada di /public/zappar/
+        if (!targetResponse.ok) throw new Error("File target.zpt tidak ditemukan");
+        const targetData = await targetResponse.arrayBuffer();
+
+        // 6️⃣ Buat pipeline dan tambahkan image target
+        const pipeline = zappar.pipeline_add();
+        const success = zappar.pipeline_image_target_file(pipeline, targetData);
+        if (!success) throw new Error("Gagal memuat target image");
+
+        // 7️⃣ Kirim pipeline ID ke Unity via postMessage
+        window.zapparPipeline = pipeline; // Simpan global untuk Unity
+        window.parent.postMessage({ type: "ZAPPAR_PIPELINE_READY", pipeline }, "*");
+
+        // 8️⃣ Mulai Unity
+        loading.textContent = "Memuat Unity AR...";
         startUnity();
 
       } catch (err) {
-        // Penanganan kesalahan
-        alert("Gagal load AR. Pastikan izin kamera diberikan: " + err.message);
-        console.error(err);
+        console.error("AR Error:", err);
         loading.style.backgroundColor = "#500";
-        loading.textContent = "Gagal memuat AR. Periksa akses kamera dan koneksi internet.";
+        loading.innerHTML = `
+          <div class="spinner"></div>
+          <div style="color:#f88; max-width:300px; text-align:center;">
+            Gagal memuat AR:<br><b>${err.message}</b><br>
+            <small>Periksa: HTTPS, Kamera, File .zpt</small>
+          </div>
+        `;
       }
     }
+
     window.addEventListener("load", startAR);
-  </script>
+  </script> -->
 </body>
 </html>
