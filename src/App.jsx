@@ -392,7 +392,7 @@ export default function App() {
             <div className="mt-3 flex items-center justify-center gap-1 text-xs text-yellow-300">
               <AlertCircle className="w-4 h-4" />
               <p className="text-sm text-white font-mono tracking-widest">
-                POWERED BY <span className="text-white">UNITY</span> • <span className="text-pink-400">2025</span>
+                POWERED BY <span className="text-white">AFRAME</span> • <span className="text-pink-400">2025</span>
               </p>
             </div>
           </motion.div>
