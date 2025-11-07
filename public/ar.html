@@ -102,6 +102,8 @@
 </body>
 </html> -->
 
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -114,129 +116,38 @@
 
   <style>
     body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; }
-
-    /* LOADING SCREEN */
-    #loadingScreen {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: #000;
-      color: #fff;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      z-index: 9999;
-      /* transition: opacity 0.6s ease; */
-      pointer-events: none;
-    }
-    #loadingScreen.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-    .spinner {
-      width: 50px; height: 50px;
-      border: 4px solid #333;
-      border-top: 4px solid #4fc3f7;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 20px;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    #loadingText {
-      font-size: 16px; color: #ccc; text-align: center; max-width: 80%;
-    }
-    #loadingText strong { color: #4fc3f7; }
-
-    /* AR SCENE */
-    a-scene {
-      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      pointer-events: none !important;
-    }
-    .ar-model { pointer-events: auto !important; }
-
-    /* CONTAINER */
-    #youtubeContainer {
-      position: absolute;
-      top: 4%; right: 1.5%;
-      width: 75vw; max-width: 320px; min-width: 180px;
-      border-radius: 16px; overflow: hidden;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.7);
-      background: #111;
-      display: flex; 
-      flex-direction: column;
-      transition: all 0.3s ease;
-      z-index: 1000;
-      pointer-events: auto;
-    }
-    #youtubeContainer.hidden {
-      transform: translateX(150%);
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    /* VIDEO FRAME */
-    #videoFrame {
-      width: 100%; height: 180px; position: relative; overflow: hidden;
-      transition: height 0.3s ease, opacity 0.3s ease;
-    }
-    #videoFrame.hidden {
-      height: 0; opacity: 0;
-    }
-    #youtubeIframe {
-      width: 100%; height: 100%; border: none; display: block;
-    }
-
-    /* PRODUCT CARD */
-    #productCard {
-      padding: 12px 14px;
-      background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
-      color: #eee; font-size: 13px;
-      border-top: 1px solid #333;
-    }
-    #productCard h3 { margin: 0 0 6px; font-size: 15px; color: #fff; font-weight: 700; }
-    #productCard p { margin: 4px 0; font-size: 12px; color: #ccc; }
-    #productCard strong { color: #4fc3f7; }
-
-    /* TOMBOL HIDE/SHOW VIDEO */
-    #toggleVideoBtn {
-      display: flex; align-items: center; justify-content: center;
-      gap: 6px; padding: 8px 12px;
-      background: rgba(255,255,255,0.1);
-      color: #fff; font-size: 13px;
-      border: none; cursor: pointer;
-      transition: 0.2s;
-      margin-top: 8px;
-    }
-    #toggleVideoBtn:hover { background: rgba(255,255,255,0.2); }
-    #toggleVideoBtn svg { width: 16px; height: 16px; }
-
-    /* TOMBOL TOGGLE CONTAINER */
-    #toggleContainerBtn {
-      position: fixed; top: 16px; right: 16px;
-      width: 44px; height: 44px;
-      font-size: 20px; font-weight: bold;
-      cursor: pointer; z-index: 9999;
-      opacity: 0;
-      display: flex; align-items: center; justify-content: center;
-      transition: 0.2s;
-      pointer-events: auto !important;
-      background: rgba(0,0,0,0.5);
-      border-radius: 50%;
-      color: white;
-    }
-    #toggleContainerBtn:hover { transform: scale(1.15); }
-
-    /* Mobile */
-    @media (max-width: 480px) {
-      #youtubeContainer { top: 4%; right: 4%; width: 92vw; max-width: 300px; }
-      #videoFrame, #youtubeIframe { height: 160px; }
-      #toggleContainerBtn { width: 40px; height: 40px; font-size: 18px; top: 12px; right: 12px; }
-      #loadingText { font-size: 14px; }
+    #loadingScreen {position:fixed;top:0;left:0;right:0;bottom:0;background:#000;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;pointer-events:none;}
+    #loadingScreen.hidden {opacity:0;}
+    .spinner {width:50px;height:50px;border:4px solid #333;border-top:4px solid #4fc3f7;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px;}
+    @keyframes spin {0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+    #loadingText {font-size:16px;color:#ccc;text-align:center;max-width:80%}
+    #loadingText strong {color:#4fc3f7}
+    a-scene {position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none !important;}
+    .ar-model {pointer-events:auto !important;transform-style:preserve-3d;}
+    #youtubeContainer {position:absolute;top:4%;right:1.5%;width:75vw;max-width:320px;min-width:180px;border-radius:16px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.7);background:#111;display:flex;flex-direction:column;transition:all .3s;z-index:1000;pointer-events:auto;}
+    #youtubeContainer.hidden {transform:translateX(150%);opacity:0;pointer-events:none;}
+    #videoFrame {width:100%;height:180px;overflow:hidden;transition:height .3s,opacity .3s;}
+    #videoFrame.hidden {height:0;opacity:0;}
+    #youtubeIframe {width:100%;height:100%;border:none;}
+    #productCard {padding:12px 14px;background:linear-gradient(145deg,#1a1a1a,#0f0f0f);color:#eee;font-size:13px;border-top:1px solid #333;}
+    #productCard h3 {margin:0 0 6px;font-size:15px;color:#fff;font-weight:700;}
+    #productCard p {margin:4px 0;font-size:12px;color:#ccc;}
+    #productCard strong {color:#4fc3f7;}
+    #toggleVideoBtn {display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 12px;background:rgba(255,255,255,.1);color:#fff;font-size:13px;border:none;cursor:pointer;transition:.2s;margin-top:8px;}
+    #toggleVideoBtn:hover {background:rgba(255,255,255,.2);}
+    #toggleVideoBtn svg {width:16px;height:16px;}
+    #toggleContainerBtn {position:fixed;top:16px;right:16px;width:44px;height:44px;font-size:20px;font-weight:bold;cursor:pointer;z-index:9999;display:flex;align-items:center;justify-content:center;transition:.2s;pointer-events:auto !important;background:rgba(0,0,0,.5);border-radius:50%;color:white;}
+    #toggleContainerBtn:hover {transform:scale(1.15);}
+    @media (max-width:480px){
+      #youtubeContainer {top:4%;right:4%;width:92vw;max-width:300px;}
+      #videoFrame,#youtubeIframe {height:160px;}
+      #toggleContainerBtn {width:40px;height:40px;font-size:18px;top:12px;right:12px;}
+      #loadingText {font-size:14px;}
     }
   </style>
 </head>
 <body>
 
-  <!-- LOADING SCREEN -->
   <div id="loadingScreen">
     <div class="spinner"></div>
     <div id="loadingText">
@@ -245,27 +156,16 @@
     </div>
   </div>
 
-  <!-- TOMBOL TOGGLE SELURUH PANEL -->
   <button id="toggleContainerBtn">Close</button>
 
-  <!-- CONTAINER YOUTUBE + CARD -->
-  <div id="youtubeContainer">
-    <!-- VIDEO (DEFAULT: HIDDEN) -->
+  <div id="youtubeContainer" class="hidden">
     <div id="videoFrame" class="hidden">
-      <iframe 
-        id="youtubeIframe" 
-        src="" 
-        allow="autoplay; encrypted-media" 
-        allowfullscreen>
-      </iframe>
+      <iframe id="youtubeIframe" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
     </div>
-
-    <!-- CARD + TOMBOL TOGGLE VIDEO -->
     <div id="productCard">
       <h3>SmartBox Pro</h3>
-      <p><strong>Deskripsi:</strong> Kotak penyimpanan pintar dengan sensor suhu dan kelembapan otomatis.</p>
-      <p><strong>Kegunaan:</strong> Menjaga barang sensitif seperti obat, makanan, atau dokumen tetap aman.</p>
-
+      <p><strong>Deskripsi:</strong> Kotak penyimpanan pintar...</p>
+      <p><strong>Kegunaan:</strong> Menjaga barang sensitif...</p>
       <button id="toggleVideoBtn">
         <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
@@ -276,255 +176,155 @@
     </div>
   </div>
 
-  <!-- AR SCENE -->
-  <a-scene 
-    embedded 
-    arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;" 
-    renderer="logarithmicDepthBuffer: true;" 
-    vr-mode-ui="enabled: false"
-    loading-screen="dotsColor: #4fc3f7; backgroundColor: #000">
-
-    <!-- MARKER 1 -->
-    <a-marker type="pattern" url="/assets/profile.patt" data-product-id="1">
-      <a-entity class="ar-model" visible="false"></a-entity>
-    </a-marker>
-
-    <!-- MARKER 2 -->
-    <a-marker type="pattern" url="/assets/cosmoIMG.patt" data-product-id="2">
-      <a-entity class="ar-model" visible="false"></a-entity>
-    </a-marker>
-
-    <!-- MARKER 3 -->
-    <a-marker type="pattern" url="/assets/flower.patt" data-product-id="3">
-      <a-entity class="ar-model" visible="false"></a-entity>
-    </a-marker>
-
-    <!-- MARKER 4 -->
-    <a-marker type="pattern" url="/assets/astro.patt" data-product-id="4">
-      <a-entity class="ar-model" visible="false"></a-entity>
-    </a-marker>
-
-    <!-- Kamera -->
-    <a-entity camera>
-      <a-entity cursor position="0 0 -1" geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03;"
-        material="color: white; opacity: 0; shader: flat;"></a-entity>
-    </a-entity>
+  <a-scene embedded arjs="trackingMethod:best;sourceType:webcam;debugUIEnabled:false;" renderer="logarithmicDepthBuffer:true;" vr-mode-ui="enabled:false" loading-screen="dotsColor:#4fc3f7;backgroundColor:#000">
+    <a-marker type="pattern" url="/assets/profile.patt"   data-product-id="1"><a-entity class="ar-model" visible="false"></a-entity></a-marker>
+    <a-marker type="pattern" url="/assets/cosmoIMG.patt" data-product-id="2"><a-entity class="ar-model" visible="false"></a-entity></a-marker>
+    <a-marker type="pattern" url="/assets/flower.patt"   data-product-id="3"><a-entity class="ar-model" visible="false"></a-entity></a-marker>
+    <a-marker type="pattern" url="/assets/astro.patt"    data-product-id="4"><a-entity class="ar-model" visible="false"></a-entity></a-marker>
+    <a-entity camera></a-entity>
   </a-scene>
 
-  <!-- SCRIPT -->
   <script>
     // === DATA PRODUK ===
-    const products = [
-      null, // index 0
-      {
-        id: 1,
-        name: "PRODUCT 1",
-        description: "Kotak penyimpanan pintar dengan sensor suhu dan kelembapan otomatis.",
-        usage: "Menjaga barang sensitif seperti obat, makanan, atau dokumen tetap aman.",
-        videoId: "YmI52hF2pJ8",
-        model: "/assets/box-sample.glb"
-      },
-      {
-        id: 2,
-        name: "PRODUCT 2",
-        description: "Kulkas pintar portabel dengan kontrol suhu via aplikasi.",
-        usage: "Cocok untuk kosmetik, susu bayi, atau obat yang perlu dingin.",
-        videoId: "4HrweW4IqJc",
-        model: "/assets/astronaut.glb"
-      },
-      {
-        id: 3,
-        name: "PRODUCT 3",
-        description: "Kotak obat dengan kunci biometrik dan alarm pengingat.",
-        usage: "Keamanan obat berbahaya dan pengingat jadwal minum obat.",
-        videoId: "YMcI754wroM",
-        model: "/assets/product-sample.glb"
-      },
-      {
-        id: 4,
-        name: "PRODUCT 4",
-        description: "Kotak pengering alami dengan silica gel pintar dan indikator.",
-        usage: "Menjaga kamera, sepatu, atau makanan kering dari jamur.",
-        videoId: "ti_sOUmvGQE",
-        model: "/assets/waving.glb"
-      }
+    const products = [null,
+      {id:1,name:"SmartBox Pro",description:"Kotak penyimpanan pintar dengan sensor suhu dan kelembapan otomatis.",usage:"Menjaga barang sensitif seperti obat, makanan, atau dokumen tetap aman.",videoId:"YmI52hF2pJ8",model:"/assets/box-sample.glb"},
+      {id:2,name:"Cooler Mini",description:"Kulkas pintar portabel dengan kontrol suhu via aplikasi.",usage:"Cocok untuk kosmetik, susu bayi, atau obat yang perlu dingin.",videoId:"4HrweW4IqJc",model:"/assets/astronaut.glb"},
+      {id:3,name:"MediLock",description:"Kotak obat dengan kunci biometrik dan alarm pengingat.",usage:"Keamanan obat berbahaya dan pengingat jadwal minum obat.",videoId:"YMcI754wroM",model:"/assets/product-sample.glb"},
+      {id:4,name:"DryBox Silica",description:"Kotak pengering alami dengan silica gel pintar dan indikator.",usage:"Menjaga kamera, sepatu, atau makanan kering dari jamur.",videoId:"ti_sOUmvGQE",model:"/assets/waving.glb"}
     ];
 
     // YouTube API
     let player;
-    const tag = document.createElement('script');
-    tag.src = 'https://www.youtube.com/iframe_api';
-    const firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    const tag=document.createElement('script');tag.src='https://www.youtube.com/iframe_api';
+    document.getElementsByTagName('script')[0].parentNode.insertBefore(tag,document.getElementsByTagName('script')[0]);
+    function onYouTubeIframeAPIReady(){player=new YT.Player('youtubeIframe',{events:{'onReady':e=>{e.target.pauseVideo();e.target.mute();}}});}
 
-    function onYouTubeIframeAPIReady() {
-      player = new YT.Player('youtubeIframe', {
-        events: {
-          'onReady': (event) => {
-            event.target.pauseVideo();
-            event.target.mute();
-          }
-        }
-      });
-    }
+    document.addEventListener('DOMContentLoaded',()=>{
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const loadingScreen = document.getElementById('loadingScreen');
-      const container = document.getElementById('youtubeContainer');
-      const videoFrame = document.getElementById('videoFrame');
-      const toggleContainerBtn = document.getElementById('toggleContainerBtn');
-      const toggleVideoBtn = document.getElementById('toggleVideoBtn');
-      const eyeIcon = document.getElementById('eyeIcon');
-      const spanText = toggleVideoBtn.querySelector('span');
+      const loadingScreen=document.getElementById('loadingScreen');
+      const container=document.getElementById('youtubeContainer');
+      const videoFrame=document.getElementById('videoFrame');
+      const toggleContainerBtn=document.getElementById('toggleContainerBtn');
+      const toggleVideoBtn=document.getElementById('toggleVideoBtn');
+      const eyeIcon=document.getElementById('eyeIcon');
+      const spanText=toggleVideoBtn.querySelector('span');
 
-      // Elemen Card
-      const productName = document.querySelector('#productCard h3');
-      const productDesc = document.querySelector('#productCard p:nth-of-type(1)');
-      const productUsage = document.querySelector('#productCard p:nth-of-type(2)');
+      const productName=document.querySelector('#productCard h3');
+      const productDesc=document.querySelector('#productCard p:nth-of-type(1)');
+      const productUsage=document.querySelector('#productCard p:nth-of-type(2)');
 
-      let currentModel = null;
-      let currentProduct = null;
+      let currentModel = null;        // model yang sedang aktif
+      let lockedProduct = null;       // produk yang SUDAH DIPILIH (tidak boleh diganti jika marker sama)
+      let hasEverShown = false;       // pernah muncul?
 
-      // === UPDATE CARD & VIDEO ===
-      function updateProductDisplay(product) {
-        if (!product) return;
+      // === UPDATE CARD & VIDEO (Hanya jika produk BARU) ===
+      function updateProductDisplay(product){
+        if(!product) return;
 
-        currentProduct = product;
+        // JIKA marker sama → ABAIKAN
+        if(lockedProduct && lockedProduct.id === product.id) return;
+
+        // Marker beda → UPDATE SEMUA
+        lockedProduct = product;
         productName.textContent = product.name;
         productDesc.innerHTML = `<strong>Deskripsi:</strong> ${product.description}`;
         productUsage.innerHTML = `<strong>Kegunaan:</strong> ${product.usage}`;
 
-        // Update iframe src
         const iframe = document.getElementById('youtubeIframe');
         const newSrc = `https://www.youtube.com/embed/${product.videoId}?autoplay=0&loop=1&playlist=${product.videoId}&controls=1&modestbranding=1&rel=0&mute=0&enablejsapi=1`;
-        iframe.src = newSrc;
+        if(iframe.src !== newSrc) iframe.src = newSrc;
 
-        // Reset player
-        setTimeout(() => {
-          if (player && player.loadVideoById) {
-            player.loadVideoById(product.videoId);
-            player.pauseVideo();
-            player.mute();
-          }
-        }, 500);
+        setTimeout(()=>{if(player && player.loadVideoById){
+          player.loadVideoById(product.videoId);
+          player.pauseVideo(); player.mute();
+        }},500);
 
-        // Tampilkan container
-        if (container.classList.contains('hidden')) {
-          container.classList.remove('hidden');
-          toggleContainerBtn.textContent = 'Close';
-        }
-
-        // Reset video visibility
+        container.classList.remove('hidden');
+        toggleContainerBtn.textContent='Close';
         videoFrame.classList.add('hidden');
         eyeIcon.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>`;
-        spanText.textContent = 'Tampilkan Video';
+        spanText.textContent='Tampilkan Video';
       }
 
-      // === TOGGLE CONTAINER ===
-      toggleContainerBtn.addEventListener('click', () => {
-        container.classList.toggle('hidden');
-        toggleContainerBtn.textContent = container.classList.contains('hidden') ? 'Play' : 'Close';
-      });
+      // TOGGLE CONTAINER
+      toggleContainerBtn.onclick=()=>{container.classList.toggle('hidden');toggleContainerBtn.textContent=container.classList.contains('hidden')?'Play':'Close';};
 
-      // === TOGGLE VIDEO ===
-      toggleVideoBtn.addEventListener('click', () => {
-        const isHidden = videoFrame.classList.toggle('hidden');
-        if (isHidden) {
-          if (player) { player.pauseVideo(); player.mute(); }
-          eyeIcon.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>`;
-          spanText.textContent = 'Tampilkan Video';
-        } else {
-          if (player) { player.playVideo(); player.unMute(); }
-          eyeIcon.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>`;
-          spanText.textContent = 'Sembunyikan Video';
+      // TOGGLE VIDEO
+      toggleVideoBtn.onclick=()=>{
+        const hidden = videoFrame.classList.toggle('hidden');
+        if(hidden){
+          player?.pauseVideo(); player?.mute();
+          eyeIcon.innerHTML=`<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>`;
+          spanText.textContent='Tampilkan Video';
+        }else{
+          player?.playVideo(); player?.unMute();
+          eyeIcon.innerHTML=`<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>`;
+          spanText.textContent='Sembunyikan Video';
         }
-      });
+      };
 
-      // === AR MARKER HANDLING ===
+      // === MARKER HANDLING ===
       const markers = document.querySelectorAll('a-marker');
-      markers.forEach(marker => {
+      markers.forEach(marker=>{
         const productId = parseInt(marker.getAttribute('data-product-id'));
         const product = products[productId];
         const modelEntity = marker.querySelector('.ar-model');
 
-        marker.addEventListener('markerFound', () => {
+        marker.addEventListener('markerFound',()=>{
+          // UPDATE card hanya jika produk BARU
           updateProductDisplay(product);
 
-          // Sembunyikan model sebelumnya
-          if (currentModel && currentModel !== modelEntity) {
-            currentModel.setAttribute('visible', false);
-          }
+          // Sembunyikan model lain
+          if(currentModel && currentModel!==modelEntity) currentModel.setAttribute('visible',false);
 
-          // Jika model belum ada, buat
-          if (!modelEntity.model) {
+          // Buat model sekali saja
+          if(!modelEntity.model){
             const gltf = document.createElement('a-entity');
-            gltf.setAttribute('gltf-model', product.model);
-            gltf.setAttribute('scale', '0.5 0.5 0.5');
-            gltf.setAttribute('position', '0 0.5 0');
-            gltf.setAttribute('rotation', '0 0 0');
-            gltf.setAttribute('animation-mixer', '');
-            gltf.setAttribute('rotation-control', '');
+            gltf.setAttribute('gltf-model',product.model);
+            gltf.setAttribute('scale','0.5 0.5 0.5');
+            gltf.setAttribute('position','0 0.5 0');
+            gltf.setAttribute('animation-mixer','');
+            gltf.setAttribute('rotation-control','');
             modelEntity.appendChild(gltf);
             modelEntity.model = gltf;
           }
 
-          // Selalu tampilkan model (jika sudah ada atau baru dibuat)
-          modelEntity.setAttribute('visible', true);
+          // TAMPILKAN & SIMPAN
+          modelEntity.setAttribute('visible',true);
           currentModel = modelEntity;
+          hasEverShown = true;
 
-          // Sembunyikan loading
+          // Hilangkan loading
           loadingScreen.classList.add('hidden');
-          setTimeout(() => { loadingScreen.style.display = 'none'; }, 700);
+          setTimeout(()=>{loadingScreen.style.display='none';},700);
         });
 
-        marker.addEventListener('markerLost', () => {
-          if (currentModel === modelEntity) {
-            modelEntity.setAttribute('visible', false);
-            // JANGAN HAPUS model, cukup sembunyikan
-            // modelEntity.model tetap ada, siap dipakai lagi
-          }
-        });
+        // markerLost DIHAPUS → model TETAP MUNCUL!
       });
 
+      // PAKSA model tetap muncul setiap 100ms
+      setInterval(()=>{
+        if(currentModel && hasEverShown) currentModel.setAttribute('visible',true);
+      },100);
+
       // Fallback loading
-      setTimeout(() => {
-        if (!loadingScreen.classList.contains('hidden')) {
-          loadingScreen.classList.add('hidden');
-          setTimeout(() => loadingScreen.style.display = 'none', 700);
-        }
-      }, 3000);
+      setTimeout(()=>{if(!loadingScreen.classList.contains('hidden')){loadingScreen.classList.add('hidden');setTimeout(()=>{loadingScreen.style.display='none';},700);}},3000);
     });
 
-    // === ROTATION CONTROL ===
-    AFRAME.registerComponent('rotation-control', {
-      init: function () {
-        const el = this.el;
-        let startX = 0, startY = 0, isDragging = false;
-
-        el.addEventListener('touchstart', e => {
-          if (e.touches.length === 1) {
-            startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
-            isDragging = true;
-          }
-        });
-
-        el.addEventListener('touchmove', e => {
-          if (!isDragging) return;
-          e.preventDefault();
-          const deltaX = e.touches[0].clientX - startX;
-          const deltaY = e.touches[0].clientY - startY;
-          const rot = el.getAttribute('rotation');
-          el.setAttribute('rotation', {
-            x: rot.x - deltaY * 0.6,
-            y: rot.y + deltaX * 0.6,
-            z: rot.z
-          });
-          startX = e.touches[0].clientX;
-          startY = e.touches[0].clientY;
-        }, { passive: false });
-
-        el.addEventListener('touchend', () => isDragging = false);
+    // === ROTASI DENGAN SENTUHAN ===
+    AFRAME.registerComponent('rotation-control',{
+      init:function(){
+        const el=this.el; let startX=0,startY=0,dragging=false;
+        el.addEventListener('touchstart',e=>{if(e.touches.length===1){startX=e.touches[0].clientX;startY=e.touches[0].clientY;dragging=true;}});
+        el.addEventListener('touchmove',e=>{
+          if(!dragging) return; e.preventDefault();
+          const dx=e.touches[0].clientX-startX;
+          const dy=e.touches[0].clientY-startY;
+          const rot=el.getAttribute('rotation');
+          el.setAttribute('rotation',{x:rot.x-dy*0.6,y:rot.y+dx*0.6,z:rot.z});
+          startX=e.touches[0].clientX; startY=e.touches[0].clientY;
+        },{passive:false});
+        el.addEventListener('touchend',()=>{dragging=false;});
       }
     });
   </script>

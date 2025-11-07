@@ -830,8 +830,8 @@ export default function ModelSelector({ onModelSelect }) {
 
                       <div className='relative top-[-30px] flex items-center justify-center h-full z-10'>
                         <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+                          // animate={{ rotate: 360 }}
+                          // transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
                         >
                           <Box size={80} className="text-cyan-400 drop-shadow-glow" />
                         </motion.div>
