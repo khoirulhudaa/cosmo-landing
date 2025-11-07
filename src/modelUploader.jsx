@@ -467,66 +467,6 @@ import { motion } from 'framer-motion';
 
 const API_DATA = [
   {
-    filename: "toilet.glb",
-    name: "toilet",
-    size: 6602832,
-    sizeFormatted: "6.3 MB",
-    fullUrl: "https://vr.kiraproject.id/models/toilet.glb",
-    description: "Model 3D toilet modern dengan detail keramik dan fitting premium.",
-    
-    // STRUKTUR BARU (untuk tampilan kiri-kanan)
-    desc_left: {
-      title: "Fungsi Utama",
-      list: [
-        "Sistem flush otomatis dengan sensor inframerah",
-        "Desain anti-splash untuk kebersihan maksimal",
-        "Pemanas dudukan otomatis untuk kenyamanan",
-        "Mode hemat air (dual flush 3L/6L)",
-      ]
-    },
-    desc_right: {
-      title: "Tujuan Penggunaan",
-      value: `Toilet pintar untuk higienis & nyaman.\nTanpa sentuhan, bebas kuman.\nHemat air hingga 50%.\nCocok untuk rumah mewah & hotel bintang 5.`
-    },
-
-    // STRUKTUR LAMA (untuk AI & detail lama)
-    system: "Smart Flush System v3.0",
-    benefits: ["Hemat air 50%", "Bebas sentuhan", "Pemanas dudukan", "Bidet otomatis", "Anti-bakteri UV"],
-    usage: ["Rumah mewah", "Hotel bintang 5", "Rumah sakit", "Apartemen premium"],
-    certifications: ["SNI", "WaterSense®", "ISO 9001", "Green Product"],
-    tags: ["higienis", "hemat", "premium", "smart home", "luxury"]
-  },
-
-  {
-    filename: "shoe.glb",
-    name: "shoe",
-    size: 8947140,
-    sizeFormatted: "8.53 MB",
-    fullUrl: "https://vr.kiraproject.id/models/shoe.glb",
-    description: "Sepatu sneaker high-res dengan tekstur kulit dan sol karet.",
-    
-    desc_left: {
-      title: "Fitur Unggulan",
-      list: [
-        "Upper berbahan kulit premium tahan air & gores",
-        "Sol karet anti-slip dengan pola grip 3D",
-        "Insole memory foam dengan ventilasi udara",
-        "Tali elastis anti-kendor + quick-lace system",
-      ]
-    },
-    desc_right: {
-      title: "Dirancang Untuk",
-      value: `Gaya hidup aktif di kota.\nStylish tapi tetap nyaman.\nTahan air, anti-slip.\nIdeal untuk daily commute & jogging.`
-    },
-
-    system: "FlexGrip™ Technology",
-    benefits: ["Tahan air 100%", "Anti-slip", "Memory foam", "Quick-lace", "Breathable mesh"],
-    usage: ["Jogging", "Daily commute", "Outdoor adventure", "Gym"],
-    certifications: ["ISO 20345", "EcoTex 100", "Vegan Certified"],
-    tags: ["daily", "portable", "premium", "sport", "outdoor"]
-  },
-
-  {
     filename: "TissueCosmo.glb",
     name: "TissueCosmo",
     size: 70817700,
@@ -554,7 +494,6 @@ const API_DATA = [
     certifications: ["FSC", "Dermatest Excellent", "Halal MUI", "EU Ecolabel"],
     tags: ["higienis", "premium", "gift", "eco", "luxury"]
   },
-
   {
     filename: "product-sample.glb",
     name: "product-sample",
@@ -583,7 +522,6 @@ const API_DATA = [
     certifications: [],
     tags: ["demo", "lightweight", "developer", "template"]
   },
-
   {
     filename: "box-sample.glb",
     name: "box-sample",
@@ -612,7 +550,6 @@ const API_DATA = [
     certifications: ["FSC", "Food Grade", "ISO 22000"],
     tags: ["packaging", "premium", "gift", "eco", "branding"]
   },
-
   {
     filename: "astronaut.glb",
     name: "astronaut",

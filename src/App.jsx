@@ -3,16 +3,13 @@ import { motion } from 'framer-motion';
 import {
   AlertCircle, ArrowLeft, Box, Info,
   MessageCircle,
-  Mic, MicOff, Send,
-  Sparkles,
-  X
+  Sparkles
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import ARViewer from './arViewer';
 import ModelSelector from './modelUploader';
 import UnityARViewer from './UnityARViewer';
 
-// === Import Transformers.js ===
 
 // === DATA MODEL 3D ===
 const API_DATA = [
@@ -372,13 +369,6 @@ export default function App() {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
         <ARViewer modelUrl={modelUrl} model={selectedModel} onBack={handleBack} />
-        {/* Tombol Chat di AR */}
-        <button
-          onClick={() => setShowChat(true)}
-          className="fixed bottom-6 right-6 z-50 p-4 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full shadow-2xl hover:scale-110 transition-all"
-        >
-          <MessageCircle className="w-6 h-6 text-white" />
-        </button>
       </motion.div>
     );
   }
@@ -389,100 +379,14 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-cyan-950 to-slate-950 text-white">
-      {/* === Tombol Chat Utama === */}
-      <button
-        onClick={() => setShowChat(true)}
-        className="fixed bottom-24 right-6 z-50 p-4 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full shadow-2xl hover:scale-110 transition-all animate-pulse"
-      >
-        <Sparkles className="w-6 h-6 text-white" />
-      </button>
-
-      {/* === CHAT PANEL === */}
-      {showChat && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9, y: 100 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.9 }}
-          className="fixed inset-0 z-[9999] flex items-end justify-center p-4"
-          onClick={() => setShowChat(false)}
-        >
-          <div
-            className="w-full max-w-lg bg-slate-900/95 backdrop-blur-2xl rounded-3xl shadow-2xl border border-white/10 overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Header */}
-            <div className="p-4 bg-gradient-to-r from-cyan-600 to-purple-600 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                  <Sparkles className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-white">Asisten AR</h3>
-                  <p className="text-xs text-cyan-100">Tanya fitur produk atau AR</p>
-                </div>
-              </div>
-              <button onClick={() => setShowChat(false)} className="text-white/70 hover:text-white">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* History */}
-            <div ref={chatHistoryRef} className="h-96 overflow-y-auto p-4 space-y-3">
-              {messages.map(msg => (
-                <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-xs px-4 py-2 rounded-2xl text-sm ${
-                    msg.role === 'user' ? 'bg-cyan-600 text-white' :
-                    msg.role === 'bot' ? 'bg-purple-600 text-white' :
-                    'bg-slate-700 text-cyan-300 text-xs italic'
-                  }`}>
-                    {msg.content}
-                  </div>
-                </div>
-              ))}
-              {isLoadingAI && (
-                <div className="flex justify-start">
-                  <div className="px-4 py-2 bg-slate-700 text-cyan-300 text-sm rounded-2xl">
-                    <span className="animate-pulse">Mengetik...</span>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Input */}
-            <div className="p-4 border-t border-white/10 flex gap-2">
-              <button
-                onClick={toggleMic}
-                className={`p-3 rounded-full transition-all ${isListening ? 'bg-red-500 animate-pulse' : 'bg-slate-700 hover:bg-slate-600'}`}
-              >
-                {isListening ? <MicOff className="w-5 h-5 text-white" /> : <Mic className="w-5 h-5 text-white" />}
-              </button>
-              <input
-                type="text"
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend(inputText)}
-                placeholder="Tanya tentang produk..."
-                className="flex-1 bg-slate-800 text-white px-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-cyan-500"
-              />
-              <button
-                onClick={() => handleSend(inputText)}
-                disabled={isLoadingAI}
-                className="p-3 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full hover:scale-110 transition-all disabled:opacity-50"
-              >
-                <Send className="w-5 h-5 text-white" />
-              </button>
-            </div>
-          </div>
-        </motion.div>
-      )}
-
-      {/* === Tombol Unity AR === */}
+    
+      {/* === Tombol image-tracking AR === */}
       <div className='w-screen flex justify-center items-center'>
         <div className='fixed bg-white/14 w-max px-20 h-[16vh] flex flex-col items-center backdrop-blur-xl justify-center bottom-0 md:bottom-4 rounded-3xl shadow-xl z-[2333] mt-12 text-center'>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
             <button onClick={handleUnityAR} className="group flex cursor-pointer relative inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-lg rounded-full shadow-2xl hover:shadow-purple-500/50 transform hover:scale-103 transition-all duration-300 overflow-hidden">
               <Sparkles className="w-6 h-6 group-hover:animate-pulse" />
-              <p className='text-sm'>Coba AR Unity (Image Target)</p>
+              <p className='text-sm'>AR IMAGE-TRACKING | COSMO</p>
               <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
             </button>
             <div className="mt-3 flex items-center justify-center gap-1 text-xs text-yellow-300">
@@ -518,12 +422,12 @@ export default function App() {
                 <Box size={80} className="text-cyan-400 drop-shadow-glow" />
               </motion.div>
             </div>
-            <h1 className="text-4xl md:text-7xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600">
+            <h1 className="text-3xl md:text-7xl text-center font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600">
               AR VIEWER COSMO
             </h1>
           </div>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-sm md:text-xl text-cyan-200 font-light max-w-3xl mx-auto">
-            Pilih model 3D atau coba AR interaktif dengan Unity (Image Target).
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-sm md:text-xl text-cyan-200 text-center w-[86%] md:w-max font-light max-w-3xl mx-auto">
+            Pilih model 3D atau fitur AR interaktif dengan aframe (Image Target).
           </motion.p>
         </motion.div>
 
@@ -537,7 +441,7 @@ export default function App() {
         <div className="h-20 md:h-14" />
 
         {/* Info Cards */}
-        <div className="relative mt-0 md:mt-40 grid grid-cols-1 md:grid-cols-3 gap-6 w-full md:px-0 px-4 md:max-w-5xl mx-auto z-20">
+        <div className="relative mt-[-30px] md:mt-40 grid grid-cols-1 md:grid-cols-3 gap-6 w-full md:px-0 px-4 md:max-w-5xl mx-auto z-20">
           {[
             { icon: <Info className="w-5 h-5" />, title: 'WebXR Ready', desc: 'Chrome Android • Safari iOS' },
             { icon: <ArrowLeft className="w-5 h-5" />, title: 'Tap to Place', desc: 'Arahkan ke lantai saat AR aktif' },
