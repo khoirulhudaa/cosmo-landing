@@ -618,7 +618,7 @@ export default function ModelSelector({ onModelSelect }) {
                 transition: 'transform 0.3s ease-out',
               }}
             >
-              <div className="relative w-80 h-80 sm:w-96 sm:h-96 md:w-[420px] md:h-[420px] flex items-center justify-center">
+              <div className="relative w-80 h-80 sm:w-96 sm:h-96 md:w-[320px] md:h-[320px] flex items-center justify-center">
                 
                 {/* Glassmorphic Orb Background */}
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/5 via-cyan-500/10 to-blue-600/5 
@@ -785,8 +785,9 @@ export default function ModelSelector({ onModelSelect }) {
               /* === DESKTOP: ORBIT MELINGKAR (sama seperti asli) === */
               orbitingModels.map((model, index) => {
                 const total = orbitingModels.length;
-                const angle = (index * 360) / total;
-                const radius = window.innerWidth < 768 ? 260 : 380;
+                const baseAngle = 45;
+                const angle = baseAngle + (index * 360 / total);
+                const radius = 320;
                 const x = Math.cos((angle * Math.PI) / 180) * radius;
                 const y = Math.sin((angle * Math.PI) / 180) * radius;
                 const isHovered = hoveredId === model.filename;

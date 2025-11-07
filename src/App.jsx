@@ -441,7 +441,7 @@ export default function App() {
         <div className="h-20 md:h-14" />
 
         {/* Info Cards */}
-        <div className="relative mt-[-30px] md:mt-40 grid grid-cols-1 md:grid-cols-3 gap-6 w-full md:px-0 px-4 md:max-w-5xl mx-auto z-20">
+        <div className="relative mt-[-30px] md:mt-0 grid grid-cols-1 md:grid-cols-3 gap-6 w-full md:px-0 px-4 md:max-w-5xl mx-auto z-20">
           {[
             { icon: <Info className="w-5 h-5" />, title: 'WebXR Ready', desc: 'Chrome Android • Safari iOS' },
             { icon: <ArrowLeft className="w-5 h-5" />, title: 'Tap to Place', desc: 'Arahkan ke lantai saat AR aktif' },

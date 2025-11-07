@@ -6,7 +6,6 @@
   <title>AR Loader</title>
   <style>
     body, html { margin: 0; padding: 0; overflow: hidden; background: #000; }
-    #unity-canvas { width: 100vw; height: 100vh; display: block; }
     #loading { position: fixed; inset: 0; background: #111; color: #0ff;
       display: flex; flex-direction: column; justify-content: center; align-items: center;
       font-family: Arial; z-index: 999; }
@@ -22,238 +21,507 @@
   </div>
   <canvas id="unity-canvas"></canvas>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://libs.zappar.com/zappar-threejs/2.4.6/zappar-threejs.js"></script>
+
   <script>
-    const buildUrl = "/unity-build/Build";
-    const config = {
-      dataUrl: buildUrl + "/3dfc59c974755dee151d250cb020d8bd.data.unityweb",
-      frameworkUrl: buildUrl + "/f52347dc2ab1959d1e759a6f582b4b30.js.unityweb",
-      codeUrl: buildUrl + "/73b6b973f99e58b13f9e27103060aa86.wasm.unityweb",
-      streamingAssetsUrl: "StreamingAssets",
-      companyName: "DefaultCompany",
-      productName: "WebAR Product Cosmo",
-      productVersion: "0.1",
-    };
 
-    const canvas = document.getElementById("unity-canvas");
-    const loading = document.getElementById("loading");
-    const progressEl = document.getElementById("progress");
-
-    // Fungsi memulai Unity
-    function startUnity() {
-      const script = document.createElement("script");
-      script.src = buildUrl + "/Build.loader.js";
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          progressEl.textContent = Math.round(progress * 100);
-        }).then((instance) => {
-          loading.style.display = "none";
-          window.unityInstance = instance;
-          window.parent.postMessage({ type: "UNITY_LOADED" }, "*");
-        }).catch((err) => {
-          alert("Gagal load AR: " + err.message);
-        });
-      };
-      document.body.appendChild(script);
-    }
-
-    // ✅ Urutan aman dan cepat
-    async function startAR() {
-      try {
-        // 1️⃣ Pastikan library Zappar CV sudah dimuat
-        await new Promise((resolve, reject) => {
-          const zapparScript = document.createElement("script");
-          zapparScript.src = "https://libs.zappar.com/zappar-cv/2.1.3/zappar-cv.js";
-          zapparScript.onload = resolve;
-          zapparScript.onerror = () => reject(new Error("Gagal memuat Zappar CV"));
-          document.head.appendChild(zapparScript);
-        });
-
-        // 2️⃣ Minta izin kamera (memicu popup bawaan browser)
-        await navigator.mediaDevices.getUserMedia({ video: true });
-
-        // 3️⃣ Inisialisasi Zappar
-        const zappar = window.ZCV.initialize();
-        await zappar.permission_request_ui_promise();
-
-        // 4️⃣ Tunggu siap, lalu jalankan Unity
-        const waitLoaded = () => {
-          if (zappar.loaded()) startUnity();
-          else setTimeout(waitLoaded, 100);
-        };
-        waitLoaded();
-
-      } catch (err) {
-        alert("Akses kamera ditolak atau tidak tersedia: " + err.message);
-        console.error(err);
+    const send = (type, data = {}) => {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type, ...data }, '*');
       }
-    }
+    };
+    
+    const canvas = document.getElementById('unity-canvas');
+    const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
 
-    window.addEventListener("load", startAR);
+    ZapparThree.glContextSet(renderer.getContext());
+
+    const scene = new THREE.Scene();
+    const camera = new ZapparThree.Camera();
+    scene.background = camera.backgroundTexture;
+
+    ZapparThree.permissionRequestUI().then(granted => {
+    if (granted) {
+        camera.start();
+        console.log('CAMERA READY!')
+        send('AR_CAMERA_GRANTED'); // React tahu kamera OK
+      } else {
+        console.log('CAMERA ERROR!')
+        send('AR_ERROR', { message: 'Kamera ditolak' });
+        ZapparThree.permissionDeniedUI();
+      }
+    });
+    
+    const trackerLoader = new ZapparThree.ImageTrackerLoader();
+    trackerLoader.load(
+      "/unity-build/StreamingAssets/COSMO 1417-02 marker.zpt",
+      (progress) => {
+        const p = Math.round(progress * 100);
+        document.getElementById('progress').textContent = p;
+        console.log('AR PROGRESS...!')
+        send('AR_PROGRESS', { progress: p }); // Kirim progress
+      },
+      (tracker) => {
+        console.log("Tracker loaded!");
+        send('AR_LOADED'); 
+        const trackerGroup = new ZapparThree.ImageAnchorGroup(camera, tracker);
+        scene.add(trackerGroup);
+
+        const cube = new THREE.Mesh(
+          new THREE.BoxGeometry(0.5, 0.5, 0.5),
+          new THREE.MeshBasicMaterial({ color: 0x00ff00 })
+        );
+        trackerGroup.add(cube);
+
+        function animate() {
+          requestAnimationFrame(animate);
+          cube.rotation.x += 0.01;
+          cube.rotation.y += 0.01;
+          camera.updateFrame(renderer);
+          renderer.render(scene, camera);
+        }
+        animate();
+
+        document.getElementById('loading').style.display = 'none';
+      },
+      (error) => {
+        console.error("Load failed:", error);
+        console.log('AR ERROR...!')
+        send('AR_ERROR', { message: 'Gagal load marker' });
+      }
+    );
+    
+    window.addEventListener('resize', () => {
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
   </script>
 </body>
 </html> -->
 
-
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" />
-  <title>AR Loader</title>
-  <style>
-    body, html { margin: 0; padding: 0; overflow: hidden; background: #000; }
-    #unity-canvas { width: 100vw; height: 100vh; display: block; }
-    #loading { 
-      position: fixed; inset: 0; background: #111; color: #0ff;
-      display: flex; flex-direction: column; justify-content: center; align-items: center;
-      font-family: Arial, sans-serif; z-index: 999; 
-    }
-    .spinner { 
-      width: 60px; height: 60px; border: 6px solid #333;
-      border-top: 6px solid #0ff; border-radius: 50%; 
-      animation: spin 1s linear infinite; margin-bottom: 20px; 
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>AR Multi Produk</title>
+  
+  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
 
-    /* Debug Info (hapus di produksi) */
-    #debug-info {
-      position: fixed; top: 10px; left: 10px; z-index: 1000;
-      background: rgba(0,0,0,0.7); color: #0ff; padding: 8px; border-radius: 6px;
-      font-size: 12px; font-family: monospace;
+  <style>
+    body { margin: 0; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; }
+
+    /* LOADING SCREEN */
+    #loadingScreen {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: #000;
+      color: #fff;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.6s ease;
+      pointer-events: none;
+    }
+    #loadingScreen.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .spinner {
+      width: 50px; height: 50px;
+      border: 4px solid #333;
+      border-top: 4px solid #4fc3f7;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 20px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    #loadingText {
+      font-size: 16px; color: #ccc; text-align: center; max-width: 80%;
+    }
+    #loadingText strong { color: #4fc3f7; }
+
+    /* AR SCENE */
+    a-scene {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none !important;
+    }
+    .ar-model { pointer-events: auto !important; }
+
+    /* CONTAINER */
+    #youtubeContainer {
+      position: absolute;
+      top: 4%; right: 1.5%;
+      width: 75vw; max-width: 320px; min-width: 180px;
+      border-radius: 16px; overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+      background: #111;
+      display: flex; 
+      flex-direction: column;
+      transition: all 0.3s ease;
+      z-index: 1000;
+      pointer-events: auto;
+    }
+    #youtubeContainer.hidden {
+      transform: translateX(150%);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* VIDEO FRAME */
+    #videoFrame {
+      width: 100%; height: 180px; position: relative; overflow: hidden;
+      transition: height 0.3s ease, opacity 0.3s ease;
+    }
+    #videoFrame.hidden {
+      height: 0; opacity: 0;
+    }
+    #youtubeIframe {
+      width: 100%; height: 100%; border: none; display: block;
+    }
+
+    /* PRODUCT CARD */
+    #productCard {
+      padding: 12px 14px;
+      background: linear-gradient(145deg, #1a1a1a, #0f0f0f);
+      color: #eee; font-size: 13px;
+      border-top: 1px solid #333;
+    }
+    #productCard h3 { margin: 0 0 6px; font-size: 15px; color: #fff; font-weight: 700; }
+    #productCard p { margin: 4px 0; font-size: 12px; color: #ccc; }
+    #productCard strong { color: #4fc3f7; }
+
+    /* TOMBOL HIDE/SHOW VIDEO */
+    #toggleVideoBtn {
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; padding: 8px 12px;
+      background: rgba(255,255,255,0.1);
+      color: #fff; font-size: 13px;
+      border: none; cursor: pointer;
+      transition: 0.2s;
+      margin-top: 8px;
+    }
+    #toggleVideoBtn:hover { background: rgba(255,255,255,0.2); }
+    #toggleVideoBtn svg { width: 16px; height: 16px; }
+
+    /* TOMBOL TOGGLE CONTAINER */
+    #toggleContainerBtn {
+      position: fixed; top: 16px; right: 16px;
+      width: 44px; height: 44px;
+      font-size: 20px; font-weight: bold;
+      cursor: pointer; z-index: 9999;
+      opacity: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: 0.2s;
+      pointer-events: auto !important;
+      background: rgba(0,0,0,0.5);
+      border-radius: 50%;
+      color: white;
+    }
+    #toggleContainerBtn:hover { transform: scale(1.15); }
+
+    /* Mobile */
+    @media (max-width: 480px) {
+      #youtubeContainer { top: 4%; right: 4%; width: 92vw; max-width: 300px; }
+      #videoFrame, #youtubeIframe { height: 160px; }
+      #toggleContainerBtn { width: 40px; height: 40px; font-size: 18px; top: 12px; right: 12px; }
+      #loadingText { font-size: 14px; }
     }
   </style>
 </head>
 <body>
-  <!-- Loading -->
-  <div id="loading">
+
+  <!-- LOADING SCREEN -->
+  <div id="loadingScreen">
     <div class="spinner"></div>
-    <div>Memuat AR... <span id="progress">0</span>%</div>
-    <div style="margin-top:10px; font-size:12px; opacity:0.8;">Izinkan kamera</div>
+    <div id="loadingText">
+      <strong>Memuat AR...</strong><br>
+      Arahkan kamera ke <strong>marker</strong> untuk melihat produk
+    </div>
   </div>
 
-  <!-- Debug Info -->
-  <div id="debug-info">Memuat...</div>
+  <!-- TOMBOL TOGGLE SELURUH PANEL -->
+  <button id="toggleContainerBtn">Close</button>
 
-  <canvas id="unity-canvas"></canvas>
+  <!-- CONTAINER YOUTUBE + CARD -->
+  <div id="youtubeContainer">
+    <!-- VIDEO (DEFAULT: HIDDEN) -->
+    <div id="videoFrame" class="hidden">
+      <iframe 
+        id="youtubeIframe" 
+        src="" 
+        allow="autoplay; encrypted-media" 
+        allowfullscreen>
+      </iframe>
+    </div>
 
+    <!-- CARD + TOMBOL TOGGLE VIDEO -->
+    <div id="productCard">
+      <h3>SmartBox Pro</h3>
+      <p><strong>Deskripsi:</strong> Kotak penyimpanan pintar dengan sensor suhu dan kelembapan otomatis.</p>
+      <p><strong>Kegunaan:</strong> Menjaga barang sensitif seperti obat, makanan, atau dokumen tetap aman.</p>
+
+      <button id="toggleVideoBtn">
+        <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+          <line x1="1" y1="1" x2="23" y2="23"></line>
+        </svg>
+        <span>Tampilkan Video</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- AR SCENE -->
+  <a-scene 
+    embedded 
+    arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;" 
+    renderer="logarithmicDepthBuffer: true;" 
+    vr-mode-ui="enabled: false"
+    loading-screen="dotsColor: #4fc3f7; backgroundColor: #000">
+
+    <!-- MARKER 1 -->
+    <a-marker type="pattern" url="/assets/profile.patt" data-product-id="1">
+      <a-entity class="ar-model" visible="false"></a-entity>
+    </a-marker>
+
+    <!-- MARKER 2 -->
+    <a-marker type="pattern" url="/assets/cosmoIMG.patt" data-product-id="2">
+      <a-entity class="ar-model" visible="false"></a-entity>
+    </a-marker>
+
+    <!-- MARKER 3 -->
+    <a-marker type="pattern" url="/assets/flower.patt" data-product-id="3">
+      <a-entity class="ar-model" visible="false"></a-entity>
+    </a-marker>
+
+    <!-- MARKER 4 -->
+    <a-marker type="pattern" url="/assets/astro.patt" data-product-id="4">
+      <a-entity class="ar-model" visible="false"></a-entity>
+    </a-marker>
+
+    <!-- Kamera -->
+    <a-entity camera>
+      <a-entity cursor position="0 0 -1" geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03;"
+        material="color: white; opacity: 0; shader: flat;"></a-entity>
+    </a-entity>
+  </a-scene>
+
+  <!-- SCRIPT -->
   <script>
-    const buildUrl = "/unity-build/Build";
-    const config = {
-      dataUrl: buildUrl + "/3dfc59c974755dee151d250cb020d8bd.data.unityweb",
-      frameworkUrl: buildUrl + "/f52347dc2ab1959d1e759a6f582b4b30.js.unityweb",
-      codeUrl: buildUrl + "/73b6b973f99e58b13f9e27103060aa86.wasm.unityweb",
-      streamingAssetsUrl: "StreamingAssets",
-      companyName: "DefaultCompany",
-      productName: "WebAR Product Cosmo",
-      productVersion: "0.1",
-    };
+    // === DATA PRODUK ===
+    const products = [
+      null, // index 0
+      {
+        id: 1,
+        name: "PRODUCT 1",
+        description: "Kotak penyimpanan pintar dengan sensor suhu dan kelembapan otomatis.",
+        usage: "Menjaga barang sensitif seperti obat, makanan, atau dokumen tetap aman.",
+        videoId: "YmI52hF2pJ8",
+        model: "/assets/box-sample.glb"
+      },
+      {
+        id: 2,
+        name: "PRODUCT 2",
+        description: "Kulkas pintar portabel dengan kontrol suhu via aplikasi.",
+        usage: "Cocok untuk kosmetik, susu bayi, atau obat yang perlu dingin.",
+        videoId: "4HrweW4IqJc",
+        model: "/assets/astronaut.glb"
+      },
+      {
+        id: 3,
+        name: "PRODUCT 3",
+        description: "Kotak obat dengan kunci biometrik dan alarm pengingat.",
+        usage: "Keamanan obat berbahaya dan pengingat jadwal minum obat.",
+        videoId: "YMcI754wroM",
+        model: "/assets/product-sample.glb"
+      },
+      {
+        id: 4,
+        name: "PRODUCT 4",
+        description: "Kotak pengering alami dengan silica gel pintar dan indikator.",
+        usage: "Menjaga kamera, sepatu, atau makanan kering dari jamur.",
+        videoId: "ti_sOUmvGQE",
+        model: "/assets/waving.glb"
+      }
+    ];
 
-    const canvas = document.getElementById("unity-canvas");
-    const loading = document.getElementById("loading");
-    const progressEl = document.getElementById("progress");
-    const debugInfo = document.getElementById("debug-info");
+    // YouTube API
+    let player;
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-    let needsTextureFlip = false; // Unity perlu flip texture?
-
-    // === 1. LOAD ZAPPAR ===
-    async function loadZappar() {
-      return new Promise((resolve, reject) => {
-        const script = document.createElement("script");
-        script.src = "https://libs.zappar.com/zappar-cv/2.1.3/zappar-cv.js";
-        script.onload = resolve;
-        script.onerror = () => reject(new Error("Gagal load Zappar"));
-        document.head.appendChild(script);
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('youtubeIframe', {
+        events: {
+          'onReady': (event) => {
+            event.target.pauseVideo();
+            event.target.mute();
+          }
+        }
       });
     }
 
-    // === 2. REQUEST CAMERA + DETEKSI MIRRORING ===
-    async function requestCamera() {
-      const constraints = {
-        video: {
-          facingMode: "environment",  // PAKSA KAMERA BELAKANG
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        },
-        audio: true  // Penting untuk Android
-      };
+    document.addEventListener('DOMContentLoaded', () => {
+      const loadingScreen = document.getElementById('loadingScreen');
+      const container = document.getElementById('youtubeContainer');
+      const videoFrame = document.getElementById('videoFrame');
+      const toggleContainerBtn = document.getElementById('toggleContainerBtn');
+      const toggleVideoBtn = document.getElementById('toggleVideoBtn');
+      const eyeIcon = document.getElementById('eyeIcon');
+      const spanText = toggleVideoBtn.querySelector('span');
 
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        const track = stream.getVideoTracks()[0];
-        const settings = track.getSettings();
+      // Elemen Card
+      const productName = document.querySelector('#productCard h3');
+      const productDesc = document.querySelector('#productCard p:nth-of-type(1)');
+      const productUsage = document.querySelector('#productCard p:nth-of-type(2)');
 
-        const isAndroid = /Android/i.test(navigator.userAgent);
-        const isRearCamera = settings.facingMode === "environment";
+      let currentModel = null;
+      let currentProduct = null;
 
-        // Unity di Android flip rear camera → kita balikkan di texture
-        needsTextureFlip = isAndroid && isRearCamera;
+      // === UPDATE CARD & VIDEO ===
+      function updateProductDisplay(product) {
+        if (!product) return;
 
-        debugInfo.textContent = `Kamera: ${settings.facingMode} | Flip: ${needsTextureFlip ? 'YES' : 'NO'}`;
+        currentProduct = product;
+        productName.textContent = product.name;
+        productDesc.innerHTML = `<strong>Deskripsi:</strong> ${product.description}`;
+        productUsage.innerHTML = `<strong>Kegunaan:</strong> ${product.usage}`;
 
-        return true;
-      } catch (err) {
-        console.error("Kamera gagal:", err);
-        alert("Kamera gagal: " + err.message);
-        return false;
-      }
-    }
+        // Update iframe src
+        const iframe = document.getElementById('youtubeIframe');
+        const newSrc = `https://www.youtube.com/embed/${product.videoId}?autoplay=0&loop=1&playlist=${product.videoId}&controls=1&modestbranding=1&rel=0&mute=0&enablejsapi=1`;
+        iframe.src = newSrc;
 
-    // === 3. START UNITY ===
-    function startUnity() {
-      const script = document.createElement("script");
-      script.src = buildUrl + "/Build.loader.js";
-      script.onload = () => {
-        createUnityInstance(canvas, config, (progress) => {
-          progressEl.textContent = Math.round(progress * 100);
-        }).then((instance) => {
-          loading.style.display = "none";
-          window.unityInstance = instance;
-
-          // KIRIM KE UNITY: apakah perlu flip texture?
-          window.unityInstance.SendMessage('ARController', 'SetMirrorMode', needsTextureFlip ? 1 : 0);
-
-          // Beri tahu React
-          window.parent.postMessage({ type: "UNITY_LOADED" }, "*");
-        }).catch((err) => {
-          alert("Gagal load Unity: " + err.message);
-        });
-      };
-      document.body.appendChild(script);
-    }
-
-    // === 4. MAIN FLOW ===
-    async function startAR() {
-      try {
-        // Load Zappar dulu
-        await loadZappar();
-
-        // Minta kamera + deteksi flip
-        const cameraOK = await requestCamera();
-        if (!cameraOK) return;
-
-        // Inisialisasi Zappar
-        const zappar = window.ZCV.initialize();
-        await zappar.permission_request_ui_promise();
-
-        // Tunggu Zappar siap
-        const wait = () => {
-          if (zappar.loaded()) {
-            startUnity();
-          } else {
-            setTimeout(wait, 100);
+        // Reset player
+        setTimeout(() => {
+          if (player && player.loadVideoById) {
+            player.loadVideoById(product.videoId);
+            player.pauseVideo();
+            player.mute();
           }
-        };
-        wait();
+        }, 500);
 
-      } catch (err) {
-        alert("Error: " + err.message);
-        console.error(err);
+        // Tampilkan container
+        if (container.classList.contains('hidden')) {
+          container.classList.remove('hidden');
+          toggleContainerBtn.textContent = 'Close';
+        }
+
+        // Reset video visibility
+        videoFrame.classList.add('hidden');
+        eyeIcon.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>`;
+        spanText.textContent = 'Tampilkan Video';
       }
-    }
 
-    // === MULAI ===
-    window.addEventListener("load", startAR);
+      // === TOGGLE CONTAINER ===
+      toggleContainerBtn.addEventListener('click', () => {
+        container.classList.toggle('hidden');
+        toggleContainerBtn.textContent = container.classList.contains('hidden') ? 'Play' : 'Close';
+      });
+
+      // === TOGGLE VIDEO ===
+      toggleVideoBtn.addEventListener('click', () => {
+        const isHidden = videoFrame.classList.toggle('hidden');
+        if (isHidden) {
+          if (player) { player.pauseVideo(); player.mute(); }
+          eyeIcon.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>`;
+          spanText.textContent = 'Tampilkan Video';
+        } else {
+          if (player) { player.playVideo(); player.unMute(); }
+          eyeIcon.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>`;
+          spanText.textContent = 'Sembunyikan Video';
+        }
+      });
+
+      // === AR MARKER HANDLING ===
+      const markers = document.querySelectorAll('a-marker');
+      markers.forEach(marker => {
+        const productId = parseInt(marker.getAttribute('data-product-id'));
+        const product = products[productId];
+        const modelEntity = marker.querySelector('.ar-model');
+
+        marker.addEventListener('markerFound', () => {
+          updateProductDisplay(product);
+
+          if (currentModel && currentModel !== modelEntity) {
+            currentModel.setAttribute('visible', false);
+            if (currentModel.model) currentModel.removeChild(currentModel.model);
+          }
+
+          if (!modelEntity.model) {
+            const gltf = document.createElement('a-entity');
+            gltf.setAttribute('gltf-model', product.model);
+            gltf.setAttribute('scale', '0.5 0.5 0.5');
+            gltf.setAttribute('position', '0 0.5 0');
+            gltf.setAttribute('rotation', '0 0 0');
+            gltf.setAttribute('animation-mixer', '');
+            gltf.setAttribute('rotation-control', '');
+            modelEntity.appendChild(gltf);
+            modelEntity.model = gltf;
+          }
+
+          modelEntity.setAttribute('visible', true);
+          currentModel = modelEntity;
+
+          loadingScreen.classList.add('hidden');
+          setTimeout(() => { loadingScreen.style.display = 'none'; }, 700);
+        });
+
+        marker.addEventListener('markerLost', () => {
+          if (currentModel === modelEntity) {
+            modelEntity.setAttribute('visible', false);
+          }
+        });
+      });
+
+      // Fallback loading
+      setTimeout(() => {
+        if (!loadingScreen.classList.contains('hidden')) {
+          loadingScreen.classList.add('hidden');
+          setTimeout(() => loadingScreen.style.display = 'none', 700);
+        }
+      }, 3000);
+    });
+
+    // === ROTATION CONTROL ===
+    AFRAME.registerComponent('rotation-control', {
+      init: function () {
+        const el = this.el;
+        let startX = 0, startY = 0, isDragging = false;
+
+        el.addEventListener('touchstart', e => {
+          if (e.touches.length === 1) {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            isDragging = true;
+          }
+        });
+
+        el.addEventListener('touchmove', e => {
+          if (!isDragging) return;
+          e.preventDefault();
+          const deltaX = e.touches[0].clientX - startX;
+          const deltaY = e.touches[0].clientY - startY;
+          const rot = el.getAttribute('rotation');
+          el.setAttribute('rotation', {
+            x: rot.x - deltaY * 0.6,
+            y: rot.y + deltaX * 0.6,
+            z: rot.z
+          });
+          startX = e.touches[0].clientX;
+          startY = e.touches[0].clientY;
+        }, { passive: false });
+
+        el.addEventListener('touchend', () => isDragging = false);
+      }
+    });
   </script>
 </body>
 </html>
