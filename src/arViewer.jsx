@@ -308,7 +308,7 @@ export default function ARViewer({ modelUrl, model, onBack }) {
         exposure="1.0"
         field-of-view="30deg"
         // min-camera-orbit="auto auto 0.1m"
-        max-camera-orbit="auto auto"
+        max-camera-orbit="auto auto 80m"
         interaction-prompt="none"
         crossorigin="anonymous"
         loading="eager"

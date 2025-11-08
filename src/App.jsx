@@ -1,15 +1,13 @@
 import '@google/model-viewer';
 import { motion } from 'framer-motion';
 import {
-  AlertCircle, ArrowLeft, Box, Info,
-  MessageCircle,
+  AlertCircle, ArrowLeft, Box, Camera, CameraIcon, Info,
   Sparkles
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import ARViewer from './arViewer';
 import ModelSelector from './modelUploader';
 import UnityARViewer from './UnityARViewer';
-
 
 // === DATA MODEL 3D ===
 const API_DATA = [
@@ -203,63 +201,6 @@ export default function App() {
   const generatorRef = useRef(null);
   const chatHistoryRef = useRef(null);
 
-  // === Inisialisasi AI Lokal (gpt2) ===
-  // useEffect(() => {
-  //   let cancelled = false;
-  //   const initAI = async () => {
-  //     if (generatorRef.current || cancelled) return;
-  //     try {
-  //       addMessage('system', 'Memuat AI lokal (gpt2)... sekali saja');
-  //       const gen = await pipeline('text-generation', 'Xenova/gpt2', {
-  //         quantized: true,
-  //         progress_callback: (p) => {
-  //           if (!cancelled && p.status === 'downloading') {
-  //             addMessage('system', `Download model: ${Math.round(p.progress)}%`);
-  //           }
-  //         }
-  //       });
-  //       if (!cancelled) {
-  //         generatorRef.current = gen;
-  //         addMessage('system', 'AI lokal siap! Kamu bisa bicara sekarang.');
-  //       }
-  //     } catch (err) {
-  //       console.error('AI init error:', err);
-  //       addMessage('system', 'Gagal muat AI. Pakai mode sederhana.');
-  //     }
-  //   };
-  //   initAI();
-  //   return () => { cancelled = true; };
-  // }, []);
-
-  // === Speech Recognition ===
-  // useEffect(() => {
-  //   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  //   if (!SpeechRecognition) {
-  //     addMessage('system', 'Browser tidak mendukung mic. Gunakan Chrome/Edge.');
-  //     return;
-  //   }
-
-  //   const recognition = new SpeechRecognition();
-  //   recognition.lang = 'id-ID';
-  //   recognition.interimResults = false;
-  //   recognition.continuous = false;
-
-  //   recognition.onresult = (e) => {
-  //     const text = Array.from(e.results).map(r => r[0].transcript).join('');
-  //     setInputText(text);
-  //     handleSend(text);
-  //   };
-
-  //   recognition.onerror = () => {
-  //     setIsListening(false);
-  //     addMessage('system', 'Mic error. Coba lagi.');
-  //   };
-
-  //   recognition.onend = () => setIsListening(false);
-
-  //   recognitionRef.current = recognition;
-  // }, []);
-
   // === Speech Synthesis ===
   const speak = (text) => {
     return new Promise((resolve) => {
@@ -382,10 +323,10 @@ export default function App() {
     
       {/* === Tombol image-tracking AR === */}
       <div className='w-screen flex justify-center items-center'>
-        <div className='fixed bg-white/14 w-max px-20 h-[16vh] flex flex-col items-center backdrop-blur-xl justify-center bottom-0 md:bottom-4 rounded-3xl shadow-xl z-[2333] mt-12 text-center'>
+        <div className='fixed bg-white/14 w-full md:w-max px-20 h-[16vh] flex flex-col items-center backdrop-blur-xl justify-center bottom-0 md:bottom-4 rounded-tl-xl rounded-tr-xl md:rounded-3xl shadow-xl z-[2333] mt-12 text-center'>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-            <button onClick={handleUnityAR} className="group flex cursor-pointer relative inline-flex items-center gap-3 px-5 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-lg rounded-full shadow-2xl hover:shadow-purple-500/50 transform hover:scale-103 transition-all duration-300 overflow-hidden">
-              <Sparkles className="w-6 h-6 group-hover:animate-pulse" />
+            <button onClick={handleUnityAR} className="group flex cursor-pointer relative inline-flex items-center gap-3 px-5 w-max py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-lg rounded-xl shadow-2xl hover:shadow-purple-500/50 transform hover:scale-103 transition-all duration-300 overflow-hidden">
+              <CameraIcon className="w-6 h-6 group-hover:animate-pulse" />
               <p className='text-sm'>AR IMAGE-TRACKING | COSMO</p>
               <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
             </button>
