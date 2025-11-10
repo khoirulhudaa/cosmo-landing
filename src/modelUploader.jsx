@@ -5,11 +5,12 @@ import { motion } from 'framer-motion';
 
 const API_DATA = [
   {
-    filename: "TissueCosmo.glb",
-    name: "TissueCosmo",
+    filename: "cosmo.glb",
+    name: "JR-50",
     size: 70817700,
-    sizeFormatted: "67.54 MB",
-    fullUrl: "https://vr.kiraproject.id/models/TissueCosmo.glb",
+    sizeFormatted: "19 MB",
+    // fullUrl: "https://vr.kiraproject.id/models/TissueCosmo.glb",
+    fullUrl: "/assets/cosmo.glb",
     description: "Tisu wajah premium dalam kemasan Cosmo dengan efek emboss dan foil.",
     
     desc_left: {

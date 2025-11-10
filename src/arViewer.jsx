@@ -12,6 +12,8 @@ export default function ARViewer({ modelUrl, model, onBack }) {
   const [shareStatus, setShareStatus] = useState('');
   const [showShareMenu, setShowShareMenu] = useState(false);
 
+  console.log('urll', modelUrl)
+
   // Zoom state
   const [cameraDistance, setCameraDistance] = useState(2);
   const minDistance = 0.5;
@@ -49,14 +51,18 @@ export default function ARViewer({ modelUrl, model, onBack }) {
   // DEBUG: Cek modelUrl
   // -------------------------------------------------
   useEffect(() => {
-    if (!modelUrl) {
-      setLoadError('URL model tidak diberikan.');
-      setIsLoading(false);
-    } else if (!modelUrl.startsWith('http')) {
-      setLoadError('URL model tidak valid (harus dimulai dengan http/https).');
-      setIsLoading(false);
-    }
-  }, [modelUrl]);
+  if (!modelUrl) {
+    setLoadError('URL model tidak diberikan.');
+    setIsLoading(false);
+  } else if (
+    !modelUrl.startsWith('http://') && 
+    !modelUrl.startsWith('https://') && 
+    !modelUrl.startsWith('/assets/')
+  ) {
+    setLoadError('URL tidak valid. Harus: http/https atau /assets/...');
+    setIsLoading(false);
+  }
+}, [modelUrl]);
 
   // -------------------------------------------------
   // Model-viewer event listeners
@@ -228,7 +234,7 @@ export default function ARViewer({ modelUrl, model, onBack }) {
   // -------------------------------------------------
   // RENDER: Validasi & Error
   // -------------------------------------------------
-  if (!modelUrl || !modelUrl.startsWith('https')) {
+  if (!modelUrl) {
     return (
       <div className="flex flex-col items-center justify-center h-screen text-white space-y-6 px-4">
         <Info className="w-12 h-12 text-red-400" />
