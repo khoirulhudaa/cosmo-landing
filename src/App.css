@@ -20,3 +20,32 @@
 canvas {
   z-index: 2;
 }
+
+.pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+}
+.backdrop-blur-2xl {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.animate-spin-slow {
+  animation: spin 3s linear infinite;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.drop-shadow-lg { filter: drop-shadow(0 0 8px rgba(255,255,255,0.6)); }
+.drop-shadow-md { filter: drop-shadow(0 0 4px rgba(0,0,0,0.3)); }
+
+@keyframes gradientWave {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}

@@ -1,8 +1,12 @@
 import '@google/model-viewer';
 import { motion } from 'framer-motion';
 import {
-  AlertCircle, ArrowLeft, Box, Camera, CameraIcon, Info,
-  Sparkles
+  AlertCircle, ArrowLeft,
+  Box,
+  CameraIcon, Info,
+  Mic,
+  Sparkles,
+  X
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import ARViewer from './arViewer';
@@ -18,24 +22,13 @@ const API_DATA = [
     sizeFormatted: "6.3 MB",
     fullUrl: "https://vr.kiraproject.id/models/toilet.glb",
     description: "Model 3D toilet modern dengan detail keramik dan fitting premium.",
-    desc_left: {
-      title: "Fungsi Utama",
-      list: [
-        "Sistem flush otomatis dengan sensor inframerah",
-        "Desain anti-splash untuk kebersihan maksimal",
-        "Pemanas dudukan otomatis untuk kenyamanan",
-        "Mode hemat air (dual flush 3L/6L)",
-      ]
-    },
-    desc_right: {
-      title: "Tujuan Penggunaan",
-      value: `Toilet pintar untuk higienis & nyaman.\nTanpa sentuhan, bebas kuman.\nHemat air hingga 50%.\nCocok untuk rumah mewah & hotel bintang 5.`
-    },
-    system: "Smart Flush System v3.0",
-    benefits: ["Hemat air 50%", "Bebas sentuhan", "Pemanas dudukan", "Bidet otomatis", "Anti-bakteri UV"],
-    usage: ["Rumah mewah", "Hotel bintang 5", "Rumah sakit", "Apartemen premium"],
-    certifications: ["SNI", "WaterSense®", "ISO 9001", "Green Product"],
-    tags: ["higienis", "hemat", "premium", "smart home", "luxury"]
+    desc_left: { title: "Fungsi Utama", list: ["Flush otomatis", "Anti-splash", "Pemanas dudukan", "Hemat air 3L/6L"] },
+    desc_right: { title: "Tujuan", value: "Toilet pintar higienis untuk rumah mewah & hotel." },
+    system: "Smart Flush v3.0",
+    benefits: ["Hemat air 50%", "Bebas sentuhan", "Pemanas", "Bidet", "UV"],
+    usage: ["Rumah mewah", "Hotel", "RS", "Apartemen"],
+    certifications: ["SNI", "WaterSense", "ISO 9001"],
+    tags: ["higienis", "premium", "smart"]
   },
   {
     filename: "shoe.glb",
@@ -44,24 +37,13 @@ const API_DATA = [
     sizeFormatted: "8.53 MB",
     fullUrl: "https://vr.kiraproject.id/models/shoe.glb",
     description: "Sepatu sneaker high-res dengan tekstur kulit dan sol karet.",
-    desc_left: {
-      title: "Fitur Unggulan",
-      list: [
-        "Upper berbahan kulit premium tahan air & gores",
-        "Sol karet anti-slip dengan pola grip 3D",
-        "Insole memory foam dengan ventilasi udara",
-        "Tali elastis anti-kendor + quick-lace system",
-      ]
-    },
-    desc_right: {
-      title: "Dirancang Untuk",
-      value: `Gaya hidup aktif di kota.\nStylish tapi tetap nyaman.\nTahan air, anti-slip.\nIdeal untuk daily commute & jogging.`
-    },
-    system: "FlexGrip™ Technology",
-    benefits: ["Tahan air 100%", "Anti-slip", "Memory foam", "Quick-lace", "Breathable mesh"],
-    usage: ["Jogging", "Daily commute", "Outdoor adventure", "Gym"],
-    certifications: ["ISO 20345", "EcoTex 100", "Vegan Certified"],
-    tags: ["daily", "portable", "premium", "sport", "outdoor"]
+    desc_left: { title: "Fitur", list: ["Kulit tahan air", "Anti-slip", "Memory foam", "Quick-lace"] },
+    desc_right: { title: "Untuk", value: "Gaya hidup aktif: jogging, daily, outdoor." },
+    system: "FlexGrip™",
+    benefits: ["Tahan air", "Anti-slip", "Memory foam", "Breathable"],
+    usage: ["Jogging", "Daily", "Gym"],
+    certifications: ["ISO 20345", "EcoTex"],
+    tags: ["sport", "daily", "outdoor"]
   },
   {
     filename: "TissueCosmo.glb",
@@ -69,25 +51,14 @@ const API_DATA = [
     size: 70817700,
     sizeFormatted: "67.54 MB",
     fullUrl: "https://vr.kiraproject.id/models/TissueCosmo.glb",
-    description: "Tisu wajah premium dalam kemasan Cosmo dengan efek emboss dan foil.",
-    desc_left: {
-      title: "Keunggulan Produk",
-      list: [
-        "3 ply ultra-soft dengan teknologi lotion aloe vera",
-        "Tekstur emboss 3D untuk pembersihan lebih efektif",
-        "Kemasan premium dengan foil metalik & hot stamp",
-        "Aroma therapy alami (lavender & green tea)",
-      ]
-    },
-    desc_right: {
-      title: "Untuk Siapa?",
-      value: `Konsumen yang peduli kelembutan.\nKemasan elegan & premium.\nHypoallergenic, ramah kulit.\nCocok untuk hotel, spa, & rumah modern.`
-    },
-    system: "UltraSoft 3-Ply Technology",
-    benefits: ["Hypoallergenic", "Lotion aloe vera", "Emboss 3D", "Aroma therapy", "Biodegradable"],
-    usage: ["Hotel bintang 5", "Spa & salon", "Rumah modern", "Hadiah perusahaan"],
-    certifications: ["FSC", "Dermatest Excellent", "Halal MUI", "EU Ecolabel"],
-    tags: ["higienis", "premium", "gift", "eco", "luxury"]
+    description: "Tisu wajah premium dengan emboss dan foil.",
+    desc_left: { title: "Keunggulan", list: ["3 ply", "Aloe vera", "Emboss 3D", "Aroma therapy"] },
+    desc_right: { title: "Untuk", value: "Hotel, spa, rumah modern." },
+    system: "UltraSoft 3-Ply",
+    benefits: ["Hypoallergenic", "Lotion", "Emboss", "Biodegradable"],
+    usage: ["Hotel", "Spa", "Hadiah"],
+    certifications: ["FSC", "Dermatest", "Halal"],
+    tags: ["higienis", "gift", "luxury"]
   },
   {
     filename: "product-sample.glb",
@@ -95,25 +66,14 @@ const API_DATA = [
     size: 6540,
     sizeFormatted: "6.39 KB",
     fullUrl: "https://vr.kiraproject.id/models/product-sample.glb",
-    description: "Contoh produk sederhana untuk demo AR dan rendering cepat.",
-    desc_left: {
-      title: "Fitur Demo",
-      list: [
-        "Ukuran file ringan untuk loading cepat",
-        "Optimasi LOD untuk performa AR",
-        "Material PBR siap render real-time",
-        "UV mapping bersih & non-overlapping",
-      ]
-    },
-    desc_right: {
-      title: "Tujuan Demo",
-      value: `Template cepat untuk pengujian AR.\nFile ringan, load instan.\nCocok untuk developer & desainer.\nSiap pakai di WebXR.`
-    },
-    system: "Demo Template v1",
-    benefits: ["File ringan", "Loading cepat", "PBR ready", "WebXR optimized"],
-    usage: ["Testing", "Demo", "Developer", "Portfolio"],
+    description: "Contoh produk untuk demo AR.",
+    desc_left: { title: "Fitur", list: ["Ringan", "LOD", "PBR", "WebXR"] },
+    desc_right: { title: "Tujuan", value: "Template pengujian AR." },
+    system: "Demo v1",
+    benefits: ["Lightweight", "Fast load", "PBR"],
+    usage: ["Testing", "Demo"],
     certifications: [],
-    tags: ["demo", "lightweight", "developer", "template"]
+    tags: ["demo", "template"]
   },
   {
     filename: "box-sample.glb",
@@ -121,25 +81,14 @@ const API_DATA = [
     size: 1664,
     sizeFormatted: "1.63 KB",
     fullUrl: "https://vr.kiraproject.id/models/box-sample.glb",
-    description: "Kotak kemasan minimalis dengan tekstur karton dan logo timbul.",
-    desc_left: {
-      title: "Spesifikasi Kemasan",
-      list: [
-        "Material karton kraft 350 GSM",
-        "Teknik emboss logo 3D dengan foil gold",
-        "Lapisan anti-minyak food-grade",
-        "Desain lipat otomatis (auto-lock bottom)",
-      ]
-    },
-    desc_right: {
-      title: "Aplikasi Ideal",
-      value: `Kemasan premium untuk kosmetik & gift.\nDesain mewah, ramah lingkungan.\nMudah dirakit tanpa lem.\nTingkatkan pengalaman unboxing.`
-    },
-    system: "Premium Folding Box",
-    benefits: ["Emboss 3D", "Foil gold", "Food-safe", "Eco-friendly", "Easy assembly"],
-    usage: ["Kosmetik", "Gift box", "Makanan premium", "Brand luxury"],
-    certifications: ["FSC", "Food Grade", "ISO 22000"],
-    tags: ["packaging", "premium", "gift", "eco", "branding"]
+    description: "Kotak kemasan minimalis.",
+    desc_left: { title: "Spesifikasi", list: ["350 GSM", "Emboss", "Food-safe", "Auto-lock"] },
+    desc_right: { title: "Aplikasi", value: "Kosmetik, gift, brand." },
+    system: "Premium Folding",
+    benefits: ["Emboss", "Foil", "Eco", "Easy"],
+    usage: ["Kosmetik", "Gift"],
+    certifications: ["FSC", "ISO 22000"],
+    tags: ["packaging", "gift"]
   },
   {
     filename: "astronaut.glb",
@@ -147,42 +96,33 @@ const API_DATA = [
     size: 2869044,
     sizeFormatted: "2.74 MB",
     fullUrl: "https://vr.kiraproject.id/models/astronaut.glb",
-    description: "Astronaut dengan spacesuit detail, cocok untuk visualisasi luar angkasa.",
-    desc_left: {
-      title: "Detail Teknis",
-      list: [
-        "Spacesuit berbasis NASA EMU (Extravehicular Mobility Unit)",
-        "Visor anti-reflektif dengan lapisan emas",
-        "Life support backpack dengan detail pipa oksigen",
-        "Articulated joints untuk animasi realistis",
-      ]
-    },
-    desc_right: {
-      title: "Konteks Penggunaan",
-      value: `Visualisasi edukasi luar angkasa.\nSimulasi spacewalk & misi Mars.\nCocok untuk museum & VR training.\nDetail akurat berbasis NASA.`
-    },
-    system: "NASA EMU Spacesuit Replica",
-    benefits: ["Detail NASA-accurate", "PBR materials", "Rigged joints", "4K textures", "AR/VR ready"],
-    usage: ["Edukasi", "Museum", "VR training", "Space simulation"],
-    certifications: ["NASA Reference", "PBR Standard"],
-    tags: ["space", "nasa", "education", "vr", "science"]
+    description: "Astronaut dengan spacesuit detail.",
+    desc_left: { title: "Detail", list: ["NASA EMU", "Visor emas", "Life support", "Rigged"] },
+    desc_right: { title: "Untuk", value: "Edukasi, VR, museum." },
+    system: "NASA Replica",
+    benefits: ["NASA-accurate", "PBR", "Rigged", "4K"],
+    usage: ["Edukasi", "Museum", "VR"],
+    certifications: ["NASA Ref"],
+    tags: ["space", "nasa", "vr"]
   }
 ];
 
-// === Rule-Based Fallback (Jika AI Lokal Gagal) ===
+// === Fallback RuleBot ===
 const ruleBot = (text, model) => {
   const t = text.toLowerCase();
   const name = model?.name?.toLowerCase() || '';
-
-  if (/halo|hi|hai/.test(t)) return 'Halo! Ada yang bisa saya bantu tentang produk 3D ini?';
-  if (/toilet|wc|closet/.test(t) || name.includes('toilet')) return 'Toilet pintar: flush otomatis, hemat air 50%, pemanas dudukan, anti-bakteri UV.';
-  if (/sepatu|shoe|sneaker/.test(t) || name.includes('shoe')) return 'Sepatu tahan air 100%, anti-slip, memory foam, cocok untuk jogging & daily use.';
-  if (/tisu|tissue|cosmo/.test(t) || name.includes('tissue')) return 'Tisu 3 ply ultra-soft, hypoallergenic, aroma therapy, kemasan premium foil.';
-  if (/astronaut|nasa|luar angkasa/.test(t) || name.includes('astronaut')) return 'Model astronaut berbasis NASA EMU, cocok untuk simulasi VR luar angkasa.';
-  if (/kotak|box|kemasan/.test(t) || name.includes('box')) return 'Kotak kemasan premium: emboss 3D, foil gold, food-safe, ramah lingkungan.';
-  if (/ar|augmented/.test(t)) return 'Tekan "Tap to Place" saat AR aktif untuk meletakkan model di lantai.';
-  return `Maaf, saya belum paham: "${text}". Coba tanya fitur produk atau AR!`;
+  if (/halo|hi|hai/.test(t)) return 'Halo! Ada yang bisa saya bantu?';
+  if (/toilet/.test(t) || name.includes('toilet')) return 'Toilet pintar: flush otomatis, hemat air 50%, pemanas dudukan.';
+  if (/sepatu|shoe/.test(t) || name.includes('shoe')) return 'Sepatu tahan air, anti-slip, memory foam.';
+  if (/tisu|tissue/.test(t) || name.includes('tissue')) return 'Tisu 3 ply ultra-soft, hypoallergenic, aroma therapy.';
+  if (/astronaut/.test(t) || name.includes('astronaut')) return 'Model astronaut NASA EMU, cocok untuk VR luar angkasa.';
+  if (/kotak|box/.test(t) || name.includes('box')) return 'Kotak kemasan premium: emboss, foil, food-safe.';
+  if (/ar/.test(t)) return 'Tekan "Tap to Place" saat AR aktif.';
+  return `Maaf, saya belum paham: "${text}". Coba tanya fitur produk!`;
 };
+
+// === API BASE ===
+const API_BASE = 'https://vr.kiraproject.id';
 
 export default function App() {
   const [modelUrl, setModelUrl] = useState('');
@@ -191,95 +131,140 @@ export default function App() {
   const [blobUrlToRevoke, setBlobUrlToRevoke] = useState(null);
   const [selectedModel, setSelectedModel] = useState(null);
 
-  // === Voice Chat State ===
+  // === CHAT STATE ===
   const [showChat, setShowChat] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isLoadingAI, setIsLoadingAI] = useState(false);
+  const [selectedSku, setSelectedSku] = useState('');
+  const [selectedProductName, setSelectedProductName] = useState('');
   const recognitionRef = useRef(null);
-  const generatorRef = useRef(null);
   const chatHistoryRef = useRef(null);
 
-  // === Speech Synthesis ===
+  // === PRODUK STATE ===
+  const [products, setProducts] = useState([]);
+
+  // === FETCH PRODUK ===
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/products`);
+        const json = await res.json();
+        if (json.success) setProducts(json.data);
+      } catch (err) {
+        console.warn('Gagal fetch produk:', err);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  // === SPEECH RECOGNITION ===
+  useEffect(() => {
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.lang = 'id-ID';
+      recognition.interimResults = false;
+      recognition.continuous = false;
+
+      recognition.onresult = (e) => {
+        setInputText(e.results[0][0].transcript);
+        setIsListening(false);
+      };
+      recognition.onerror = () => setIsListening(false);
+      recognition.onend = () => setIsListening(false);
+
+      recognitionRef.current = recognition;
+    }
+  }, []);
+
+  // === TEXT TO SPEECH ===
   const speak = (text) => {
     return new Promise((resolve) => {
       if (!('speechSynthesis' in window)) return resolve();
       const utter = new SpeechSynthesisUtterance(text);
       utter.lang = 'id-ID';
       utter.rate = 0.9;
-      utter.pitch = 1;
-      utter.volume = 1;
       utter.onend = resolve;
       window.speechSynthesis.cancel();
       window.speechSynthesis.speak(utter);
     });
   };
 
-  // === Tambah Pesan ===
+  // === TAMBAH PESAN ===
   const addMessage = (role, content) => {
     setMessages(prev => [...prev, { role, content, id: Date.now() }]);
     setTimeout(() => {
       if (chatHistoryRef.current) {
-        chatHistoryRef.current.scrollTop = 0;
+        chatHistoryRef.current.scrollTop = chatHistoryRef.current.scrollHeight;
       }
     }, 50);
   };
 
-  // === Proses Pertanyaan ===
+  // === KIRIM KE LLM ===
+  const sendToLLM = async (message) => {
+    if (selectedSku) {
+      const payload = { sku: selectedSku, question: message };
+      const endpoint = `${API_BASE}/api/llm/product-chat`;
+      try {
+        const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const json = await res.json();
+        if (json.success) return json.data.response;
+        throw new Error();
+      } catch {
+        return ruleBot(message, selectedModel);
+      }
+    } else {
+      const payload = { message };
+      const endpoint = `${API_BASE}/api/llm/chat`;
+      try {
+        const res = await fetch(endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const json = await res.json();
+        if (json.success) return json.data.response;
+        throw new Error();
+      } catch {
+        return ruleBot(message, selectedModel);
+      }
+    }
+  };
+
+  // === HANDLE SEND ===
   const handleSend = async (text) => {
     if (!text.trim()) return;
     const userText = text.trim();
     addMessage('user', userText);
     setInputText('');
     setIsLoadingAI(true);
-
-    let reply = '';
-
-    if (generatorRef.current) {
-      try {
-        const output = await generatorRef.current(`Q: ${userText}\nA:`, {
-          max_new_tokens: 80,
-          do_sample: true,
-          temperature: 0.7,
-          top_k: 50,
-        });
-        reply = output[0].generated_text.split('A:')[1]?.trim() || "Saya tidak yakin.";
-      } catch (err) {
-        reply = ruleBot(userText, selectedModel);
-      }
-    } else {
-      reply = ruleBot(userText, selectedModel);
-    }
-
+    const reply = await sendToLLM(userText);
     addMessage('bot', reply);
     await speak(reply);
     setIsLoadingAI(false);
   };
 
-  // === Toggle Mic ===
+  // === TOGGLE MIC ===
   const toggleMic = () => {
     if (!recognitionRef.current) return;
-    if (isListening) {
-      recognitionRef.current.stop();
-    } else {
-      recognitionRef.current.start();
-      setIsListening(true);
-    }
+    if (isListening) recognitionRef.current.stop();
+    else recognitionRef.current.start();
+    setIsListening(!isListening);
   };
 
-  // === Handler Model & AR ===
+  // === HANDLE SKU CHANGE ===
+  const handleSkuChange = (e) => {
+    const sku = e.target.value;
+    const product = products.find(p => p.sku === sku);
+    setSelectedSku(sku);
+    setSelectedProductName(product?.name || '');
+  };
+
+  // === MODEL & AR HANDLER ===
   const handleModelSelect = (model) => {
     if (model instanceof File) {
       const url = URL.createObjectURL(model);
       setBlobUrlToRevoke(url);
       setModelUrl(url);
-      setSelectedModel({
-        name: model.name,
-        sizeFormatted: `${(model.size / 1024).toFixed(2)} KB`,
-        desc_left: { title: "File", value: "Lokal" },
-        desc_right: { title: "Ukuran", value: `${(model.size / 1024).toFixed(2)} KB` }
-      });
+      setSelectedModel({ name: model.name, sizeFormatted: `${(model.size / 1024).toFixed(2)} KB` });
     } else {
       setBlobUrlToRevoke(null);
       setModelUrl(model.fullUrl);
@@ -290,9 +275,7 @@ export default function App() {
 
   const handleBack = () => {
     setShowAR(false);
-    if (blobUrlToRevoke) {
-      setTimeout(() => URL.revokeObjectURL(blobUrlToRevoke), 500);
-    }
+    if (blobUrlToRevoke) setTimeout(() => URL.revokeObjectURL(blobUrlToRevoke), 500);
     setModelUrl(''); setBlobUrlToRevoke(null); setSelectedModel(null);
   };
 
@@ -300,47 +283,78 @@ export default function App() {
   const handleBackFromUnity = () => setShowUnityAR(false);
 
   useEffect(() => {
-    return () => {
-      if (blobUrlToRevoke) URL.revokeObjectURL(blobUrlToRevoke);
-    };
+    return () => { if (blobUrlToRevoke) URL.revokeObjectURL(blobUrlToRevoke); };
   }, [blobUrlToRevoke]);
 
-  // === RENDER ===
-  if (showAR && modelUrl) {
-    return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-        <ARViewer modelUrl={modelUrl} model={selectedModel} onBack={handleBack} />
-      </motion.div>
-    );
-  }
-
-  if (showUnityAR) {
-    return <UnityARViewer onBack={handleBackFromUnity} />;
-  }
+  // === RENDER AR ===
+  if (showAR && modelUrl) return <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}><ARViewer modelUrl={modelUrl} model={selectedModel} onBack={handleBack} /></motion.div>;
+  if (showUnityAR) return <UnityARViewer onBack={handleBackFromUnity} />;
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-cyan-950 to-slate-950 text-white">
-    
-      {/* === Tombol image-tracking AR === */}
-      <div className='w-screen flex justify-center items-center'>
-        <div className='fixed bg-white/14 w-full md:w-max px-20 h-[16vh] flex flex-col items-center backdrop-blur-xl justify-center bottom-0 md:bottom-4 rounded-tl-xl rounded-tr-xl md:rounded-3xl shadow-xl z-[2333] mt-12 text-center'>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-            <button onClick={handleUnityAR} className="group flex cursor-pointer relative inline-flex items-center gap-3 px-5 w-max py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-lg rounded-xl shadow-2xl hover:shadow-purple-500/50 transform hover:scale-103 transition-all duration-300 overflow-hidden">
+      {/* === AR IMAGE-TRACKING + TOMBOL CHAT DI TENGAH ATAS === */}
+      <div className='w-screen flex justify-center items-center relative'>
+        <div className='fixed bg-white/14 w-full md:w-max md:px-6 h-[12vh] md:h-[16vh] flex items-center backdrop-blur-xl justify-center bottom-0 md:bottom-4 rounded-tl-xl rounded-tr-xl md:rounded-3xl shadow-xl z-[2333] mt-12 text-center'>
+          
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className='w-full md:px-0 px-10'>
+            <button 
+              onClick={handleUnityAR} 
+              className="group flex cursor-pointer relative inline-flex items-center gap-3 px-5 w-full text-center justify-center md:w-max py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold text-lg rounded-xl shadow-2xl hover:shadow-purple-500/50 transform hover:scale-103 transition-all duration-300 overflow-hidden"
+            >
               <CameraIcon className="w-6 h-6 group-hover:animate-pulse" />
-              <p className='text-sm'>AR IMAGE-TRACKING | COSMO</p>
+              <p className='text-sm flex w-max'>AR IMAGE-TRACKING</p>
               <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
             </button>
-            <div className="mt-3 flex items-center justify-center gap-1 text-xs text-yellow-300">
+            <div className="mt-3 md:flex hidden items-center justify-center gap-1 text-xs text-yellow-300">
               <AlertCircle className="w-4 h-4" />
               <p className="text-sm text-white font-mono tracking-widest">
-                POWERED BY <span className="text-white">AFRAME</span> • <span className="text-pink-400">2025</span>
+                POWERED BY <span className="text-white">AFRAME</span>
               </p>
             </div>
           </motion.div>
+
+          <div className='md:flex hidden w-[2px] h-full bg-white/20 mx-6'>
+
+          </div>
+
+         <div className="md:relative absolute md:left-0 left-1/2 md:-translate-x-0 -translate-x-1/2 md:top-0 -top-22">
+          <div className="border-white/30 border shadow-3xl p-1.5 w-[80px] h-[80px] bg-white/16 backdrop-blur-3xl rounded-full flex items-center justify-center">
+            {!showChat ? (
+              <motion.button
+                onClick={() => setShowChat(true)}
+                style={{
+                  backgroundSize: '400% 400%',
+                  animation: 'gradientWave 2s ease infinite',
+                }}
+                className="w-full h-full bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500
+                          cursor-pointer hover:brightness-95 hover:scale-[1.1] active:scale-[1]
+                          text-white rounded-full shadow-2xl flex items-center justify-center
+                          z-[9999] hover:shadow-purple-500/50 transition-all"
+              >
+                <Sparkles className="w-6 h-6" />
+              </motion.button>
+            ) : (
+              <motion.button
+                onClick={() => setShowChat(false)}
+                style={{
+                  backgroundSize: '400% 400%',
+                  animation: 'gradientWave 4s ease infinite',
+                }}
+                className="w-full h-full bg-gradient-to-r from-red-200 via-red-500 to-red-200
+                          cursor-pointer hover:brightness-95 hover:scale-[1.1] active:scale-[1]
+                          text-white rounded-full shadow-2xl flex items-center justify-center
+                          z-[9999] hover:shadow-purple-500/50 transition-all"
+              >
+                <X className="w-6 h-6" />
+              </motion.button>
+            )}
+          </div>
+          </div>
+
         </div>
       </div>
 
-      {/* === Background & Main UI === */}
+      {/* === BACKGROUND === */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute inset-0 bg-gradient-to-tr from-cyan-500/20 via-purple-600/20 to-pink-600/20 animate-pulse" />
         <div className="absolute inset-0 bg-gradient-to-bl from-emerald-500/10 via-blue-600/10 to-indigo-600/10 animate-pulse animation-delay-2000" />
@@ -358,11 +372,7 @@ export default function App() {
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: -50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
           <div className="w-full md:flex justify-center items-center gap-6 mb-6">
-            <div className='flex md:hidden'>
-              <motion.div className='mx-auto mb-6'>
-                <Box size={80} className="text-cyan-400 drop-shadow-glow" />
-              </motion.div>
-            </div>
+            <div className='flex md:hidden'><motion.div className='mx-auto mb-6'><Box size={80} className="text-cyan-400 drop-shadow-glow" /></motion.div></div>
             <h1 className="text-3xl md:text-7xl text-center font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600">
               AR VIEWER COSMO
             </h1>
@@ -409,10 +419,126 @@ export default function App() {
         </motion.div>
       </div>
 
+      {/* === CHATBOT UI === */}
+      <div className='md:w-max md:p-0 flex items-center justify-center'>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8, y: 100 }}
+          animate={{ opacity: showChat ? 1 : 0, scale: showChat ? 1 : 0.8, y: showChat ? 0 : 100 }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          className={`fixed bottom-0 md:bottom-4 right-0 md:right-4 w-full md:w-96 h-[80vh] bg-gradient-to-br from-slate-900/95 to-purple-900/95 backdrop-blur-xl border border-white/20 rounded-tl-3xl rounded-tr-3xl md:rounded-3xl shadow-2xl z-[9999] flex flex-col ${showChat ? 'pointer-events-auto' : 'pointer-events-none'}`}
+        >
+          {/* Header */}
+          <div className="p-4 border-b border-white/10 flex items-center justify-between">
+            <div className="flex items-center gap-3 cursor-pointer">
+              <div className="w-10 h-10 bg-gradient-to-r from-cyan-400 to-purple-600 rounded-full flex items-center justify-center">
+                <Sparkles className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-bold text-white">COSMO Assistant</h3>
+                <p className="text-xs text-cyan-300">
+                  Online • {selectedProductName || selectedSku ? selectedProductName || `SKU: ${selectedSku}` : 'Chat Umum'}
+                </p>
+              </div>
+            </div>
+            <button onClick={() => setShowChat(false)} className="text-white cursor-pointer hover:brightness-95 active:scale-[0.99] hover:text-white transition">
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Messages */}
+          <div ref={chatHistoryRef} className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin scrollbar-thumb-white/20" style={{ scrollBehavior: 'smooth' }}>
+            {messages.length === 0 && (
+              <div className="text-center text-white/50 text-sm mt-8">
+                <Sparkles className="w-8 h-8 mx-auto mb-2 text-cyan-400 animate-pulse" />
+                <p>Pilih produk atau tanya umum!</p>
+              </div>
+            )}
+            {messages.map((msg) => (
+              <motion.div key={msg.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-[80%] p-3 rounded-2xl ${msg.role === 'user' ? 'bg-cyan-600 text-white' : 'bg-white/10 text-cyan-100 border border-white/10'}`}>
+                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                </div>
+              </motion.div>
+            ))}
+            {isLoadingAI && (
+              <div className="flex justify-start">
+                <div className="bg-white/10 border border-white/10 p-3 rounded-2xl">
+                  <div className="flex gap-1">
+                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                    <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Input Area */}
+          <div className="p-3 border-t border-white/10">
+            <div className="space-y-2">
+
+              {/* === SELECT PRODUK (LANGSUNG TAMPIL) === */}
+              <select
+                value={selectedSku}
+                onChange={handleSkuChange}
+                className="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-black-400 transition"
+              >
+                <option className='text-black' value="">Chat Umum</option>
+                {products.map((product) => (
+                  <option key={product.sku} className='text-black' value={product.sku}>
+                    {product.name} (SKU: {product.sku})
+                  </option>
+                ))}
+              </select>
+
+              {/* Input Text */}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSend(inputText)}
+                  placeholder={selectedProductName ? `Tanya tentang ${selectedProductName}...` : "Tanya apa saja..."}
+                  className="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white placeholder-white/40 focus:outline-none focus:border-cyan-400 transition"
+                />
+                <button
+                  onClick={toggleMic}
+                  className={`w-[40px] h-[40px] flex items-center justify-center p-2 rounded-xl transition ${isListening ? 'bg-red-500 text-white' : 'bg-white/10 text-white hover:bg-white/20'}`}
+                >
+                  <Mic className={`w-5 h-5 ${isListening ? 'animate-pulse' : ''}`} />
+                </button>
+                <button
+                  onClick={() => handleSend(inputText)}
+                  disabled={!inputText.trim()}
+                  className="w-[40px] h-[40px] flex items-center justify-center p-2 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-xl hover:shadow-lg hover:shadow-purple-500/50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* === TOGGLE CHAT BUTTON === */}
+      {/* {!showChat && (
+        <button
+          onClick={() => setShowChat(true)}
+          className="cursor-pointer active:scale-[1] hover:scale-[1.1] hover:brightness-95 fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-full shadow-2xl flex items-center justify-center z-[9998] hover:shadow-purple-500/50 transition-all"
+        >
+          <Sparkles className="w-7 h-7" />
+        </button>
+      )} */}
+
       {/* Custom CSS */}
       <style dangerouslySetInnerHTML={{ __html: `
         .drop-shadow-glow { filter: drop-shadow(0 0 20px rgba(34, 211, 238, 0.6)); }
         .animation-delay-2000 { animation-delay: 2s; }
+        .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
       ` }} />
     </div>
   );
