@@ -13,100 +13,6 @@ import ARViewer from './arViewer';
 import ModelSelector from './modelUploader';
 import UnityARViewer from './UnityARViewer';
 
-// === DATA MODEL 3D ===
-const API_DATA = [
-  {
-    filename: "toilet.glb",
-    name: "toilet",
-    size: 6602832,
-    sizeFormatted: "6.3 MB",
-    fullUrl: "https://vr.kiraproject.id/models/toilet.glb",
-    description: "Model 3D toilet modern dengan detail keramik dan fitting premium.",
-    desc_left: { title: "Fungsi Utama", list: ["Flush otomatis", "Anti-splash", "Pemanas dudukan", "Hemat air 3L/6L"] },
-    desc_right: { title: "Tujuan", value: "Toilet pintar higienis untuk rumah mewah & hotel." },
-    system: "Smart Flush v3.0",
-    benefits: ["Hemat air 50%", "Bebas sentuhan", "Pemanas", "Bidet", "UV"],
-    usage: ["Rumah mewah", "Hotel", "RS", "Apartemen"],
-    certifications: ["SNI", "WaterSense", "ISO 9001"],
-    tags: ["higienis", "premium", "smart"]
-  },
-  {
-    filename: "shoe.glb",
-    name: "shoe",
-    size: 8947140,
-    sizeFormatted: "8.53 MB",
-    fullUrl: "https://vr.kiraproject.id/models/shoe.glb",
-    description: "Sepatu sneaker high-res dengan tekstur kulit dan sol karet.",
-    desc_left: { title: "Fitur", list: ["Kulit tahan air", "Anti-slip", "Memory foam", "Quick-lace"] },
-    desc_right: { title: "Untuk", value: "Gaya hidup aktif: jogging, daily, outdoor." },
-    system: "FlexGrip™",
-    benefits: ["Tahan air", "Anti-slip", "Memory foam", "Breathable"],
-    usage: ["Jogging", "Daily", "Gym"],
-    certifications: ["ISO 20345", "EcoTex"],
-    tags: ["sport", "daily", "outdoor"]
-  },
-  {
-    filename: "TissueCosmo.glb",
-    name: "TissueCosmo",
-    size: 70817700,
-    sizeFormatted: "67.54 MB",
-    fullUrl: "https://vr.kiraproject.id/models/TissueCosmo.glb",
-    description: "Tisu wajah premium dengan emboss dan foil.",
-    desc_left: { title: "Keunggulan", list: ["3 ply", "Aloe vera", "Emboss 3D", "Aroma therapy"] },
-    desc_right: { title: "Untuk", value: "Hotel, spa, rumah modern." },
-    system: "UltraSoft 3-Ply",
-    benefits: ["Hypoallergenic", "Lotion", "Emboss", "Biodegradable"],
-    usage: ["Hotel", "Spa", "Hadiah"],
-    certifications: ["FSC", "Dermatest", "Halal"],
-    tags: ["higienis", "gift", "luxury"]
-  },
-  {
-    filename: "product-sample.glb",
-    name: "product-sample",
-    size: 6540,
-    sizeFormatted: "6.39 KB",
-    fullUrl: "https://vr.kiraproject.id/models/product-sample.glb",
-    description: "Contoh produk untuk demo AR.",
-    desc_left: { title: "Fitur", list: ["Ringan", "LOD", "PBR", "WebXR"] },
-    desc_right: { title: "Tujuan", value: "Template pengujian AR." },
-    system: "Demo v1",
-    benefits: ["Lightweight", "Fast load", "PBR"],
-    usage: ["Testing", "Demo"],
-    certifications: [],
-    tags: ["demo", "template"]
-  },
-  {
-    filename: "box-sample.glb",
-    name: "box-sample",
-    size: 1664,
-    sizeFormatted: "1.63 KB",
-    fullUrl: "https://vr.kiraproject.id/models/box-sample.glb",
-    description: "Kotak kemasan minimalis.",
-    desc_left: { title: "Spesifikasi", list: ["350 GSM", "Emboss", "Food-safe", "Auto-lock"] },
-    desc_right: { title: "Aplikasi", value: "Kosmetik, gift, brand." },
-    system: "Premium Folding",
-    benefits: ["Emboss", "Foil", "Eco", "Easy"],
-    usage: ["Kosmetik", "Gift"],
-    certifications: ["FSC", "ISO 22000"],
-    tags: ["packaging", "gift"]
-  },
-  {
-    filename: "astronaut.glb",
-    name: "astronaut",
-    size: 2869044,
-    sizeFormatted: "2.74 MB",
-    fullUrl: "https://vr.kiraproject.id/models/astronaut.glb",
-    description: "Astronaut dengan spacesuit detail.",
-    desc_left: { title: "Detail", list: ["NASA EMU", "Visor emas", "Life support", "Rigged"] },
-    desc_right: { title: "Untuk", value: "Edukasi, VR, museum." },
-    system: "NASA Replica",
-    benefits: ["NASA-accurate", "PBR", "Rigged", "4K"],
-    usage: ["Edukasi", "Museum", "VR"],
-    certifications: ["NASA Ref"],
-    tags: ["space", "nasa", "vr"]
-  }
-];
-
 // === Fallback RuleBot ===
 const ruleBot = (text, model) => {
   const t = text.toLowerCase();
@@ -521,16 +427,6 @@ export default function App() {
           </div>
         </motion.div>
       </div>
-
-      {/* === TOGGLE CHAT BUTTON === */}
-      {/* {!showChat && (
-        <button
-          onClick={() => setShowChat(true)}
-          className="cursor-pointer active:scale-[1] hover:scale-[1.1] hover:brightness-95 fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-cyan-500 to-purple-600 text-white rounded-full shadow-2xl flex items-center justify-center z-[9998] hover:shadow-purple-500/50 transition-all"
-        >
-          <Sparkles className="w-7 h-7" />
-        </button>
-      )} */}
 
       {/* Custom CSS */}
       <style dangerouslySetInnerHTML={{ __html: `
