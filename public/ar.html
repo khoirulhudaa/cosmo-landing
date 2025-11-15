@@ -103,7 +103,6 @@
 </html> -->
 
 
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -122,12 +121,7 @@
       font-family: 'Segoe UI', sans-serif;
     }
 
-    #toggleVideoBtn svg, #downloadPdfBtn svg {
-      width: 14px;
-      height: 14px;
-      stroke: #4fc3f7;
-    }
-
+    /* LOADING */
     #loadingScreen {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -143,8 +137,7 @@
     }
     #loadingScreen.hidden { opacity: 0; }
     .spinner {
-      width: 50px;
-      height: 50px;
+      width: 50px; height: 50px;
       border: 4px solid #333;
       border-top: 4px solid #4fc3f7;
       border-radius: 50%;
@@ -155,202 +148,164 @@
     #loadingText { font-size: 16px; color: #ccc; text-align: center; max-width: 80%; }
     #loadingText strong { color: #4fc3f7; }
 
-    a-scene {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      pointer-events: none !important;
-    }
+    a-scene { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none !important; }
     .ar-model { pointer-events: auto !important; transform-style: preserve-3d; }
 
-    /* GLASSMORPHISM CONTAINER */
+    /* YOUTUBE CONTAINER */
     #youtubeContainer {
       position: absolute;
-      top: 4%;
-      right: 1.5%;
-      width: 75vw;
-      height: 91vh;
-      max-width: 320px;
-      min-width: 180px;
-      border-radius: 20px;
+      top: 4%; right: 1.5%;
+      width: 75vw; max-width: 320px; min-width: 180px;
+      height: 91vh; border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37), inset 0 0 20px rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      background: rgba(20, 20, 30, 0.35);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      display: flex;
-      flex-direction: column;
-      transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s ease;
-      z-index: 999999000;
-      pointer-events: auto;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.37), inset 0 0 20px rgba(255,255,255,0.05);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      background: rgba(20,20,30,0.35); border: 1px solid rgba(255,255,255,0.18);
+      display: flex; flex-direction: column;
+      transition: height 0.5s cubic-bezier(0.4,0,0.2,1), transform 0.5s ease;
+      z-index: 999999000; pointer-events: auto;
     }
-    #youtubeContainer.compact {
-      height: 8.5vh;
-      overflow: hidden;
-    }
-    #youtubeContainer.compact .info-section,
-    #youtubeContainer.compact .wrap-btn,
-    #youtubeContainer.compact #videoFrame { display: none !important; }
-    #youtubeContainer.hidden {
-      opacity: 0;
-      transform: translateX(150%);
-      pointer-events: none;
-    }
+    #youtubeContainer.compact { height: 8.5vh; overflow: hidden; }
+    #youtubeContainer.compact .info-section, #youtubeContainer.compact .wrap-btn, #youtubeContainer.compact #videoFrame { display: none !important; }
+    #youtubeContainer.hidden { opacity: 0; transform: translateX(150%); pointer-events: none; }
 
-    #videoFrame {
-      width: 100%;
-      height: 500px;
-      overflow: hidden;
-      transition: all 0.4s ease;
-      border-radius: 16px 16px 0 0;
-    }
-    #videoFrame.hidden {
-      height: 0;
-      opacity: 0;
-      padding: 0;
-      margin: 0;
-    }
-    #youtubeIframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      border-radius: 16px 16px 0 0;
-    }
+    #videoFrame { width: 100%; height: 500px; overflow: hidden; transition: all 0.4s ease; border-radius: 16px 16px 0 0; }
+    #videoFrame.hidden { height: 0; opacity: 0; padding: 0; margin: 0; }
+    #youtubeIframe { width: 100%; height: 100%; border: none; border-radius: 16px 16px 0 0; }
 
-    #productCard {
-      padding: 16px;
-      max-height: 100%;
-      overflow-y: auto;
-      font-size: 12.5px;
-      line-height: 1.5;
-      background: rgba(15, 15, 25, 0.4);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      color: #eee;
-    }
-    #productCard h3 {
-      margin: 0 0 8px;
-      font-size: 16px;
-      color: #fff;
-      font-weight: 700;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-      display: flex;
-      align-items: center;
-    }
-    #productCard p {
-      margin: 6px 0;
-      font-size: 12.5px;
-      color: #ddd;
-      line-height: 1.4;
-    }
-    .info-section {
-      margin-bottom: 12px;
-      padding-bottom: 8px;
-      border-bottom: 1px dashed rgba(79, 195, 247, 0.3);
-    }
+    #productCard { padding: 16px; max-height: 100%; overflow-y: auto; font-size: 12.5px; line-height: 1.5;
+      background: rgba(15,15,25,0.4); backdrop-filter: blur(12px); border-top: 1px solid rgba(255,255,255,0.1); color: #eee; }
+    #productCard h3 { margin: 0 0 8px; font-size: 16px; color: #fff; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      display: flex; align-items: center; }
+    #productCard p { margin: 6px 0; font-size: 12.5px; color: #ddd; line-height: 1.4; }
+    .info-section { margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed rgba(79,195,247,0.3); }
     .info-section:last-of-type { border: none; margin-bottom: 8px; }
     #productCard::-webkit-scrollbar { width: 5px; }
-    #productCard::-webkit-scrollbar-thumb {
-      background: rgba(79, 195, 247, 0.6);
-      border-radius: 3px;
-    }
+    #productCard::-webkit-scrollbar-thumb { background: rgba(79,195,247,0.6); border-radius: 3px; }
 
-    .wrap-btn {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
+    .wrap-btn { display: flex; gap: 8px; margin-bottom: 12px; }
     #toggleVideoBtn, #downloadPdfBtn {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 11px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      text-decoration: none;
+      display: flex; align-items: center; gap: 6px; padding: 6px 11px; border-radius: 8px;
+      font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); text-decoration: none;
     }
-    #toggleVideoBtn {
-      background: rgba(255, 255, 255, 0.25);
-      color: #ddd;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    #toggleVideoBtn:hover {
-      background: rgba(255, 255, 255, 0.35);
-      transform: translateY(-1px);
-    }
-    #downloadPdfBtn {
-      background: rgba(79, 195, 247, 0.15);
-      color: #4fc3f7;
-      border: 1px solid rgba(79, 195, 247, 0.3);
-      opacity: 0;
-      pointer-events: none;
-    }
-    #downloadPdfBtn.visible {
-      opacity: 1;
-      pointer-events: auto;
-    }
-    #downloadPdfBtn:hover {
-      background: rgba(79, 195, 247, 0.25);
-      transform: translateY(-2px);
-    }
+    #toggleVideoBtn { background: rgba(255,255,255,0.25); color: #ddd; border: 1px solid rgba(255,255,255,0.2); }
+    #toggleVideoBtn:hover { background: rgba(255,255,255,0.35); transform: translateY(-1px); }
+    #downloadPdfBtn { background: rgba(79,195,247,0.15); color: #4fc3f7; border: 1px solid rgba(79,195,247,0.3); opacity: 0; pointer-events: none; }
+    #downloadPdfBtn.visible { opacity: 1; pointer-events: auto; }
+    #downloadPdfBtn:hover { background: rgba(79,195,247,0.25); transform: translateY(-2px); }
 
     #toggleContainerBtn {
-      position: fixed;
-      top: 16px;
-      right: 16px;
-      width: 44px;
-      height: 44px;
-      font-size: 20px;
-      font-weight: bold;
-      cursor: pointer;
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 50%;
-      color: white;
-      transition: all 0.3s ease;
-      pointer-events: auto !important;
+      position: fixed; top: 16px; right: 16px; width: 44px; height: 44px; font-size: 20px; font-weight: bold;
+      cursor: pointer; z-index: 9999; display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 50%; color: white; transition: all 0.3s ease; pointer-events: auto !important;
     }
-    #toggleContainerBtn:hover {
-      transform: scale(1.15);
-      background: rgba(0, 0, 0, 0.7);
-      box-shadow: 0 0 20px rgba(79, 195, 247, 0.3);
-    }
+    #toggleContainerBtn:hover { transform: scale(1.15); background: rgba(0,0,0,0.7); box-shadow: 0 0 20px rgba(79,195,247,0.3); }
 
-    #toggleHeightBtn {
-      all: unset;
-      cursor: pointer;
-      margin-left: 8px;
-      display: inline-flex;
-      align-items: center;
-    }
+    #toggleHeightBtn { all: unset; cursor: pointer; margin-left: 8px; display: inline-flex; align-items: center; }
 
     @media (max-width: 480px) {
-      #youtubeContainer {
-        top: 4%;
-        right: 4%;
-        width: 92vw;
-        max-width: 300px;
-        border-radius: 18px;
-      }
-      #youtubeContainer.compact {
-        height: 8.5vh;
-        overflow: hidden;
-      }
-      #videoFrame { height: 500px; }
+      #youtubeContainer { top: 4%; right: 4%; width: 92vw; max-width: 300px; border-radius: 18px; }
+      #youtubeContainer.compact { height: 8.5vh; }
       #toggleContainerBtn { width: 40px; height: 40px; top: 12px; right: 12px; }
     }
+
+    /* === VOICE WAVE (TENGAH BAWAH) === */
+    #voiceWave {
+      position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+      width: 90px; height: 90px;
+      border-radius: 50%; background: conic-gradient(from 0deg, #4fc3f7, #7c4dff, #ff6ec7, #4fc3f7);
+      opacity: 0; pointer-events: none; z-index: 99999;
+      transition: all 0.3s ease;
+    }
+    #voiceWave.active {
+      opacity: 1; transform: translateX(-50%) scale(1.3);
+      animation: pulseWave 1.5s infinite;
+    }
+    @keyframes pulseWave {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(79,195,247,0.7); }
+      50% { box-shadow: 0 0 0 40px rgba(79,195,247,0); }
+    }
+    #voiceWave::before {
+      content: ''; position: absolute; inset: 18px; background: #000; border-radius: 50%; z-index: 1;
+    }
+    #voiceWave::after {
+      content: ''; position: absolute; inset: 30px; background: conic-gradient(#4fc3f7, #7c4dff, #ff6ec7);
+      border-radius: 50%; z-index: 2; animation: rotate 3s linear infinite;
+    }
+    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    /* === CHATBOT CONTAINER (TENGAH BAWAH) === */
+    #chatbotContainer {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      width: 90vw; max-width: 420px; height: 70vh;
+      background: rgba(20,20,30,0.92); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 28px; box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+      display: flex; flex-direction: column; z-index: 9999;
+      opacity: 0; pointer-events: none;
+      transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+    }
+    #chatbotContainer.active { opacity: 1; pointer-events: auto; }
+
+    #chatHeader {
+      padding: 18px; border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex; justify-content: space-between; align-items: center; color: white;
+    }
+    #chatBody {
+      flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px;
+      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent;
+    }
+    #chatBody::-webkit-scrollbar { width: 5px; }
+    #chatBody::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+
+    #chatInputArea {
+      padding: 16px; border-top: 1px solid rgba(255,255,255,0.1);
+      display: flex; gap: 8px; align-items: center;
+    }
+    #chatInput {
+      flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      color: white; padding: 14px 18px; border-radius: 18px; font-size: 14px;
+    }
+    #chatInput::placeholder { color: rgba(255,255,255,0.5); }
+
+    .message {
+      max-width: 82%; padding: 11px 16px; border-radius: 18px; font-size: 13.5px; line-height: 1.5;
+    }
+    .user { align-self: flex-end; background: #4fc3f7; color: white; }
+    .bot { align-self: flex-start; background: rgba(255,255,255,0.1); color: #eee; border: 1px solid rgba(255,255,255,0.12); }
+
+    /* === MIC BUTTON (TENGAH BAWAH) === */
+    #micBtn {
+      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+      width: 70px; height: 70px;
+      background: linear-gradient(135deg, #4fc3f7, #7c4dff);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 10px 25px rgba(79,195,247,0.5); cursor: pointer; z-index: 9998;
+      transition: all 0.3s ease;
+    }
+    #micBtn.listening {
+      transform: translateX(-50%) scale(1.15);
+      box-shadow: 0 0 40px rgba(79,195,247,0.9);
+    }
+    #micBtn svg { width: 32px; height: 32px; stroke: white; }
+
+    #productSelect {
+      background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 14px; padding: 10px 14px; font-size: 13px;
+    }
+
+    /* Speed Control */
+    #speedControl {
+      display: flex; gap: 6px; margin-top: 8px; justify-content: center;
+    }
+    .speedBtn {
+      background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);
+      padding: 6px 10px; border-radius: 10px; font-size: 11px; cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .speedBtn.active { background: #4fc3f7; border-color: #4fc3f7; }
   </style>
 </head>
 <body>
@@ -393,14 +348,11 @@
           <span>PDF</span>
         </a>
 
-        <!-- DUA SVG TERPISAH -->
         <button id="toggleVideoBtn">
-          <!-- Ikon Mata Terbuka (awalnya hidden) -->
           <svg id="eyeOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
             <circle cx="12" cy="12" r="3"></circle>
           </svg>
-          <!-- Ikon Mata Tertutup (awalnya visible) -->
           <svg id="eyeClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
             <line x1="1" y1="1" x2="23" y2="23"></line>
@@ -413,6 +365,63 @@
       <div class="info-section"><p id="productSpecs"></p></div>
       <div class="info-section"><p id="productUsage"></p></div>
       <div class="info-section"><p id="productCerts"></p></div>
+    </div>
+  </div>
+
+  <!-- VOICE WAVE -->
+  <div id="voiceWave"></div>
+
+  <!-- MIC BUTTON -->
+  <div id="micBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+      <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+      <line x1="12" y1="19" x2="12" y2="23"></line>
+      <line x1="8" y1="23" x2="16" y2="23"></line>
+    </svg>
+  </div>
+
+  <!-- CHATBOT CONTAINER -->
+  <div id="chatbotContainer">
+    <div id="chatHeader">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:40px; height:40px; background:linear-gradient(135deg,#4fc3f7,#7c4dff); border-radius:50%; display:flex; align-items:center; justify-content:center;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+          </svg>
+        </div>
+        <div>
+          <div style="font-weight:700; font-size:16px;">COSMO Assistant</div>
+          <div style="font-size:11px; color:#4fc3f7;">Mendengarkan...</div>
+        </div>
+      </div>
+      <button onclick="toggleChat()" style="background:none; border:none; color:white; cursor:pointer;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M18 6L6 18"></path><path d="M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div id="chatBody"></div>
+
+    <div id="chatInputArea">
+      <select id="productSelect">
+        <option value="">Chat Umum</option>
+      </select>
+      <input id="chatInput" type="text" placeholder="Tanya apa saja..." />
+      <button id="sendBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- SPEED CONTROL -->
+    <div id="speedControl">
+      <button class="speedBtn" data-rate="0.8">0.8x</button>
+      <button class="speedBtn active" data-rate="1.0">1.0x</button>
+      <button class="speedBtn" data-rate="1.2">1.2x</button>
+      <button class="speedBtn" data-rate="1.5">1.5x</button>
     </div>
   </div>
 
@@ -475,10 +484,7 @@
 
       function showEyeClosed() {
         eyeOpen.style.display = 'none';
-         if (player) {
-          player.pauseVideo();
-          player.mute();
-        }
+        if (player) { player.pauseVideo(); player.mute(); }
         eyeClosed.style.display = 'block';
         videoBtnText.textContent = 'Lihat Video';
       }
@@ -486,10 +492,7 @@
       function resetVideoButton() {
         videoFrame.classList.add('hidden');
         showEyeClosed();
-        if (player) {
-          player.pauseVideo();
-          player.mute();
-        }
+        if (player) { player.pauseVideo(); player.mute(); }
       }
 
       // === UPDATE PRODUK ===
@@ -526,18 +529,13 @@
         resetVideoButton();
       }
 
-      // === TOGGLE VIDEO (PAKAI 2 SVG) ===
+      // === TOGGLE VIDEO ===
       toggleVideoBtn.onclick = () => {
         const isHidden = videoFrame.classList.toggle('hidden');
-
         if (isHidden) {
-          player?.pauseVideo();
-          player?.mute();
-          showEyeClosed();
+          player?.pauseVideo(); player?.mute(); showEyeClosed();
         } else {
-          player?.playVideo();
-          player?.unMute();
-          showEyeOpen();
+          player?.playVideo(); player?.unMute(); showEyeOpen();
         }
       };
 
@@ -595,6 +593,11 @@
 
           loadingScreen.classList.add('hidden');
           setTimeout(() => { loadingScreen.style.display = 'none'; }, 700);
+
+          // BUKA CHAT OTOMATIS
+          if (!document.getElementById('chatbotContainer').classList.contains('active')) {
+            setTimeout(toggleChat, 800);
+          }
         });
       });
 
@@ -642,6 +645,175 @@
           startY = e.touches[0].clientY;
         }, { passive: false });
         el.addEventListener('touchend', () => { dragging = false; });
+      }
+    });
+
+    // === CHATBOT & VOICE SYSTEM ===
+    const API_BASE = 'https://vr.kiraproject.id';
+    const chatBody = document.getElementById('chatBody');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const micBtn = document.getElementById('micBtn');
+    const voiceWave = document.getElementById('voiceWave');
+    const chatbotContainer = document.getElementById('chatbotContainer');
+    const productSelect = document.getElementById('productSelect');
+
+    let recognition;
+    let isListening = false;
+    let speechRate = 1.0;
+
+    // === INIT SPEECH RECOGNITION (SELALU AKTIF) ===
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognition = new SpeechRecognition();
+      recognition.lang = 'id-ID';
+      recognition.interimResults = true;
+      recognition.continuous = true; // SELALU MENDENGAR
+
+      recognition.onresult = (e) => {
+        const transcript = Array.from(e.results)
+          .map(r => r[0].transcript)
+          .join('').toLowerCase().trim();
+
+        // DETEKSI WAKE WORD
+        if (transcript.includes('hallo cosmo') && !isListening) {
+          startListening();
+          addMessage('user', 'Hallo Cosmo!');
+          setTimeout(() => chatInput.focus(), 300);
+          return;
+        }
+
+        // JIKA SEDANG MENDENGAR & ADA FINAL RESULT
+        if (isListening && e.results[e.results.length - 1].isFinal) {
+          const final = e.results[e.results.length - 1][0].transcript.trim();
+          if (final && !final.toLowerCase().includes('hallo cosmo')) {
+            sendMessage(final);
+            stopListening();
+          }
+        }
+      };
+
+      recognition.onerror = (e) => {
+        console.error('Speech error:', e);
+        if (isListening) stopListening();
+      };
+
+      recognition.onend = () => {
+        // Restart otomatis jika masih dalam mode listening
+        if (isListening) {
+          setTimeout(() => recognition.start(), 100);
+        }
+      };
+
+      // MULAI MENDENGAR OTOMATIS SETELAH LOAD
+      setTimeout(() => recognition.start(), 2000);
+    }
+
+    function startListening() {
+      if (!recognition) return;
+      isListening = true;
+      micBtn.classList.add('listening');
+      voiceWave.classList.add('active');
+      document.querySelector('#chatHeader div:last-child div:last-child').textContent = 'Mendengarkan...';
+      recognition.start();
+    }
+
+    function stopListening() {
+      isListening = false;
+      micBtn.classList.remove('listening');
+      voiceWave.classList.remove('active');
+      document.querySelector('#chatHeader div:last-child div:last-child').textContent = 'Online';
+      if (recognition) recognition.stop();
+    }
+
+    function toggleChat() {
+      chatbotContainer.classList.toggle('active');
+    }
+
+    function addMessage(role, text) {
+      const div = document.createElement('div');
+      div.className = `message ${role}`;
+      div.innerHTML = text;
+      chatBody.appendChild(div);
+      chatBody.scrollTop = chatBody.scrollHeight;
+    }
+
+    function speak(text) {
+      if ('speechSynthesis' in window) {
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = 'id-ID';
+        utter.rate = speechRate;
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utter);
+      }
+    }
+
+    function ruleBot(text) {
+      const t = text.toLowerCase();
+      if (/halo|hi|hai/.test(t)) return 'Halo! Ada yang bisa saya bantu?';
+      if (/toilet/.test(t)) return 'Toilet pintar: flush otomatis, hemat air 50%, pemanas dudukan.';
+      if (/sepatu|shoe/.test(t)) return 'Sepatu tahan air, anti-slip, memory foam.';
+      return `Maaf, saya belum paham: "${text}". Coba tanya fitur produk!`;
+    }
+
+    async function sendToLLM(message) {
+      const sku = productSelect.value;
+      const endpoint = sku ? `${API_BASE}/api/llm/product-chat` : `${API_BASE}/api/llm/chat`;
+      const payload = sku ? { sku, question: message } : { message };
+
+      try {
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        return json.success ? json.data.response : ruleBot(message);
+      } catch {
+        return ruleBot(message);
+      }
+    }
+
+    async function sendMessage(text) {
+      if (!text.trim()) return;
+      addMessage('user', text);
+      chatInput.value = '';
+
+      addMessage('bot', '<div style="display:flex; gap:4px;"><div class="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div><div class="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style="animation-delay:0.1s"></div><div class="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style="animation-delay:0.2s"></div></div>');
+
+      const reply = await sendToLLM(text);
+      chatBody.lastChild.remove();
+      addMessage('bot', reply);
+      speak(reply);
+    }
+
+    // === MANUAL MIC (opsional) ===
+    micBtn.onclick = () => {
+      if (isListening) stopListening();
+      else startListening();
+    };
+
+    sendBtn.onclick = () => sendMessage(chatInput.value);
+    chatInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') sendMessage(chatInput.value);
+    });
+
+    // === SPEED CONTROL ===
+    document.querySelectorAll('.speedBtn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.speedBtn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        speechRate = parseFloat(btn.dataset.rate);
+      });
+    });
+
+    // INIT PRODUK SELECT
+    products.forEach(p => {
+      if (p) {
+        const opt = document.createElement('option');
+        opt.value = p.sku ? p.sku[0].split(':')[0] : p.id;
+        opt.textContent = `${p.name}`;
+        productSelect.appendChild(opt);
       }
     });
   </script>
