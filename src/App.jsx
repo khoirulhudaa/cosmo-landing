@@ -485,6 +485,7 @@ export default function App() {
   const [showUnityAR, setShowUnityAR] = useState(false);
   const [blobUrlToRevoke, setBlobUrlToRevoke] = useState(null);
   const [selectedModel, setSelectedModel] = useState(null);
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   // === CHAT STATE ===
   const [showChat, setShowChat] = useState(false);
@@ -548,11 +549,23 @@ export default function App() {
   const speak = (text) => {
     return new Promise((resolve) => {
       if (!('speechSynthesis' in window)) return resolve();
+
+      // Hentikan suara sebelum mulai
+      window.speechSynthesis.cancel();
+
       const utter = new SpeechSynthesisUtterance(text);
       utter.lang = 'id-ID';
       utter.rate = 0.9;
-      utter.onend = resolve;
-      window.speechSynthesis.cancel();
+
+      utter.onstart = () => {
+        setIsSpeaking(true);
+      };
+
+      utter.onend = utter.onerror = () => {
+        setIsSpeaking(false);
+        resolve();
+      };
+
       window.speechSynthesis.speak(utter);
     });
   };
@@ -613,6 +626,32 @@ export default function App() {
     if (isListening) recognitionRef.current.stop();
     else recognitionRef.current.start();
     setIsListening(!isListening);
+  };
+
+  const resetChat = () => {
+    // Hentikan suara jika sedang bicara
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+
+    // Reset state
+    setMessages([]);
+    setInputText('');
+    setIsLoadingAI(false);
+    setSelectedSku('');
+    setSelectedProductName('');
+
+    // Scroll ke atas
+    if (chatHistoryRef.current) {
+      chatHistoryRef.current.scrollTop = 0;
+    }
+
+    // Opsional: beri feedback visual
+    addMessage('system', 'Chat telah di-reset.');
+    setTimeout(() => {
+      setMessages(prev => prev.filter(m => m.role !== 'system'));
+    }, 1500);
   };
 
   // === HANDLE SKU CHANGE ===
@@ -695,7 +734,7 @@ export default function App() {
             </h1>
           </div>
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-base md:text-xl text-white text-center max-w-3xl mx-auto font-light">
-            Pilih model 3D atau aktifkan AR interaktif dengan image tracking.
+            Pilih model 3D atau aktifkan AR interaktif dengan image tracking atau QrCode.
           </motion.p>
         </motion.div>
 
@@ -740,9 +779,9 @@ export default function App() {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.6, type: "spring", stiffness: 100 }}
                     onClick={() => setShowChat(true)}
-                    className="relative overflow-hidden min-w-[90px] px-4 gap-2 hover:brightness-90 h-full cursor-pointer bg-white rounded-xl flex items-center justify-center hover:shadow-inner"
+                    className="relative overflow-hidden w-[96px] px-4 gap-2 hover:brightness-90 h-full cursor-pointer bg-white rounded-xl flex items-center justify-center hover:shadow-inner"
                   >
-                    <Bot className="w-6 h-6 text-purple-600" />
+                    <Bot className="w-9 h-9 text-purple-600" />
                     <p className='font-medium'>Chat</p>
                   </motion.button>
                 ) : (
@@ -751,7 +790,7 @@ export default function App() {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.6, type: "spring", stiffness: 100 }}
                     onClick={() => setShowChat(false)}
-                    className="w-[90px] cursor-pointer hover:brightness-90 h-full bg-gradient-to-br from-red-400 to-pink-500 rounded-lg flex items-center justify-center text-white"
+                    className="w-[96px] cursor-pointer hover:brightness-90 h-full bg-gradient-to-br from-red-400 to-pink-500 rounded-lg flex items-center justify-center text-white"
                   >
                     <X className="w-6 h-6" />
                   </motion.button>
@@ -778,7 +817,7 @@ export default function App() {
         initial={{ opacity: 0, scale: 0.9, y: 100 }}
         animate={{ opacity: showChat ? 1 : 0, scale: showChat ? 1 : 0.9, y: showChat ? 0 : 100 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className={`fixed bottom-0 md:bottom-4 right-0 md:right-4 w-full md:w-96 h-[80vh] bg-white/50 backdrop-blur-2xl border border-gray-200 rounded-tl-3xl rounded-tr-3xl md:rounded-3xl shadow-2xl z-[9999] flex flex-col ${showChat ? 'pointer-events-auto' : 'pointer-events-none'}`}
+        className={`fixed bottom-0 md:bottom-4 right-0 md:right-4 w-full md:w-96 h-[80vh] bg-black/30 backdrop-blur-2xl border border-gray-200 rounded-tl-3xl rounded-tr-3xl md:rounded-3xl shadow-2xl z-[9999] flex flex-col ${showChat ? 'pointer-events-auto' : 'pointer-events-none'}`}
       >
         {/* Header */}
         <div className="p-4 border-b border-gray-200 flex items-center justify-between">
@@ -789,22 +828,36 @@ export default function App() {
             <div>
               <h3 className="font-bold text-white">COSMO Assistant</h3>
               <p className="text-xs text-white flex items-center gap-1">
-                <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-                {selectedProductName || selectedSku ? selectedProductName || `SKU: ${selectedSku}` : 'Online'}
+                <span className={`w-2 h-2 rounded-full ${isSpeaking ? 'bg-red-500 animate-pulse' : 'bg-green-500'}`} />
+                {isSpeaking ? 'Sedang berbicara...' : (selectedProductName || selectedSku ? selectedProductName || `SKU: ${selectedSku}` : 'Online')}
               </p>
             </div>
           </div>
-          <div onClick={() => setShowChat(false)} className='bg-red-500 flex items-center justify-center rounded-md p-1 shadow-lg border-[1px] border-white/80 cursor-pointer active:scale-[0.99]'>
-            <button className="text-white hover:text-white/80 cursor-pointer transition">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+          <ddiv className='w-max flex items-center gap-3'>
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={resetChat}
+              className="w-[30px] h-[30px] flex items-center justify-center border-[1px] border-white/80 cursor-pointer bg-blue-700 hover:bg-blue-500/55 text-blue-200 rounded-lg backdrop-blur transition-all"
+              title="Reset Chat"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M23 4v6h-6" />
+                <path d="M1 20v-6h6" />
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+              </svg>
+            </motion.button>
+            <div onClick={() => setShowChat(false)} className='w-[30px] h-[30px] hover:bg-red-500/85 bg-red-500 flex items-center justify-center rounded-md p-1 shadow-lg border-[1px] border-white/80 cursor-pointer active:scale-[0.99]'>
+              <button className="text-white hover:text-white/80 cursor-pointer transition">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </ddiv>
         </div>
 
         {/* Messages */}
         <div ref={chatHistoryRef} className="flex-1 overflow-y-auto p-4 space-y-3">
           {messages.length === 0 && (
-            <div className="text-center text-white text-sm mt-8">
+            <div className="text-center text-white text-sm mt-24">
               <Sparkles className="w-8 h-8 mx-auto mb-2 text-white" />
               <p>Pilih produk atau mulai chat!</p>
             </div>
@@ -860,13 +913,31 @@ export default function App() {
               >
                 <Mic className={`w-5 h-5 ${isListening ? 'animate-pulse' : ''}`} />
               </button>
-              <button
-                onClick={() => handleSend(inputText)}
-                disabled={!inputText.trim()}
-                className="px-4 h-10 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
-              >
-                Kirim
-              </button>
+              {isSpeaking ? (
+                <motion.button
+                  // initial={{ scale: 0, opacity: 0 }}
+                  // animate={{ scale: 1, opacity: 1 }}
+                  // exit={{ scale: 0, opacity: 0 }}
+                  onClick={() => {
+                    window.speechSynthesis.cancel();
+                    setIsSpeaking(false);
+                    setIsLoadingAI(false);
+                  }}
+                  className="w-10 h-10 bg-red-500 text-white rounded-xl flex items-center justify-center hover:bg-red-600 shadow-lg active:scale-95 transition"
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="6" y="6" width="12" height="12" rx="2" />
+                  </svg>
+                </motion.button>
+              ):(
+                <button
+                  onClick={() => handleSend(inputText)}
+                  disabled={!inputText.trim()}
+                  className="px-4 h-10 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-xl hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
+                >
+                  Kirim
+                </button>
+              )}
             </div>
           </div>
         </div>

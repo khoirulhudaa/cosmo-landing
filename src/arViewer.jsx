@@ -518,26 +518,6 @@ export default function ARViewer({ modelUrl, model, onBack }) {
               </div>
 
               <div className="flex items-center gap-3">
-                <AnimatePresence mode="wait">
-                  {isLoading ? (
-                    <motion.div key="loading" initial={{ scale: 0.9 }} animate={{ scale: 1 }} className="cursor-pointer hover:scale-103 hover:brightness-95 bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-2 px-4 rounded-full text-xs md:text-sm flex items-center gap-1.5">
-                      <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    </motion.div>
-                  ) : arStatus === 'failed' ? (
-                    <motion.div key="error" initial={{ y: 10 }} animate={{ y: 0 }} className="bg-red-600 text-white py-2 px-4 rounded-full text-xs md:text-sm flex items-center gap-1.5">
-                      <Info className="w-3.5 h-3.5" /> AR Gagal
-                    </motion.div>
-                  ) : isARActive ? (
-                    <motion.button key="exit" initial={{ y: 10 }} animate={{ y: 0 }} onClick={() => window.history.back()} className="cursor-pointer hover:scale-103 hover:brightness-95 bg-gradient-to-r from-red-500 to-pink-600 text-white py-2 px-4 rounded-full text-xs md:text-sm flex items-center gap-1.5">
-                      <Camera className="w-3.5 h-3.5" /> <span className="hidden md:inline">Keluar AR</span>
-                    </motion.button>
-                  ) : (
-                    <motion.button key="start" initial={{ y: 10 }} animate={{ y: 0 }} onClick={startAR} className="h-[40px] w-[40px] md:w-max cursor-pointer hover:scale-103 hover:brightness-95 bg-gradient-to-r from-cyan-500 to-blue-600 text-white md:py-2 md:px-4 justify-center rounded-full text-xs md:text-sm flex items-center gap-1.5">
-                      <Box className="w-4 md:w-3.5 h-4 md:h-3.5" /> <span className="hidden md:inline">Masuk AR</span>
-                    </motion.button>
-                  )}
-                </AnimatePresence>
-
                 <motion.button initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.1 }} onClick={onBack} className="cursor-pointer hover:scale-103 hover:brightness-95 p-2.5 bg-white/10 backdrop-blur-md border border-white/30 text-white rounded-full">
                   <Home className="w-4 h-4" />
                 </motion.button>

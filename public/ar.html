@@ -175,10 +175,10 @@
       transition:height .08s ease, background .2s ease;
       box-shadow:0 2px 4px rgba(0,0,0,.3);
     }
-    .waveBar.warn1{background:#ff6d00;}
-    .waveBar.warn2{background:#ffb300;}
-    .waveBar.warn3{background:#ffca28;}
-    .waveBar.warn4{background:#ffd54f;}
+    .waveBar.warn1{background:#a5b2ff;}
+    .waveBar.warn2{background:#6ea1ff;}
+    .waveBar.warn3{background:#388eff;}
+    .waveBar.warn4{background:#0072f5;}
 
     /* CHATBOT */
     #chatbotContainer{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);width:90vw;max-width:420px;height:70vh;background:rgba(20,20,30,.92);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.25);border-radius:28px;box-shadow:0 12px 40px rgba(0,0,0,.6);display:flex;flex-direction:column;z-index:9999;opacity:0;pointer-events:none;transition:all .4s cubic-bezier(.4,0,.2,1);}
@@ -213,6 +213,17 @@
       z-index: 9998;
       transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    #micBtn:hover {
+      transition: 0.4s ease;
+      filter: brightness(75%);
+      padding: 4px;
+    }
+
+    #micBtn:active {
+      transition: 0.4s ease-in;
+      padding: 0px;
     }
 
     #micBtn {
@@ -260,14 +271,14 @@
       border-radius: 50%;
       padding: 4px;
       background: linear-gradient(45deg, 
-        #8e24aa,   /* Deep Purple */
-        #a813ff,   /* Hot Pink */
-        #3100a5,   /* Pink */
-        #1976d2,   /* Deep Blue */
-        #9b20ff    /* Bright Blue */
+        #64a7ff,   /* Deep Purple */
+        #0f59c7,   /* Hot Pink */
+        #0184ff,   /* Pink */
+        #125aa1,   /* Deep Blue */
+        #5aa7ff    /* Bright Blue */
       );
       background-size: 200% 200%;
-      animation: gradientShift 3s ease infinite;
+      animation: gradientShift 2s ease infinite;
    
       mask-composite: exclude;
       z-index: -1;
@@ -357,6 +368,25 @@
     }
     #captionBox.fadeOut {
       animation: fadeOutCaption 0.4s ease-in forwards;
+    }
+
+    /* CaptionBox: Sesuaikan lebar saat youtubeContainer compact */
+    #youtubeContainer.compact ~ #captionBox {
+      max-width: 90vw !important;
+    }
+
+    #youtubeContainer.hidden ~ #captionBox {
+      max-width: 90vw !important;
+    }
+    
+    /* Pastikan tetap responsif di mobile */
+    @media screen and (max-width: 500px) {
+      #youtubeContainer.compact ~ #captionBox {
+        max-width: 90vw !important;
+      }
+      #youtubeContainer.hidden ~ #captionBox {
+        max-width: 90vw !important;
+      }
     }
 
     #captionBox {
@@ -483,22 +513,54 @@
   </div>
 
   <!-- MIC BUTTON -->
-  <div id="micBtn" class="sparkle-btn">
-    <svg class="sparkle-svg" viewBox="0 0 24 24" fill="none">
-      <!-- Sparkle Utama (Statis) -->
-      <path d="M12 2L13.5 8.5L20 10L13.5 11.5L12 18L10.5 11.5L4 10L10.5 8.5L12 2Z" 
-            fill="url(#sparkleGradient)" 
-            stroke="#ffffff" 
-            stroke-width="1.8" 
-            stroke-linecap="round" 
-            stroke-linejoin="round"/>
-      <!-- Titik Cahaya Kecil -->
-      <circle cx="7" cy="7" r="1.5" fill="#ffffff"/>
-      <circle cx="17" cy="7" r="1.2" fill="#ffffff"/>
-      <circle cx="7" cy="17" r="1.2" fill="#ffffff"/>
-      <circle cx="17" cy="17" r="1.5" fill="#ffffff"/>
-    </svg>
-  </div>
+ <div id="micBtn" class="sparkle-btn group cursor-pointer">
+  <svg style="position: relative;top: 2.5px;" class="mic-svg w-8 h-8 transition-all duration-300 group-hover:scale-110" 
+       viewBox="0 0 24 24" 
+       fill="none" 
+       xmlns="http://www.w3.org/2000/svg">
+    
+    <!-- Gradient untuk glow -->
+    <defs>
+      <linearGradient id="micGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#06b6d4" /> <!-- cyan-500 -->
+        <stop offset="100%" stop-color="#3b82f6" /> <!-- blue-500 -->
+      </linearGradient>
+    </defs>
+
+    <!-- Body Mic (Rounded Capsule) -->
+    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3s-3 1.34-3 3v6c0 1.66 1.34 3 3 3z" 
+          fill="url(#micGradient)" 
+          stroke="#ffffff" 
+          stroke-width="1.8" 
+          stroke-linecap="round" 
+          stroke-linejoin="round"/>
+
+    <!-- Grill Mic (Garis Tengah) -->
+    <path d="M12 14v2" 
+          stroke="#ffffff" 
+          stroke-width="2" 
+          stroke-linecap="round"/>
+
+    <!-- Base Mic (Trapezoid) -->
+    <path d="M19 10v1a7 7 0 01-14 0v-1" 
+          stroke="#ffffff" 
+          stroke-width="1.8" 
+          stroke-linecap="round" 
+          stroke-linejoin="round"/>
+
+    <!-- Sound Waves (Efek Suara Saat Aktif - bisa ditoggle dengan JS) -->
+    <circle class="sound-wave wave-1" cx="12" cy="12" r="4" 
+            fill="none" 
+            stroke="#06b6d4" 
+            stroke-width="1.5" 
+            opacity="0"/>
+    <circle class="sound-wave wave-2" cx="12" cy="12" r="4" 
+            fill="none" 
+            stroke="#3b82f6" 
+            stroke-width="1.5" 
+            opacity="0"/>
+  </svg>
+</div>
 
   <!-- STOP AUDIO BUTTON -->
   <div id="stopAudioBtn">

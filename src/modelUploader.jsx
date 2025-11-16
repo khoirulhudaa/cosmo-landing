@@ -876,7 +876,6 @@
 //     </>
 //   );
 // }
-
 import { Box, Download, RefreshCcw } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { generateQRWithLogo } from './utils/generateQrCode';
@@ -898,25 +897,27 @@ export default function ModelSelector({ onModelSelect }) {
   const [hoveredSku, setHoveredSku] = useState(null);
   const [qrs, setQRs] = useState(new Map());
   const isGenerating = useRef(false); // CEGAH LOOP
+  const [loadingModels, setLoadingModels] = useState(new Set());
 
   // === FETCH PRODUK ===
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
+        setError(null); // Reset error
+
         const res = await fetch(`${API_BASE}/api/products`);
         const json = await res.json();
 
-        console.log('json.data', json.data)
+        console.log('API Response:', json); // Debug
 
         if (json.success && Array.isArray(json.data)) {
           const formatted = json.data.map((p) => ({
             filename: p.modelUrl?.split('/').pop() || p.sku,
             name: p.name || p.sku,
             size: p.modelSize || 0,
-            category: p.category
-              ? p.category
-              : 'Unknown',
+            price: p.price || 0,
+            category: p.category || 'Unknown',
             fullUrl: p.modelUrl?.startsWith('http')
               ? p.modelUrl
               : `${API_BASE}${p.modelUrl}`,
@@ -924,7 +925,7 @@ export default function ModelSelector({ onModelSelect }) {
             sku: p.sku,
             desc_left: {
               title: 'Keunggulan Produk',
-              list: p.features?.split('\n') || ['Kualitas premium', 'Desain eksklusif'],
+              list: p.features?.split('\n').filter(Boolean) || ['Kualitas premium', 'Desain eksklusif'],
             },
             desc_right: {
               title: 'Untuk Siapa?',
@@ -936,20 +937,24 @@ export default function ModelSelector({ onModelSelect }) {
             certifications: p.certifications || [],
             tags: p.tags || [],
           }));
+
+          // Set model + inisialisasi loading per model
           setModels(formatted);
+          setLoadingModels(new Set(json.data.map(p => p.sku))); // Semua model dianggap loading
+
         } else {
-          throw new Error('Invalid response');
+          throw new Error(json.message || 'Invalid response format');
         }
       } catch (err) {
         console.error('Gagal fetch produk:', err);
-        setError('Gagal memuat produk. Coba refresh.');
+        setError('Gagal memuat produk. Periksa koneksi atau coba lagi nanti.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchProducts();
-  }, []);
+  }, []); // Hanya sekali saat mount
 
   // === GENERATE QR: HANYA SEKALI, TIDAK LOOP ===
   useEffect(() => {
@@ -1040,8 +1045,8 @@ export default function ModelSelector({ onModelSelect }) {
                   className="group relative cursor-pointer"
                   whileHover={{ y: -8 }}
                 >
-                  <div className="relative h-full bg-white/90 backdrop-blur-xl rounded-2xl border border-white/60 shadow-lg hover:shadow-2xl transition-all overflow-hidden">
-                    <div className="aspect-square relative overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
+                  <div className="relative h-full backdrop-blur-md rounded-2xl border border-white/60 shadow-lg hover:shadow-2xl transition-all overflow-hidden">
+                    <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100">
                       <model-viewer
                         src={model.fullUrl}
                         alt={model.name}
@@ -1049,19 +1054,48 @@ export default function ModelSelector({ onModelSelect }) {
                         auto-rotate
                         rotation-per-second="30deg"
                         className="w-full h-full"
-                        loading="lazy"
+                        loading="eager"
+                        onload={() => {
+                          setLoadingModels(prev => {
+                            const next = new Set(prev);
+                            next.delete(model.sku);
+                            return next;
+                          });
+                        }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                      {/* SPINNER MEMUTAR */}
+                      {loadingModels.has(model.sku) && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          className="absolute inset-0 flex items-center justify-center bg-white/80 backdrop-blur-sm z-20"
+                        >
+                          <div className="relative">
+                            <div className="animate-spin rounded-full h-14 w-14 border-4 border-cyan-500 border-t-transparent shadow-lg"></div>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <Box className="w-7 h-7 text-cyan-600 animate-pulse" />
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+
+                      {/* Hover Gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                     </div>
 
-                    <div className="p-5 space-y-1">
-                      <h3 className="font-bold text-lg text-gray-800 truncate">
+                    <div className="p-5 space-y-1 text-white">
+                      <h3 className="font-bold text-lg text-white truncate">
                         {formatName(model.name)}
                       </h3>
-                      <p className="text-sm text-gray-500">{model.category}</p>
+                      <div className='w-full flex justify-between items-center'>
+                        <p className="text-sm text-white">{model.category}</p>
+                        <p className="text-sm text-white">{model.price}</p>
+                      </div>
                     </div>
 
-                   <AnimatePresence>
+                    <AnimatePresence>
                       {isHovered && qrCode && (
                         <motion.div
                           initial={{ display: 'hidden', transition: {duration: 0} }}
@@ -1075,13 +1109,13 @@ export default function ModelSelector({ onModelSelect }) {
                           }}
                           // Pastikan tidak ada interaksi saat exit
                           style={{ pointerEvents: isHovered ? 'auto' : 'none' }}
-                          className="absolute inset-0 flex items-center justify-center bg-white/95 backdrop-blur-sm z-10 p-6 rounded-xl"
+                          className="absolute inset-0 flex items-center justify-center bg-white/95 backdrop-blur-sm z-10 md:p-6 rounded-xl"
                         >
                           <div className="text-center space-y-3">
                             <img 
                               src={qrCode} 
                               alt="QR Code" 
-                              className="w-48 h-48 mx-auto rounded-xl shadow-xl border border-gray-200"
+                              className="w-72 md:w-48 h-72 md:h-48 mx-auto rounded-xl shadow-xl border border-gray-200"
                             />
                             <p className="text-sm text-gray-600 font-normal">Scan untuk buka AR</p>
                             <button
