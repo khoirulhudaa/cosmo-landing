@@ -96,7 +96,7 @@ export default function UnityARViewer({ onBack }) {
       <div className="w-max absolute top-0 left-0 right-0 z-10 p-4 flex justify-between items-center">
         <button
           onClick={onBack}
-          className="p-2.5 md:mt-0 mt-3 rounded-full bg-white/10 hover:bg-white/20 transition-all"
+          className="p-2.5 mr-3 md:mt-0 mt-3 rounded-full bg-white/10 hover:bg-white/20 transition-all"
         >
           <ArrowLeft className="w-6 h-6 text-white" />
         </button>

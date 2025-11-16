@@ -103,264 +103,365 @@
 </html> -->
 
 
+
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>AR Multi Produk COSMO®</title>
-  
+ 
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
-
   <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      background: #000;
-      font-family: 'Segoe UI', sans-serif;
-    }
-
+    body {margin:0;overflow:hidden;background:#000;font-family:'Segoe UI',sans-serif;}
     /* LOADING */
-    #loadingScreen {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: #000;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      pointer-events: none;
-      transition: opacity 0.6s ease;
-    }
-    #loadingScreen.hidden { opacity: 0; }
-    .spinner {
-      width: 50px; height: 50px;
-      border: 4px solid #333;
-      border-top: 4px solid #4fc3f7;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 20px;
-    }
-    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    #loadingText { font-size: 16px; color: #ccc; text-align: center; max-width: 80%; }
-    #loadingText strong { color: #4fc3f7; }
-
-    a-scene { position: fixed; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none !important; }
-    .ar-model { pointer-events: auto !important; transform-style: preserve-3d; }
+    #loadingScreen{position:fixed;top:0;left:0;right:0;bottom:0;background:#000;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;pointer-events:none;transition:opacity .6s ease;}
+    #loadingScreen.hidden{opacity:0;}
+    .spinner{width:50px;height:50px;border:4px solid #333;border-top:4px solid #4fc3f7;border-radius:50%;animation:spin 1s linear infinite;margin-bottom:20px;}
+    @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    #loadingText{font-size:16px;color:#ccc;text-align:center;max-width:80%;}
+    #loadingText strong{color:#4fc3f7;}
+    a-scene{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none !important;}
+    .ar-model{pointer-events:auto !important;transform-style:preserve-3d;}
 
     /* YOUTUBE CONTAINER */
-    #youtubeContainer {
-      position: absolute;
-      top: 4%; right: 1.5%;
-      width: 75vw; max-width: 320px; min-width: 180px;
-      height: 91vh; border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.37), inset 0 0 20px rgba(255,255,255,0.05);
-      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-      background: rgba(20,20,30,0.35); border: 1px solid rgba(255,255,255,0.18);
-      display: flex; flex-direction: column;
-      transition: height 0.5s cubic-bezier(0.4,0,0.2,1), transform 0.5s ease;
-      z-index: 999999000; pointer-events: auto;
-    }
-    #youtubeContainer.compact { height: 8.5vh; overflow: hidden; }
-    #youtubeContainer.compact .info-section, #youtubeContainer.compact .wrap-btn, #youtubeContainer.compact #videoFrame { display: none !important; }
-    #youtubeContainer.hidden { opacity: 0; transform: translateX(150%); pointer-events: none; }
-
-    #videoFrame { width: 100%; height: 500px; overflow: hidden; transition: all 0.4s ease; border-radius: 16px 16px 0 0; }
-    #videoFrame.hidden { height: 0; opacity: 0; padding: 0; margin: 0; }
-    #youtubeIframe { width: 100%; height: 100%; border: none; border-radius: 16px 16px 0 0; }
-
-    #productCard { padding: 16px; max-height: 100%; overflow-y: auto; font-size: 12.5px; line-height: 1.5;
-      background: rgba(15,15,25,0.4); backdrop-filter: blur(12px); border-top: 1px solid rgba(255,255,255,0.1); color: #eee; }
-    #productCard h3 { margin: 0 0 8px; font-size: 16px; color: #fff; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-      display: flex; align-items: center; }
-    #productCard p { margin: 6px 0; font-size: 12.5px; color: #ddd; line-height: 1.4; }
-    .info-section { margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed rgba(79,195,247,0.3); }
-    .info-section:last-of-type { border: none; margin-bottom: 8px; }
-    #productCard::-webkit-scrollbar { width: 5px; }
-    #productCard::-webkit-scrollbar-thumb { background: rgba(79,195,247,0.6); border-radius: 3px; }
-
-    .wrap-btn { display: flex; gap: 8px; margin-bottom: 12px; }
-    #toggleVideoBtn, #downloadPdfBtn {
-      display: flex; align-items: center; gap: 6px; padding: 6px 11px; border-radius: 8px;
-      font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;
-      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); text-decoration: none;
-    }
-    #toggleVideoBtn { background: rgba(255,255,255,0.25); color: #ddd; border: 1px solid rgba(255,255,255,0.2); }
-    #toggleVideoBtn:hover { background: rgba(255,255,255,0.35); transform: translateY(-1px); }
-    #downloadPdfBtn { background: rgba(79,195,247,0.15); color: #4fc3f7; border: 1px solid rgba(79,195,247,0.3); opacity: 0; pointer-events: none; }
-    #downloadPdfBtn.visible { opacity: 1; pointer-events: auto; }
-    #downloadPdfBtn:hover { background: rgba(79,195,247,0.25); transform: translateY(-2px); }
-
-    #toggleContainerBtn {
-      position: fixed; top: 16px; right: 16px; width: 44px; height: 44px; font-size: 20px; font-weight: bold;
-      cursor: pointer; z-index: 9999; display: flex; align-items: center; justify-content: center;
-      background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 50%; color: white; transition: all 0.3s ease; pointer-events: auto !important;
-    }
-    #toggleContainerBtn:hover { transform: scale(1.15); background: rgba(0,0,0,0.7); box-shadow: 0 0 20px rgba(79,195,247,0.3); }
-
-    #toggleHeightBtn { all: unset; cursor: pointer; margin-left: 8px; display: inline-flex; align-items: center; }
-
-    @media (max-width: 480px) {
-      #youtubeContainer { top: 4%; right: 4%; width: 92vw; max-width: 300px; border-radius: 18px; }
-      #youtubeContainer.compact { height: 8.5vh; }
-      #toggleContainerBtn { width: 40px; height: 40px; top: 12px; right: 12px; }
+    #youtubeContainer{position:absolute;top:4%;right:1.5%;width:75vw;max-width:320px;min-width:180px;height:91vh;border-radius:20px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.37),inset 0 0 20px rgba(255,255,255,.05);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);background:rgba(20,20,30,.35);border:1px solid rgba(255,255,255,.18);display:flex;flex-direction:column;transition:height .5s cubic-bezier(.4,0,.2,1),transform .5s ease;z-index:999999000;pointer-events:auto;}
+    #youtubeContainer.compact{height:8.5vh;overflow:hidden;}
+    #youtubeContainer.compact .info-section,#youtubeContainer.compact .wrap-btn,#youtubeContainer.compact #videoFrame{display:none !important;}
+    #youtubeContainer.hidden{opacity:0;transform:translateX(150%);pointer-events:none;}
+    #videoFrame{width:100%;height:500px;overflow:hidden;transition:all .4s ease;border-radius:16px 16px 0 0;}
+    #videoFrame.hidden{height:0;opacity:0;padding:0;margin:0;}
+    #youtubeIframe{width:100%;height:100%;border:none;border-radius:16px 16px 0 0;}
+    #productCard{padding:16px;max-height:100%;overflow-y:auto;font-size:12.5px;line-height:1.5;background:rgba(15,15,25,.4);backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,.1);color:#eee;}
+    #productCard h3{margin:0 0 8px;font-size:16px;color:#fff;font-weight:700;text-shadow:0 1px 2px rgba(0,0,0,.3);display:flex;align-items:center;}
+    #productCard p{margin:6px 0;font-size:12.5px;color:#ddd;line-height:1.4;}
+    .info-section{margin-bottom:12px;padding-bottom:8px;border-bottom:1px dashed rgba(79,195,247,.3);}
+    .info-section:last-of-type{border:none;margin-bottom:8px;}
+    #productCard::-webkit-scrollbar{width:5px;}
+    #productCard::-webkit-scrollbar-thumb{background:rgba(79,195,247,.6);border-radius:3px;}
+    .wrap-btn{display:flex;gap:8px;margin-bottom:12px;}
+    #toggleVideoBtn,#downloadPdfBtn{width: max-content;display:flex;align-items:center;gap:6px;padding:6px 11px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:all .3s ease;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);text-decoration:none;}
+    #toggleVideoBtn{background:rgba(255,255,255,.25);color:#ddd;border:1px solid rgba(255,255,255,.2);}
+    #toggleVideoBtn:hover{background:rgba(255,255,255,.35);transform:translateY(-1px);}
+    #downloadPdfBtn{background:rgba(79,195,247,.15);color:#4fc3f7;border:1px solid rgba(79,195,247,.3);opacity:0;pointer-events:none;}
+    #downloadPdfBtn.visible{opacity:1;pointer-events:auto;}
+    #downloadPdfBtn:hover{background:rgba(79,195,247,.25);transform:translateY(-2px);}
+    #toggleContainerBtn{position:fixed;top:16px;right:16px;width:44px;height:44px;font-size:20px;font-weight:bold;cursor:pointer;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.15);border-radius:50%;color:white;transition:all .3s ease;pointer-events:auto !important;}
+    #toggleContainerBtn:hover{transform:scale(1.15);background:rgba(0,0,0,.7);box-shadow:0 0 20px rgba(79,195,247,.3);}
+    #toggleHeightBtn{all:unset;cursor:pointer;margin-left:8px;display:inline-flex;align-items:center;}
+    @media (max-width:480px){
+      #youtubeContainer{top:4%;right:4%;width:92vw;max-width:300px;border-radius:18px;}
+      #youtubeContainer.compact{height:8.5vh;}
+      #toggleContainerBtn{width:40px;height:40px;top:12px;right:12px;}
     }
 
-    /* === VOICE WAVE (TENGAH BAWAH) === */
-    #voiceWave {
-      position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
-      width: 90px; height: 90px;
-      border-radius: 50%; background: conic-gradient(from 0deg, #4fc3f7, #7c4dff, #ff6ec7, #4fc3f7);
-      opacity: 0; pointer-events: none; z-index: 99999;
-      transition: all 0.3s ease;
+    #toggleVideoBtn svg, #downloadPdfBtn svg {
+      width: 14px;
+      height: 14px;
+      stroke: #4fc3f7;
     }
-    #voiceWave.active {
-      opacity: 1; transform: translateX(-50%) scale(1.3);
-      animation: pulseWave 1.5s infinite;
-    }
-    @keyframes pulseWave {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(79,195,247,0.7); }
-      50% { box-shadow: 0 0 0 40px rgba(79,195,247,0); }
-    }
-    #voiceWave::before {
-      content: ''; position: absolute; inset: 18px; background: #000; border-radius: 50%; z-index: 1;
-    }
-    #voiceWave::after {
-      content: ''; position: absolute; inset: 30px; background: conic-gradient(#4fc3f7, #7c4dff, #ff6ec7);
-      border-radius: 50%; z-index: 2; animation: rotate 3s linear infinite;
-    }
-    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-    /* === CHATBOT CONTAINER (TENGAH BAWAH) === */
-    #chatbotContainer {
-      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-      width: 90vw; max-width: 420px; height: 70vh;
-      background: rgba(20,20,30,0.92); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.25);
-      border-radius: 28px; box-shadow: 0 12px 40px rgba(0,0,0,0.6);
-      display: flex; flex-direction: column; z-index: 9999;
-      opacity: 0; pointer-events: none;
-      transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+    /* VOICE WAVE */
+    #voiceWave{
+      position:fixed;bottom:3%;left:50%;transform:translateX(-50%);
+      width:120px;height:80px;display:flex;align-items:flex-end;justify-content:center;gap:6px;
+      opacity:0;pointer-events:none;z-index:99999;
+      transition:opacity .3s ease;
     }
-    #chatbotContainer.active { opacity: 1; pointer-events: auto; }
+    #voiceWave.active{opacity:1;}
+    .waveBar{
+      width:18px;height:8px;background:#ffb300;border-radius:4px;
+      transition:height .08s ease, background .2s ease;
+      box-shadow:0 2px 4px rgba(0,0,0,.3);
+    }
+    .waveBar.warn1{background:#ff6d00;}
+    .waveBar.warn2{background:#ffb300;}
+    .waveBar.warn3{background:#ffca28;}
+    .waveBar.warn4{background:#ffd54f;}
 
-    #chatHeader {
-      padding: 18px; border-bottom: 1px solid rgba(255,255,255,0.1);
-      display: flex; justify-content: space-between; align-items: center; color: white;
-    }
-    #chatBody {
-      flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px;
-      scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.2) transparent;
-    }
-    #chatBody::-webkit-scrollbar { width: 5px; }
-    #chatBody::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+    /* CHATBOT */
+    #chatbotContainer{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);width:90vw;max-width:420px;height:70vh;background:rgba(20,20,30,.92);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.25);border-radius:28px;box-shadow:0 12px 40px rgba(0,0,0,.6);display:flex;flex-direction:column;z-index:9999;opacity:0;pointer-events:none;transition:all .4s cubic-bezier(.4,0,.2,1);}
+    #chatbotContainer.active{opacity:1;pointer-events:auto;}
+    #chatBody{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent;}
+    #chatBody::-webkit-scrollbar{width:5px;}
+    #chatBody::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:3px;}
+    #chatInputArea{padding:16px;border-top:1px solid rgba(255,255,255,.1);display:flex;gap:8px;align-items:center;}
+    #chatInput{flex:1;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);color:white;padding:14px 18px;border-radius:18px;font-size:14px;}
+    #chatInput::placeholder{color:rgba(255,255,255,.5);}
+    .message{max-width:82%;padding:11px 16px;border-radius:18px;font-size:13.5px;line-height:1.5;}
+    .user{align-self:flex-end;background:#4fc3f7;color:white;}
+    .bot{align-self:flex-start;background:rgba(255,255,255,.1);color:#eee;border:1px solid rgba(255,255,255,.12);}
+    #productSelect{background:rgba(255,255,255,.1);color:white;border:1px solid rgba(255,255,255,.2);border-radius:14px;padding:10px 14px;font-size:13px;}
+    #speedControl{display:flex;gap:6px;margin-top:8px;justify-content:center;}
+    .speedBtn{background:rgba(255,255,255,.1);color:white;border:1px solid rgba(255,255,255,.2);padding:6px 10px;border-radius:10px;font-size:11px;cursor:pointer;transition:all .2s ease;}
+    .speedBtn.active{background:#4fc3f7;border-color:#4fc3f7;}
 
-    #chatInputArea {
-      padding: 16px; border-top: 1px solid rgba(255,255,255,0.1);
-      display: flex; gap: 8px; align-items: center;
-    }
-    #chatInput {
-      flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-      color: white; padding: 14px 18px; border-radius: 18px; font-size: 14px;
-    }
-    #chatInput::placeholder { color: rgba(255,255,255,0.5); }
-
-    .message {
-      max-width: 82%; padding: 11px 16px; border-radius: 18px; font-size: 13.5px; line-height: 1.5;
-    }
-    .user { align-self: flex-end; background: #4fc3f7; color: white; }
-    .bot { align-self: flex-start; background: rgba(255,255,255,0.1); color: #eee; border: 1px solid rgba(255,255,255,0.12); }
-
-    /* === MIC BUTTON (TENGAH BAWAH) === */
-    #micBtn {
-      position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-      width: 70px; height: 70px;
-      background: linear-gradient(135deg, #4fc3f7, #7c4dff);
+    /* MIC & STOP BUTTON */
+    #micBtn, #stopAudioBtn {
+      position: fixed;
+      bottom: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 10px 25px rgba(79,195,247,0.5); cursor: pointer; z-index: 9998;
-      transition: all 0.3s ease;
-    }
-    #micBtn.listening {
-      transform: translateX(-50%) scale(1.15);
-      box-shadow: 0 0 40px rgba(79,195,247,0.9);
-    }
-    #micBtn svg { width: 32px; height: 32px; stroke: white; }
-
-    #productSelect {
-      background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 14px; padding: 10px 14px; font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 9998;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
 
-    /* Speed Control */
-    #speedControl {
-      display: flex; gap: 6px; margin-top: 8px; justify-content: center;
+    #micBtn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.2);
     }
-    .speedBtn {
-      background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);
-      padding: 6px 10px; border-radius: 10px; font-size: 11px; cursor: pointer;
-      transition: all 0.2s ease;
+
+    #micBtn.speaking {
+      background: #4fc3f7 !important;
+      border-color: #4fc3f7 !important;
+      box-shadow: 0 0 25px rgba(79, 195, 247, 0.6), 0 8px 30px rgba(79, 195, 247, 0.4);
+      animation: pulseMic 1.5s infinite;
     }
-    .speedBtn.active { background: #4fc3f7; border-color: #4fc3f7; }
+
+    /* SPARKLE BUTTON – FINAL (STATIS + GRADIENT JELAS) */
+    .sparkle-btn {
+      position: fixed;
+      bottom: 5%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 78px;
+      height: 78px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 9998;
+      background: #000;
+      border: 4px solid transparent;
+      background-clip: padding-box;
+      box-shadow: 
+        0 0 20px rgba(156, 39, 176, 0.6),
+        0 0 40px rgba(233, 30, 99, 0.5),
+        0 0 60px rgba(33, 150, 243, 0.4),
+        inset 0 0 20px rgba(255, 255, 255, 0.15);
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .sparkle-btn::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      padding: 4px;
+      background: linear-gradient(45deg, 
+        #8e24aa,   /* Deep Purple */
+        #a813ff,   /* Hot Pink */
+        #3100a5,   /* Pink */
+        #1976d2,   /* Deep Blue */
+        #9b20ff    /* Bright Blue */
+      );
+      background-size: 200% 200%;
+      animation: gradientShift 3s ease infinite;
+   
+      mask-composite: exclude;
+      z-index: -1;
+    }
+
+    .sparkle-btn::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .sparkle-svg {
+      width: 42px;
+      height: 42px;
+      filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.9));
+      /* TIDAK ADA ANIMASI */
+    }
+
+    .sparkle-btn.speaking {
+      transform: translateX(-50%) scale(1.2);
+      box-shadow: 
+        0 0 30px rgba(156, 39, 176, 0.9),
+        0 0 60px rgba(233, 30, 99, 0.8),
+        0 0 90px rgba(33, 150, 243, 0.7),
+        inset 0 0 30px rgba(255, 255, 255, 0.25);
+      animation: pulseGlow 1.4s infinite;
+    }
+
+    /* GRADIENT BERALIH HALUS & JELAS */
+    @keyframes gradientShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* PULSASI SAAT BICARA */
+    @keyframes pulseGlow {
+      0%, 100% { transform: translateX(-50%) scale(1.2); }
+      50%      { transform: translateX(-50%) scale(1.3); }
+    }
+
+    /* PULSASI SAAT SPEAKING */
+    @keyframes pulseScale {
+      0%, 100% { transform: translateX(-50%) scale(1.15); }
+      50%      { transform: translateX(-50%) scale(1.25); }
+    }
+
+    #stopAudioBtn {
+      background: #ff3b30;
+      border: 2px solid #ff3b30;
+      z-index: 9997;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-50%) scale(0.8);
+    }
+
+    #stopAudioBtn.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(-50%) scale(1);
+    }
+
+    #stopAudioBtn:hover {
+      background: #ff1b10;
+      transform: translateX(-50%) scale(1.1);
+    }
+
+    #micBtn svg, #stopAudioBtn svg {
+      width: 32px;
+      height: 32px;
+      stroke: white;
+      transition: stroke 0.3s ease;
+    }
+
+    @keyframes pulseMic {
+      0% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.12); }
+      100% { transform: translateX(-50%) scale(1); }
+    }
+
+    #captionBox {
+      animation: fadeInCaption 0.4s ease-out forwards;
+    }
+    #captionBox.fadeOut {
+      animation: fadeOutCaption 0.4s ease-in forwards;
+    }
+
+    #captionBox {
+      position: fixed;
+      bottom: 23%;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 40vw;
+      width: max-content;
+      padding: 14px 20px;
+      background: rgba(20,20,30,.95);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(79,195,247,.4);
+      border-radius: 18px;
+      color: #fff;
+      font-size: 15px;
+      line-height: 1.5;
+      text-align: center;
+      z-index: 9997;
+      box-shadow: 0 8px 32px rgba(0,0,0,.4);
+      transition: all .35s cubic-bezier(.4,0,.2,1);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    @media screen and (max-width: 500px) {
+       #captionBox {
+        max-width: 82vw;
+       }
+    }
+
+    #captionBox.show {
+      display: block !important;
+      opacity: 1;
+      transform: translateX(-50%) translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 1; }
+    }
+
+    #captionBox.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 1; }
+    }
+
+    @keyframes fadeInCaption {
+      from { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.95); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+    }
+
+    @keyframes fadeOutCaption {
+      from { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+      to { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(0.95); }
+    }
+
   </style>
 </head>
 <body>
-
-  <!-- LOADING SCREEN -->
+  <!-- LOADING -->
   <div id="loadingScreen">
     <div class="spinner"></div>
-    <div id="loadingText">
-      <strong>Memuat AR...</strong><br>
-      Arahkan kamera ke <strong>marker</strong> untuk melihat produk
-    </div>
+    <div id="loadingText"><strong>Memuat AR...</strong><br>Katakan <strong>"Hallo Cosmo"</strong> untuk mulai</div>
   </div>
 
   <!-- TOGGLE CONTAINER -->
-  <button id="toggleContainerBtn" style="opacity: 0;">Close</button>
+  <button id="toggleContainerBtn" style="opacity:0;">Close</button>
 
   <!-- YOUTUBE CONTAINER -->
   <div id="youtubeContainer" class="hidden">
-    <div id="videoFrame" class="hidden">
-      <iframe id="youtubeIframe" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-    </div>
+    <div id="videoFrame" class="hidden"><iframe id="youtubeIframe" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>
     <div id="productCard">
-      <h3 id="productName">
-        COSMO® JR-60
+      <h3 id="productName">COSMO® JR-60
         <button id="toggleHeightBtn">
           <svg id="eyeHeightIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4fc3f7" stroke-width="2">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>
           </svg>
         </button>
       </h3>
-
       <div class="wrap-btn">
         <a id="downloadPdfBtn" class="hidden" download>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>
-          <span>PDF</span>
+            <polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg><span>PDF</span>
         </a>
-
         <button id="toggleVideoBtn">
-          <svg id="eyeOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
+          <svg id="eyeOpen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>
           </svg>
           <svg id="eyeClosed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
             <line x1="1" y1="1" x2="23" y2="23"></line>
           </svg>
           <span id="videoBtnText">Lihat Video</span>
         </button>
       </div>
-
       <div class="info-section"><p id="productDesc"></p></div>
       <div class="info-section"><p id="productSpecs"></p></div>
       <div class="info-section"><p id="productUsage"></p></div>
@@ -369,45 +470,53 @@
   </div>
 
   <!-- VOICE WAVE -->
-  <div id="voiceWave"></div>
+  <div id="voiceWave">
+    <div class="waveBar warn1"></div>
+    <div class="waveBar warn2"></div>
+    <div class="waveBar warn3"></div>
+    <div class="waveBar warn4"></div>
+  </div>
+
+  <div id="captionBox" style="display:none;">
+    <span id="captionText"></span>
+    <span id="typingCursor" style="display:inline-block;width:2px;height:1.2em;background:#4fc3f7;margin-left:2px;animation:blink 1s infinite;opacity:0;"></span>
+  </div>
 
   <!-- MIC BUTTON -->
-  <div id="micBtn">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-      <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-      <line x1="12" y1="19" x2="12" y2="23"></line>
-      <line x1="8" y1="23" x2="16" y2="23"></line>
+  <div id="micBtn" class="sparkle-btn">
+    <svg class="sparkle-svg" viewBox="0 0 24 24" fill="none">
+      <!-- Sparkle Utama (Statis) -->
+      <path d="M12 2L13.5 8.5L20 10L13.5 11.5L12 18L10.5 11.5L4 10L10.5 8.5L12 2Z" 
+            fill="url(#sparkleGradient)" 
+            stroke="#ffffff" 
+            stroke-width="1.8" 
+            stroke-linecap="round" 
+            stroke-linejoin="round"/>
+      <!-- Titik Cahaya Kecil -->
+      <circle cx="7" cy="7" r="1.5" fill="#ffffff"/>
+      <circle cx="17" cy="7" r="1.2" fill="#ffffff"/>
+      <circle cx="7" cy="17" r="1.2" fill="#ffffff"/>
+      <circle cx="17" cy="17" r="1.5" fill="#ffffff"/>
     </svg>
   </div>
 
-  <!-- CHATBOT CONTAINER -->
-  <div id="chatbotContainer">
-    <div id="chatHeader">
-      <div style="display:flex; align-items:center; gap:10px;">
-        <div style="width:40px; height:40px; background:linear-gradient(135deg,#4fc3f7,#7c4dff); border-radius:50%; display:flex; align-items:center; justify-content:center;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-          </svg>
-        </div>
-        <div>
-          <div style="font-weight:700; font-size:16px;">COSMO Assistant</div>
-          <div style="font-size:11px; color:#4fc3f7;">Mendengarkan...</div>
-        </div>
-      </div>
-      <button onclick="toggleChat()" style="background:none; border:none; color:white; cursor:pointer;">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M18 6L6 18"></path><path d="M6 6l12 12"></path>
-        </svg>
-      </button>
-    </div>
+  <!-- STOP AUDIO BUTTON -->
+  <div id="stopAudioBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <rect x="6" y="6" width="12" height="12" rx="2"></rect>
+    </svg>
+  </div>
 
+  <div style="padding:0 16px 8px;color:#aaa;font-size:12px;">
+    Produk: <span id="currentProductLabel">Chat Umum</span> 
+    | SKU: <strong id="activeSkuLabel">—</strong>
+  </div>
+
+  <!-- CHATBOT -->
+  <div id="chatbotContainer" style="opacity: 0;transform: scale(0.1);">
     <div id="chatBody"></div>
-
     <div id="chatInputArea">
-      <select id="productSelect">
-        <option value="">Chat Umum</option>
-      </select>
+      <select id="productSelect"><option value="">Chat Umum</option></select>
       <input id="chatInput" type="text" placeholder="Tanya apa saja..." />
       <button id="sendBtn">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -415,8 +524,6 @@
         </svg>
       </button>
     </div>
-
-    <!-- SPEED CONTROL -->
     <div id="speedControl">
       <button class="speedBtn" data-rate="0.8">0.8x</button>
       <button class="speedBtn active" data-rate="1.0">1.0x</button>
@@ -427,395 +534,471 @@
 
   <!-- A-SCENE -->
   <a-scene embedded arjs="trackingMethod:best;sourceType:webcam;debugUIEnabled:false;" renderer="logarithmicDepthBuffer:true;" vr-mode-ui="enabled:false" loading-screen="dotsColor:#4fc3f7;backgroundColor:#000">
-    <a-marker type="pattern" url="/assets/jr60.patt"   data-product-id="1"><a-entity class="ar-model" visible="false"></a-entity></a-marker>
+    <a-marker type="pattern" url="/assets/jr60.patt" data-product-id="1"><a-entity class="ar-model" visible="false"></a-entity></a-marker>
     <a-marker type="pattern" url="/assets/cosmoIMG.patt" data-product-id="2"><a-entity class="ar-model" visible="false"></a-entity></a-marker>
-    <a-marker type="pattern" url="/assets/flower.patt"   data-product-id="3"><a-entity class="ar-model" visible="false"></a-entity></a-marker>
-    <a-marker type="pattern" url="/assets/astro.patt"    data-product-id="4"><a-entity class="ar-model" visible="false"></a-entity></a-marker>
+    <a-marker type="pattern" url="/assets/flower.patt" data-product-id="3"><a-entity class="ar-model" visible="false"></a-entity></a-marker>
+    <a-marker type="pattern" url="/assets/astro.patt" data-product-id="4"><a-entity class="ar-model" visible="false"></a-entity></a-marker>
     <a-entity camera></a-entity>
   </a-scene>
 
-  <script>
-    // === DATA PRODUK ===
-    const products = [null,
-      { id: 1, name: "COSMO® JR-60", description: "COSMO® - JR 60 Wipers...", specs: ["Roll @ 1.000 Lembar", "70-80% Woodpulp", "20-30% Polypropylene (PP)", "34,5 cm x 31 cm per lembar", "Berat 60 GSM", "Lembut & elastis", "Daya serap tinggi"], usage: "Pembersihan Pribadi • Menyeka Permukaan • Menyerap Tumpahan Cairan • Menyerap Minyak, Lemak dan Minyak CPO • Memoles Kaca & Logam • Membersihkan Bak Cuci, Oven, Mesin • Mempersiapkan Permukaan • Mengganti Lap Bekas/Majun", certifications: ["LPPOM MUI", "Laboratorium Independen SIG"], videoId: "YmI52hF2pJ8", model: "/assets/cosmo.glb", pdfUrl: "/assets/jr60.pdf" },
-      { id: 2, name: "COSMO® MR-50", description: "COSMO® - MR 50 Wipers...", specs: ["Roll @ 900 Lembar", "70-80% Woodpulp", "20-30% Polypropylene (PP)", "25 cm x 25 cm per lembar", "Berat 50 GSM", "Lembut & elastis", "Daya serap tinggi"], usage: "Pembersihan Pribadi • Menyeka Permukaan • Menyerap Tumpahan Cairan • Menyerap Minyak, Lemak dan Minyak CPO • Memoles Kaca & Logam • Membersihkan Bak Cuci, Oven, Mesin • Mempersiapkan Permukaan • Mengganti Lap Bekas/Majun", certifications: ["LPPOM MUI", "Laboratorium Independen SIG"], videoId: "4HrweW4IqJc", model: "/assets/astronaut.glb", pdfUrl: "/assets/mr50.pdf" },
-      { id: 3, name: "COSMO® PSW", description: "Tisu untuk ruang bersih...", specs: ["30 cm x 15 cm (standar)", "100% Polypropylene (PP)", "40 GSM – Low lint", "50 lembar/roll", "6 SKU + Dispenser/Bucket", "Siap pakai dengan IPA"], sku: ["1417-01: 12 Roll @ 50 Lembar", "1417-02: 12 Roll @ 50 Lembar + Dispenser", "1417-04: 685 Roll @ 150 Lembar", "1417-05: 6 Roll @ 150 Lembar + Bucket", "1417-06: 12\"x12\", 6 Roll @ 100 Lembar", "1417-07: 12\"x12\", 6 Roll @ 100 Lembar + Bucket"], usage: "Sanitasi Ruang Bersih • Desinfeksi Laboratorium • Pembersihan Elektronik • Farmasi & Medis • Persiapan Permukaan Steril", certifications: ["LPPOM MUI", "Laboratorium Independen SIG", "ISO 14644", "EPA Compliant"], videoId: "YMcI754wroM", model: "/assets/product-sample.glb", pdfUrl: "/assets/psw.pdf" },
-      { id: 4, name: "COSMO® QF-70", description: "COSMO® - QF 70 Wipers...", specs: ["Quarter Fold 30 x 35 cm", "70 GSM – Super kuat", "100 lembar/pack", "1 box = 8 pack", "70-80% Woodpulp", "20-30% Polypropylene (PP)"], usage: "Pembersihan Pribadi • Menyeka Permukaan • Menyerap Tumpahan Cairan • Menyerap Minyak, Lemak dan Minyak CPO • Memoles Kaca & Logam • Membersihkan Bak Cuci, Oven, Mesin • Mempersiapkan Permukaan • Mengganti Lap Bekas/Majun", certifications: ["LPPOM MUI", "Laboratorium Independen SIG"], videoId: "lm3Caq31Djw", model: "/assets/waving.glb", pdfUrl: "/assets/qf70.pdf" }
-    ];
+<script>
+  // DATA PRODUK
+  const products = [null,
+    {id:1,name:"COSMO® JR-60",sku: "SDJJASD",description:"COSMO® - JR 60 Wipers...",specs:["Roll @ 1.000 Lembar","70-80% Woodpulp","20-30% Polypropylene (PP)","34,5 cm x 31 cm per lembar","Berat 60 GSM","Lembut & elastis","Daya serap tinggi"],usage:"Pembersihan Pribadi • Menyeka Permukaan • Menyerap Tumpahan Cairan • Menyerap Minyak, Lemak dan Minyak CPO • Memoles Kaca & Logam • Membersihkan Bak Cuci, Oven, Mesin • Mempersiapkan Permukaan • Mengganti Lap Bekas/Majun",certifications:["LPPOM MUI","Laboratorium Independen SIG"],videoId:"YmI52hF2pJ8",model:"/assets/cosmo.glb",pdfUrl:"/assets/jr60.pdf"},
+    {id:2,name:"COSMO® MR-50",sku: "dwjakdj",description:"COSMO® - MR 50 Wipers...",specs:["Roll @ 900 Lembar","70-80% Woodpulp","20-30% Polypropylene (PP)","25 cm x 25 cm per lembar","Berat 50 GSM","Lembut & elastis","Daya serap tinggi"],usage:"Pembersihan Pribadi • Menyeka Permukaan • Menyerap Tumpahan Cairan • Menyerap Minyak, Lemak dan Minyak CPO • Memoles Kaca & Logam • Membersihkan Bak Cuci, Oven, Mesin • Mempersiapkan Permukaan • Mengganti Lap Bekas/Majun",certifications:["LPPOM MUI","Laboratorium Independen SIG"],videoId:"4HrweW4IqJc",model:"/assets/astronaut.glb",pdfUrl:"/assets/mr50.pdf"},
+    {id:3,name:"COSMO® PSW",sku: "SH-123",description:"Tisu untuk ruang bersih...",specs:["30 cm x 15 cm (standar)","100% Polypropylene (PP)","40 GSM – Low lint","50 lembar/roll","6 SKU + Dispenser/Bucket","Siap pakai dengan IPA"],usage:"Sanitasi Ruang Bersih • Desinfeksi Laboratorium • Pembersihan Elektronik • Farmasi & Medis • Persiapan Permukaan Steril",certifications:["LPPOM MUI","Laboratorium Independen SIG","ISO 14644","EPA Compliant"],videoId:"YMcI754wroM",model:"/assets/product-sample.glb",pdfUrl:"/assets/psw.pdf"},
+    {id:4,name:"COSMO® QF-70",sku: "SKU-111",description:"COSMO® - QF 70 Wipers...",specs:["Quarter Fold 30 x 35 cm","70 GSM – Super kuat","100 lembar/pack","1 box = 8 pack","70-80% Woodpulp","20-30% Polypropylene (PP)"],usage:"Pembersihan Pribadi • Menyeka Permukaan • Menyerap Tumpahan Cairan • Menyerap Minyak, Lemak dan Minyak CPO • Memoles Kaca & Logam • Membersihkan Bak Cuci, Oven, Mesin • Mempersiapkan Permukaan • Mengganti Lap Bekas/Majun",certifications:["LPPOM MUI","Laboratorium Independen SIG"],videoId:"lm3Caq31Djw",model:"/assets/waving.glb",pdfUrl:"/assets/qf70.pdf"}
+  ];
+  let player;
+  const tag=document.createElement('script');tag.src='https://www.youtube.com/iframe_api';
+  const firstScript=document.getElementsByTagName('script')[0];firstScript.parentNode.insertBefore(tag,firstScript);
 
-    let player;
+  // === LOCALSTORAGE & SKU AKTIF ===
+  let activeSku = localStorage.getItem('activeSku') || null;
+  let currentProductLabel = null;
+  let activeSkuLabel = null;
 
-    // === LOAD YOUTUBE API ===
-    const tag = document.createElement('script');
-    tag.src = 'https://www.youtube.com/iframe_api';
-    const firstScript = document.getElementsByTagName('script')[0];
-    firstScript.parentNode.insertBefore(tag, firstScript);
+  // === HENTIKAN SEMUA AUDIO SAAT REFRESH / UNLOAD ===
+  window.addEventListener('beforeunload', () => {
+    // 1. Hentikan TTS
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+    }
 
-    // === TUNGGU SEMUA SIAP ===
-    window.addEventListener('load', () => {
-      const loadingScreen = document.getElementById('loadingScreen');
-      const container = document.getElementById('youtubeContainer');
-      const videoFrame = document.getElementById('videoFrame');
-      const toggleContainerBtn = document.getElementById('toggleContainerBtn');
-      const toggleVideoBtn = document.getElementById('toggleVideoBtn');
-      const eyeOpen = document.getElementById('eyeOpen');
-      const eyeClosed = document.getElementById('eyeClosed');
-      const videoBtnText = document.getElementById('videoBtnText');
-      const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-      const toggleHeightBtn = document.getElementById('toggleHeightBtn');
-      const eyeHeightIcon = document.getElementById('eyeHeightIcon');
+    // 2. Hentikan YouTube player (jika sudah ter-load)
+    if (player && typeof player.stopVideo === 'function') {
+      try { player.stopVideo(); } catch(e) {}
+    }
 
-      const productName = document.getElementById('productName');
-      const productDesc = document.getElementById('productDesc');
-      const productSpecs = document.getElementById('productSpecs');
-      const productUsage = document.getElementById('productUsage');
-      const productCerts = document.getElementById('productCerts');
+    // 3. Hentikan mikrofon & audio context
+    if (currentStream) {
+      currentStream.getTracks().forEach(track => track.stop());
+    }
+    if (audioCtx) {
+      audioCtx.close().catch(() => {});
+    }
 
-      let currentModel = null;
-      let lockedProduct = null;
-      let hasEverShown = false;
+    // 4. Reset flag
+    isSpeaking = false;
+    isListening = false;
+  });
 
-      // === FUNGSI TOGGLE IKON ===
-      function showEyeOpen() {
-        eyeOpen.style.display = 'block';
-        eyeClosed.style.display = 'none';
-        videoBtnText.textContent = 'Tutup Video';
-      }
+  // Tambahan: Jaga-jaga jika browser tidak memanggil beforeunload (misal: crash)
+  window.addEventListener('unload', () => {
+    window.speechSynthesis.cancel();
+  });
 
-      function showEyeClosed() {
-        eyeOpen.style.display = 'none';
-        if (player) { player.pauseVideo(); player.mute(); }
-        eyeClosed.style.display = 'block';
-        videoBtnText.textContent = 'Lihat Video';
-      }
+  // Fungsi simpan & update SKU
+  function setActiveSku(sku) {
+    activeSku = sku;
+    if (sku) {
+      localStorage.setItem('activeSku', sku);
+    } 
+    if (activeSkuLabel) activeSkuLabel.textContent = sku || '—';
+    if (currentProductLabel) currentProductLabel.textContent = sku ? products.find(p => p?.sku === sku)?.name || 'Chat Umum' : 'Chat Umum';
+    console.log("SKU aktif (localStorage):", sku);
+  }
 
-      function resetVideoButton() {
-        videoFrame.classList.add('hidden');
-        showEyeClosed();
-        if (player) { player.pauseVideo(); player.mute(); }
-      }
+  // UI & AR
+  window.addEventListener('load',()=>{const loadingScreen=document.getElementById('loadingScreen');
+    const container=document.getElementById('youtubeContainer');const videoFrame=document.getElementById('videoFrame');
+    const toggleContainerBtn=document.getElementById('toggleContainerBtn');const toggleVideoBtn=document.getElementById('toggleVideoBtn');
+    const eyeOpen=document.getElementById('eyeOpen');const eyeClosed=document.getElementById('eyeClosed');
+    const videoBtnText=document.getElementById('videoBtnText');const downloadPdfBtn=document.getElementById('downloadPdfBtn');
+    const toggleHeightBtn=document.getElementById('toggleHeightBtn');const eyeHeightIcon=document.getElementById('eyeHeightIcon');
+    const productName=document.getElementById('productName');const productDesc=document.getElementById('productDesc');
+    const productSpecs=document.getElementById('productSpecs');const productUsage=document.getElementById('productUsage');
+    const productCerts=document.getElementById('productCerts');let currentModel=null,lockedProduct=null,hasEverShown=false;
 
-      // === UPDATE PRODUK ===
-      function updateProductDisplay(product) {
-        if (!product || (lockedProduct && lockedProduct.id === product.id)) return;
-        lockedProduct = product;
+    currentProductLabel = document.getElementById('currentProductLabel');
+    activeSkuLabel = document.getElementById('activeSkuLabel');
+    if (activeSkuLabel) activeSkuLabel.textContent = activeSku || '—';
 
-        productName.firstChild.textContent = product.name;
-        productDesc.innerHTML = `<strong>Deskripsi:</strong><br>${product.description}`;
-        let specsHTML = product.specs.map(s => `• ${s}`).join('<br>');
-        if (product.sku) specsHTML += '<br><br><strong>SKU Tersedia:</strong><br>' + product.sku.map(s => `• ${s}`).join('<br>');
-        productSpecs.innerHTML = `<strong>Spesifikasi:</strong><br>${specsHTML}`;
-        productUsage.innerHTML = `<strong>Kegunaan:</strong><br>${product.usage.replace(/ • /g, '<br>')}`;
-        productCerts.innerHTML = `<strong>Sertifikasi:</strong><br>${product.certifications.map(c => '✓ ' + c).join('<br>')}`;
+    function showEyeOpen(){eyeOpen.style.display='block';eyeClosed.style.display='none';videoBtnText.textContent='Tutup Video';}
+    function showEyeClosed(){eyeOpen.style.display='none';if(player){player.pauseVideo();player.mute();}eyeClosed.style.display='block';videoBtnText.textContent='Lihat Video';}
+    function resetVideoButton(){videoFrame.classList.add('hidden');showEyeClosed();if(player){player.pauseVideo();player.mute();}}
 
-        const iframe = document.getElementById('youtubeIframe');
-        const newSrc = `https://www.youtube.com/embed/${product.videoId}?autoplay=0&loop=1&playlist=${product.videoId}&controls=1&modestbranding=1&rel=0&mute=0&enablejsapi=1`;
-        if (iframe.src !== newSrc) iframe.src = newSrc;
+    function updateProductDisplay(p){
+      if(!p) return;
+      if(lockedProduct && lockedProduct.id === p.id) return;
+      lockedProduct = p;
+      setActiveSku(p.sku);  // Simpan ke localStorage
 
-        setTimeout(() => {
-          if (player && player.loadVideoById) {
-            player.loadVideoById(product.videoId);
-            player.pauseVideo();
-            player.mute();
-          }
-        }, 500);
+      productName.firstChild.textContent = p.name;
+      productDesc.innerHTML = `<strong>Deskripsi:</strong><br>${p.description}`;
 
-        downloadPdfBtn.href = product.pdfUrl;
-        downloadPdfBtn.download = `${product.name.replace(/®/g, '').trim()}.pdf`;
-        downloadPdfBtn.classList.add('visible');
+      let s = p.specs.map(x => `• ${x}`).join('<br>');
+      if(p.sku) s += '<br><br><strong>SKU:</strong><br>• ' + p.sku;
+      productSpecs.innerHTML = `<strong>Spesifikasi:</strong><br>${s}`;
+      productUsage.innerHTML = `<strong>Kegunaan:</strong><br>${p.usage.replace(/ • /g,'<br>')}`;
+      productCerts.innerHTML = `<strong>Sertifikasi:</strong><br>${p.certifications.map(x=>'Checkmark '+x).join('<br>')}`;
 
-        container.classList.remove('hidden');
-        toggleContainerBtn.textContent = 'Close';
-        resetVideoButton();
-      }
+      const iframe = document.getElementById('youtubeIframe');
+      const src = `https://www.youtube.com/embed/${p.videoId}?autoplay=0&loop=1&playlist=${p.videoId}&controls=1&modestbranding=1&rel=0&mute=0&enablejsapi=1`;
+      if(iframe.src !== src) iframe.src = src;
 
-      // === TOGGLE VIDEO ===
-      toggleVideoBtn.onclick = () => {
-        const isHidden = videoFrame.classList.toggle('hidden');
-        if (isHidden) {
-          player?.pauseVideo(); player?.mute(); showEyeClosed();
-        } else {
-          player?.playVideo(); player?.unMute(); showEyeOpen();
+      setTimeout(() => {
+        if(player && player.loadVideoById){
+          player.loadVideoById(p.videoId);
+          player.pauseVideo();
+          player.mute();
         }
-      };
+      }, 500);
 
-      // === TOGGLE HEIGHT ===
-      toggleHeightBtn.onclick = () => {
-        const isCompact = container.classList.toggle('compact');
-        eyeHeightIcon.innerHTML = isCompact ? `
-          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-          <line x1="1" y1="1" x2="23" y2="23"></line>
-        ` : `
-          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-          <circle cx="12" cy="12" r="3"></circle>
-        `;
-        if (isCompact) resetVideoButton();
-      };
+      downloadPdfBtn.href = p.pdfUrl;
+      downloadPdfBtn.download = `${p.name.replace(/®/g,'').trim()}.pdf`;
+      downloadPdfBtn.classList.add('visible');
+      container.classList.remove('hidden');
+      toggleContainerBtn.textContent = 'Close';
+      resetVideoButton();
+    }
 
-      // === TOGGLE CONTAINER ===
-      toggleContainerBtn.onclick = () => {
-        container.classList.toggle('hidden');
-        toggleContainerBtn.textContent = container.classList.contains('hidden') ? 'Play' : 'Close';
-        if (container.classList.contains('hidden')) {
-          downloadPdfBtn.classList.remove('visible');
-          resetVideoButton();
+    toggleVideoBtn.onclick=()=>{const h=videoFrame.classList.toggle('hidden');if(h){player?.pauseVideo();player?.mute();showEyeClosed();}else{player?.playVideo();player?.unMute();showEyeOpen();}};
+    toggleHeightBtn.onclick=()=>{const c=container.classList.toggle('compact');eyeHeightIcon.innerHTML=c?`<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>`:`<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>`;if(c)resetVideoButton();};
+    toggleContainerBtn.onclick=()=>{container.classList.toggle('hidden');toggleContainerBtn.textContent=container.classList.contains('hidden')?'Play':'Close';if(container.classList.contains('hidden')){downloadPdfBtn.classList.remove('visible');resetVideoButton();}};
+
+    const markers=document.querySelectorAll('a-marker');
+    markers.forEach(m => {
+      const id = parseInt(m.getAttribute('data-product-id'));
+      const p = products[id];
+      const ent = m.querySelector('.ar-model');
+
+      m.addEventListener('markerFound', () => {
+        setActiveSku(p.sku);  // Simpan ke localStorage
+        if (!lockedProduct || lockedProduct.id !== p.id) {
+          updateProductDisplay(p);
         }
-      };
 
-      // === MARKER DETECTION ===
-      const markers = document.querySelectorAll('a-marker');
-      markers.forEach(marker => {
-        const productId = parseInt(marker.getAttribute('data-product-id'));
-        const product = products[productId];
-        const modelEntity = marker.querySelector('.ar-model');
-
-        marker.addEventListener('markerFound', () => {
-          updateProductDisplay(product);
-
-          if (currentModel && currentModel !== modelEntity) {
-            currentModel.setAttribute('visible', false);
-          }
-
-          if (!modelEntity.model) {
-            const gltf = document.createElement('a-entity');
-            gltf.setAttribute('gltf-model', product.model);
-            gltf.setAttribute('scale', '0.5 0.5 0.5');
-            gltf.setAttribute('position', '0 0.5 0');
-            gltf.setAttribute('animation-mixer', '');
-            gltf.setAttribute('rotation-control', '');
-            modelEntity.appendChild(gltf);
-            modelEntity.model = gltf;
-          }
-
-          modelEntity.setAttribute('visible', true);
-          currentModel = modelEntity;
-          hasEverShown = true;
-
-          loadingScreen.classList.add('hidden');
-          setTimeout(() => { loadingScreen.style.display = 'none'; }, 700);
-
-          // BUKA CHAT OTOMATIS
-          if (!document.getElementById('chatbotContainer').classList.contains('active')) {
-            setTimeout(toggleChat, 800);
-          }
-        });
+        if(currentModel && currentModel !== ent) currentModel.setAttribute('visible', false);
+        if(!ent.model){
+          const gltf = document.createElement('a-entity');
+          gltf.setAttribute('gltf-model', p.model);
+          gltf.setAttribute('scale', '0.5 0.5 0.5');
+          gltf.setAttribute('position', '0 0.5 0');
+          gltf.setAttribute('animation-mixer', '');
+          gltf.setAttribute('rotation-control', '');
+          ent.appendChild(gltf);
+          ent.model = gltf;
+        }
+        ent.setAttribute('visible', true);
+        currentModel = ent;
+        hasEverShown = true;
+        loadingScreen.classList.add('hidden');
+        setTimeout(() => { loadingScreen.style.display='none'; }, 700);
+        if(!document.getElementById('chatbotContainer').classList.contains('active')) setTimeout(toggleChat, 800);
       });
 
-      // === YOUTUBE API SIAP ===
-      window.onYouTubeIframeAPIReady = function () {
-        player = new YT.Player('youtubeIframe', {
-          events: {
-            'onReady': (e) => {
-              e.target.pauseVideo();
-              e.target.mute();
-            }
-          }
-        });
-      };
-
-      // === TIMEOUT LOADING ===
-      setTimeout(() => {
-        if (!loadingScreen.classList.contains('hidden')) {
-          loadingScreen.classList.add('hidden');
-          setTimeout(() => { loadingScreen.style.display = 'none'; }, 700);
+      m.addEventListener('markerLost', () => {
+        if (currentModel === ent) {
+          setActiveSku(null);  // Reset saat marker hilang
         }
-      }, 1000);
+      });
     });
 
-    // === ROTATION CONTROL ===
-    AFRAME.registerComponent('rotation-control', {
-      init: function () {
-        const el = this.el;
-        let startX = 0, startY = 0, dragging = false;
-        el.addEventListener('touchstart', e => {
-          if (e.touches.length === 1) {
-            startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
-            dragging = true;
-          }
-        });
-        el.addEventListener('touchmove', e => {
-          if (!dragging) return;
-          e.preventDefault();
-          const dx = e.touches[0].clientX - startX;
-          const dy = e.touches[0].clientY - startY;
-          const rot = el.getAttribute('rotation');
-          el.setAttribute('rotation', { x: rot.x - dy * 0.6, y: rot.y + dx * 0.6, z: rot.z });
-          startX = e.touches[0].clientX;
-          startY = e.touches[0].clientY;
-        }, { passive: false });
-        el.addEventListener('touchend', () => { dragging = false; });
-      }
-    });
-
-    // === CHATBOT & VOICE SYSTEM ===
-    const API_BASE = 'https://vr.kiraproject.id';
-    const chatBody = document.getElementById('chatBody');
-    const chatInput = document.getElementById('chatInput');
-    const sendBtn = document.getElementById('sendBtn');
-    const micBtn = document.getElementById('micBtn');
-    const voiceWave = document.getElementById('voiceWave');
-    const chatbotContainer = document.getElementById('chatbotContainer');
-    const productSelect = document.getElementById('productSelect');
-
-    let recognition;
-    let isListening = false;
-    let speechRate = 1.0;
-
-    // === INIT SPEECH RECOGNITION (SELALU AKTIF) ===
-    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognition = new SpeechRecognition();
-      recognition.lang = 'id-ID';
-      recognition.interimResults = true;
-      recognition.continuous = true; // SELALU MENDENGAR
-
-      recognition.onresult = (e) => {
-        const transcript = Array.from(e.results)
-          .map(r => r[0].transcript)
-          .join('').toLowerCase().trim();
-
-        // DETEKSI WAKE WORD
-        if (transcript.includes('hallo cosmo') && !isListening) {
-          startListening();
-          addMessage('user', 'Hallo Cosmo!');
-          setTimeout(() => chatInput.focus(), 300);
-          return;
-        }
-
-        // JIKA SEDANG MENDENGAR & ADA FINAL RESULT
-        if (isListening && e.results[e.results.length - 1].isFinal) {
-          const final = e.results[e.results.length - 1][0].transcript.trim();
-          if (final && !final.toLowerCase().includes('hallo cosmo')) {
-            sendMessage(final);
-            stopListening();
-          }
-        }
-      };
-
-      recognition.onerror = (e) => {
-        console.error('Speech error:', e);
-        if (isListening) stopListening();
-      };
-
-      recognition.onend = () => {
-        // Restart otomatis jika masih dalam mode listening
-        if (isListening) {
-          setTimeout(() => recognition.start(), 100);
-        }
-      };
-
-      // MULAI MENDENGAR OTOMATIS SETELAH LOAD
-      setTimeout(() => recognition.start(), 2000);
-    }
-
-    function startListening() {
-      if (!recognition) return;
-      isListening = true;
-      micBtn.classList.add('listening');
-      voiceWave.classList.add('active');
-      document.querySelector('#chatHeader div:last-child div:last-child').textContent = 'Mendengarkan...';
-      recognition.start();
-    }
-
-    function stopListening() {
-      isListening = false;
-      micBtn.classList.remove('listening');
-      voiceWave.classList.remove('active');
-      document.querySelector('#chatHeader div:last-child div:last-child').textContent = 'Online';
-      if (recognition) recognition.stop();
-    }
-
-    function toggleChat() {
-      chatbotContainer.classList.toggle('active');
-    }
-
-    function addMessage(role, text) {
-      const div = document.createElement('div');
-      div.className = `message ${role}`;
-      div.innerHTML = text;
-      chatBody.appendChild(div);
-      chatBody.scrollTop = chatBody.scrollHeight;
-    }
-
-    function speak(text) {
-      if ('speechSynthesis' in window) {
-        const utter = new SpeechSynthesisUtterance(text);
-        utter.lang = 'id-ID';
-        utter.rate = speechRate;
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.speak(utter);
-      }
-    }
-
-    function ruleBot(text) {
-      const t = text.toLowerCase();
-      if (/halo|hi|hai/.test(t)) return 'Halo! Ada yang bisa saya bantu?';
-      if (/toilet/.test(t)) return 'Toilet pintar: flush otomatis, hemat air 50%, pemanas dudukan.';
-      if (/sepatu|shoe/.test(t)) return 'Sepatu tahan air, anti-slip, memory foam.';
-      return `Maaf, saya belum paham: "${text}". Coba tanya fitur produk!`;
-    }
-
-    async function sendToLLM(message) {
-      const sku = productSelect.value;
-      const endpoint = sku ? `${API_BASE}/api/llm/product-chat` : `${API_BASE}/api/llm/chat`;
-      const payload = sku ? { sku, question: message } : { message };
-
-      try {
-        const res = await fetch(endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const json = await res.json();
-        return json.success ? json.data.response : ruleBot(message);
-      } catch {
-        return ruleBot(message);
-      }
-    }
-
-    async function sendMessage(text) {
-      if (!text.trim()) return;
-      addMessage('user', text);
-      chatInput.value = '';
-
-      addMessage('bot', '<div style="display:flex; gap:4px;"><div class="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div><div class="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style="animation-delay:0.1s"></div><div class="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style="animation-delay:0.2s"></div></div>');
-
-      const reply = await sendToLLM(text);
-      chatBody.lastChild.remove();
-      addMessage('bot', reply);
-      speak(reply);
-    }
-
-    // === MANUAL MIC (opsional) ===
-    micBtn.onclick = () => {
-      if (isListening) stopListening();
-      else startListening();
+    window.onYouTubeIframeAPIReady = () => {
+      player = new YT.Player('youtubeIframe', {
+        events: { 'onReady': e => { e.target.pauseVideo(); e.target.mute(); } }
+      });
     };
 
-    sendBtn.onclick = () => sendMessage(chatInput.value);
-    chatInput.addEventListener('keypress', e => {
-      if (e.key === 'Enter') sendMessage(chatInput.value);
-    });
-
-    // === SPEED CONTROL ===
-    document.querySelectorAll('.speedBtn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.speedBtn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        speechRate = parseFloat(btn.dataset.rate);
-      });
-    });
-
-    // INIT PRODUK SELECT
-    products.forEach(p => {
-      if (p) {
-        const opt = document.createElement('option');
-        opt.value = p.sku ? p.sku[0].split(':')[0] : p.id;
-        opt.textContent = `${p.name}`;
-        productSelect.appendChild(opt);
+    setTimeout(() => {
+      if(!loadingScreen.classList.contains('hidden')){
+        loadingScreen.classList.add('hidden');
+        setTimeout(() => { loadingScreen.style.display='none'; }, 700);
       }
+    }, 1000);
+  });
+
+  AFRAME.registerComponent('rotation-control',{
+    init:function(){
+      const el=this.el;let sx=0,sy=0,drag=false;
+      el.addEventListener('touchstart',e=>{if(e.touches.length===1){sx=e.touches[0].clientX;sy=e.touches[0].clientY;drag=true;}});
+      el.addEventListener('touchmove',e=>{if(!drag)return;e.preventDefault();const dx=e.touches[0].clientX-sx,dy=e.touches[0].clientY-sy;
+        const r=el.getAttribute('rotation');el.setAttribute('rotation',{x:r.x-dy*0.6,y:r.y+dx*0.6,z:r.z});sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:false});
+      el.addEventListener('touchend',()=>{drag=false;});
+    }
+  });
+
+  // CHATBOT & VOICE WAVE
+  const API_BASE = 'https://vr.kiraproject.id';
+  const chatBody = document.getElementById('chatBody');
+  const chatInput = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('sendBtn');
+  const micBtn = document.getElementById('micBtn');
+  const voiceWave = document.getElementById('voiceWave');
+  const chatbotContainer = document.getElementById('chatbotContainer');
+  const productSelect = document.getElementById('productSelect');
+  const waveBars = Array.from(voiceWave.querySelectorAll('.waveBar'));
+  const stopAudioBtn = document.getElementById('stopAudioBtn');
+
+  let isListening = false, speechRate = 1.0;
+  let isSpeaking = false;
+  let audioCtx = null, analyser = null, micSrc = null, dataArray = null, animId = null;
+  let recognition = null;
+  let currentStream = null;
+
+  function fullReset() {
+    window.speechSynthesis.cancel();
+    isSpeaking = false;
+    isListening = false;
+
+    if (currentStream) {
+      currentStream.getTracks().forEach(track => track.stop());
+      currentStream = null;
+    }
+
+    if (recognition) {
+      recognition.onstart = recognition.onresult = recognition.onerror = recognition.onend = null;
+      try { recognition.stop(); } catch(e) {}
+      recognition = null;
+    }
+
+    if (micSrc) { try { micSrc.disconnect(); } catch(e) {} micSrc = null; }
+    if (analyser) analyser = null;
+    if (audioCtx) { try { audioCtx.close(); } catch(e) {} audioCtx = null; }
+
+    stopAnim();
+
+    micBtn.style.display = 'flex';
+    stopAudioBtn.style.display = 'none';
+    stopAudioBtn.classList.remove('active');
+  }
+
+  function createRecognition() {
+    if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) return null;
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const rec = new SR();
+    rec.lang = 'id-ID';
+    rec.interimResults = true;
+    rec.continuous = true;
+    rec.maxAlternatives = 1;
+
+    rec.onresult = e => {
+      const result = e.results[e.results.length - 1];
+      const transcript = result[0].transcript.trim();
+      if (result.isFinal && transcript && !transcript.toLowerCase().includes('hallo cosmo')) {
+        sendMessage(transcript);
+      }
+    };
+
+    rec.onerror = () => { if (isListening) setTimeout(() => rec?.start(), 300); };
+    rec.onend = () => { if (isListening) setTimeout(() => rec?.start(), 100); };
+
+    return rec;
+  }
+
+  async function startMic() {
+    try {
+      currentStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 256;
+        dataArray = new Uint8Array(analyser.frequencyBinCount);
+      }
+      micSrc = audioCtx.createMediaStreamSource(currentStream);
+      micSrc.connect(analyser);
+      startAnim();
+    } catch (e) { console.warn('Mic denied', e); }
+  }
+
+  function startAnim() {
+    if (animId) return;
+    voiceWave.classList.add('active');
+    const step = () => {
+      if (!analyser) return;
+      analyser.getByteFrequencyData(dataArray);
+      const avg = dataArray.reduce((a, b) => a + b) / dataArray.length;
+      const vol = Math.min(avg / 128, 1);
+      const maxH = 70;
+      waveBars.forEach((bar, i) => {
+        bar.style.height = `${Math.round(maxH * vol * (0.7 + i * 0.15))}px`;
+      });
+      animId = requestAnimationFrame(step);
+    };
+    animId = requestAnimationFrame(step);
+  }
+
+  function stopAnim() {
+    if (animId) cancelAnimationFrame(animId);
+    animId = null;
+    voiceWave.classList.remove('active');
+    waveBars.forEach(b => b.style.height = '8px');
+  }
+
+  function startListening() {
+    if (isSpeaking || isListening) return;
+    isListening = true;
+    recognition = createRecognition();
+    if (recognition) recognition.start();
+    startMic();
+  }
+
+  function stopListening() {
+    isListening = false;
+    if (recognition) {
+      recognition.onend = null;
+      try { recognition.stop(); } catch(e) {}
+      recognition = null;
+    }
+    if (currentStream) {
+      currentStream.getTracks().forEach(t => t.stop());
+      currentStream = null;
+    }
+    if (!isSpeaking) stopAnim();
+  }
+
+  function toggleChat(){ chatbotContainer.classList.toggle('active'); }
+
+  function addMessage(role, txt){
+    const d = document.createElement('div');
+    d.className = `message ${role}`;
+    d.innerHTML = txt;
+    chatBody.appendChild(d);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+
+  function speak(txt) {
+    if (!txt?.trim() || !('speechSynthesis' in window)) return;
+
+    const captionBox = document.getElementById('captionBox');
+    const captionText = document.getElementById('captionText');
+    const typingCursor = document.getElementById('typingCursor');
+
+    if (captionBox) {
+      captionBox.style.display = 'none';
+      captionBox.classList.remove('show');
+    }
+
+    // Reset
+    captionText.textContent = '';
+    typingCursor.style.opacity = '1';
+
+    // TAMPILKAN DENGAN CLASS
+    captionBox.classList.add('show');
+
+    const fullText = txt.trim();
+    let i = 0;
+
+    // Sinkron kecepatan dengan suara
+    const baseCharPerSecond = 18;
+    const charsPerSecond = baseCharPerSecond * speechRate;
+    const msPerChar = 1000 / charsPerSecond;
+    const startDelay = 180;
+
+    function typeNextChar() {
+      if (i < fullText.length) {
+        captionText.textContent += fullText[i];
+        i++;
+        setTimeout(typeNextChar, msPerChar);
+      } else {
+        typingCursor.style.opacity = '0';
+      }
+    }
+
+    setTimeout(typeNextChar, startDelay);
+
+    // === TTS ===
+    window.speechSynthesis.cancel();
+    setTimeout(() => {
+      const u = new SpeechSynthesisUtterance(fullText);
+      u.lang = 'id-ID';
+      u.rate = speechRate;
+      u.pitch = 1;
+      u.volume = 1;
+
+      u.onstart = () => {
+        isSpeaking = true;
+        micBtn.style.display = 'none';
+        stopAudioBtn.style.display = 'flex';
+        stopAudioBtn.classList.add('active');
+        voiceWave.classList.add('active');
+        startAnim();
+      };
+
+      u.onend = u.onerror = () => {
+        // SEMBUNYIKAN DENGAN CLASS
+        captionBox.classList.remove('show');
+        setTimeout(() => {
+          captionText.textContent = '';
+          typingCursor.style.opacity = '0';
+        }, 350); // sesuai transition
+        fullReset();
+      };
+
+      try { window.speechSynthesis.speak(u); }
+      catch (e) { 
+        setTimeout(() => { try { window.speechSynthesis.speak(u); } catch {} }, 100); 
+      }
+    }, 50);
+  }
+  
+  // HANYA 1 API + SKU dari localStorage
+  async function sendToLLM(msg) {
+    const currentSku = localStorage.getItem('activeSku');
+    console.log("Mengirim ke API dengan SKU:", currentSku);
+
+    const payload = { sku: currentSku, question: msg };
+    try {
+      const r = await fetch(`${API_BASE}/api/llm/product-chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const j = await r.json();
+      return j.success ? j.data.response : `Maaf, saya belum paham: "${msg}".`;
+    } catch {
+      return `Maaf, saya belum paham: "${msg}".`;
+    }
+  }
+
+  async function sendMessage(txt) {
+    if (!txt.trim()) return;
+    addMessage('user', txt);
+    chatInput.value = '';
+    addMessage('bot', '<div style="display:flex;gap:4px;"><div class="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div><div class="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style="animation-delay:.1s"></div><div class="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style="animation-delay:.2s"></div></div>');
+    const rep = await sendToLLM(txt);
+    chatBody.lastChild.remove();
+    addMessage('bot', rep);
+    speak(rep);
+  }
+
+  // UI KONTROL
+  micBtn.style.display = 'flex';
+  stopAudioBtn.style.display = 'none';
+
+  micBtn.onclick = () => {
+    if (isSpeaking) return;
+    if (isListening) stopListening();
+    else startListening();
+  };
+
+  stopAudioBtn.addEventListener('click', fullReset);
+
+  sendBtn.onclick = () => sendMessage(chatInput.value);
+  chatInput.addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(chatInput.value); });
+
+  document.querySelectorAll('.speedBtn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.speedBtn').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      speechRate = parseFloat(b.dataset.rate);
     });
-  </script>
+  });
+
+  // Isi select produk (opsional)
+  products.forEach(p => {
+    if (p) {
+      const o = document.createElement('option');
+      o.value = p.sku;
+      o.textContent = p.name;
+      productSelect.appendChild(o);
+    }
+  });
+
+  // Inisialisasi label saat load
+  if (activeSkuLabel) activeSkuLabel.textContent = activeSku || '—';
+  if (currentProductLabel) currentProductLabel.textContent = activeSku ? products.find(p => p?.sku === activeSku)?.name || 'Chat Umum' : 'Chat Umum';
+</script>
 </body>
 </html>
