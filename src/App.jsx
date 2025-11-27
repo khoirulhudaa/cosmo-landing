@@ -835,7 +835,7 @@ export default function App() {
               </p>
             </div>
           </div>
-          <ddiv className='w-max flex items-center gap-3'>
+          <div className='w-max flex items-center gap-3'>
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={resetChat}
@@ -853,7 +853,7 @@ export default function App() {
                 <X className="w-5 h-5" />
               </button>
             </div>
-          </ddiv>
+          </div>
         </div>
 
         {/* Messages */}

@@ -1,6 +1,6 @@
 import '@google/model-viewer';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Check, Download, Home, Info, InfoIcon, Link, Share2, X, Zap } from 'lucide-react';
+import { Box, Check, Download, Home, Info, InfoIcon, Link, Share2, X, Zap } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 export default function ARViewer({ modelUrl, model, onBack }) {
@@ -12,6 +12,20 @@ export default function ARViewer({ modelUrl, model, onBack }) {
   const [shareStatus, setShareStatus] = useState('');
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [viewInfo, setViewInfo] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                          window.innerWidth <= 768;
+      setIsMobile(isMobileDevice);
+    };
+
+    checkMobile();
+
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   console.log('urll', modelUrl)
 
@@ -516,6 +530,39 @@ export default function ARViewer({ modelUrl, model, onBack }) {
               <div className="flex items-center gap-3">
                 <motion.button initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.1 }} onClick={onBack} className="cursor-pointer hover:scale-103 hover:brightness-95 p-2.5 bg-white/10 backdrop-blur-md border border-white/30 text-white rounded-full">
                   <Home className="w-4 h-4" />
+                </motion.button>
+
+                <motion.button 
+                  initial={{ scale: 0 }} 
+                  animate={{ scale: 1 }} 
+                  transition={{ delay: 0.2 }} 
+                  onClick={startAR}
+                  disabled={isARActive || isLoading || !isMobile}
+                  className={`
+                    p-2.5 rounded-full flex items-center justify-center
+                    transition-all duration-200
+                    ${isARActive 
+                      ? 'bg-green-600 text-white shadow-lg shadow-green-500/25' 
+                      : !isMobile 
+                        ? 'bg-gray-600 text-gray-400 cursor-not-allowed' 
+                        : 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:scale-103 hover:brightness-95 cursor-pointer text-white'
+                    }
+                    ${isLoading ? 'opacity-50' : ''}
+                  `}
+                >
+                  {isARActive ? (
+                    <div className="flex items-center gap-1">
+                      <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" />
+                      <span className="hidden sm:inline text-xs font-medium">AR Aktif</span>
+                    </div>
+                  ) : (
+                    <>
+                      <Box className='w-5 h-5 md:mr-1' />
+                      <span className="hidden sm:inline text-xs font-medium ml-1">
+                        {isMobile ? 'AR' : 'AR (Hanya Mobile)'}
+                      </span>
+                    </>
+                  )}
                 </motion.button>
 
                 <motion.button initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2 }} onClick={handleDownload} disabled={downloading} className="cursor-pointer hover:scale-103 hover:brightness-95 p-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-full disabled:opacity-50">
