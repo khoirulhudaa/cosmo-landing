@@ -1,6 +1,6 @@
 import '@google/model-viewer';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Box, Camera, Check, Download, Home, Info, Link, Share2, Zap } from 'lucide-react';
+import { Check, Download, Home, Info, InfoIcon, Link, Share2, X, Zap } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 export default function ARViewer({ modelUrl, model, onBack }) {
@@ -11,6 +11,7 @@ export default function ARViewer({ modelUrl, model, onBack }) {
   const [downloading, setDownloading] = useState(false);
   const [shareStatus, setShareStatus] = useState('');
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const [viewInfo, setViewInfo] = useState(true);
 
   console.log('urll', modelUrl)
 
@@ -329,14 +330,6 @@ export default function ARViewer({ modelUrl, model, onBack }) {
         touch-action="none"
         style={{ width: '100%', height: '100%' }}
         className="touch-none select-none"
-
-        // ar ar-modes="webxr scene-viewer quick-look"
-        // ar-scale="auto" ar-placement="floor"
-        // camera-controls shadow-intensity="1.5"
-        // exposure="1.0" field-of-view="30deg"
-        // interaction-prompt="none" crossorigin="anonymous"
-        // loading="eager" touch-action="none"
-        // style={{ width: '100%', height: '100%' }}
       >
         <div slot="poster" className="flex items-center justify-center w-full h-full bg-gradient-to-br from-blue-900 to-brand-800">
           <div className="text-center">
@@ -372,11 +365,7 @@ export default function ARViewer({ modelUrl, model, onBack }) {
                 const cy = rect.height / 2;
                 const rotateY = ((x - cx) / cx) * 18 - 0;
                 const rotateX = ((cy - y) / cy) * 18 - 0;
-                // card.style.transform = `translateY(0%) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(60px) scale(1.03)`;
               }}
-              // onMouseLeave={(e) => {
-              //   e.currentTarget.style.transform = "translateY(0%) rotateX(-15deg) rotateY(-20deg) translateZ(30px) scale(1)";
-              // }}
             >
               {/* GARIS DEKORASI ATAS (BIRU) - TETAP */}
               <motion.div 
@@ -384,7 +373,6 @@ export default function ARViewer({ modelUrl, model, onBack }) {
                 animate={{ width: 64 }}
                 transition={{ duration: 0.6, delay: 0.6 }}
                 className="ml-auto relative left-[20%] flex items-center mb-2 overflow-hidden"
-                // style={{ transform: "translateZ(25px)" }}
               >
                 <div className="w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-l-8 border-l-blue-500"></div>
                 <div className="w-16 h-0.5 bg-blue-500"></div>
@@ -396,7 +384,6 @@ export default function ARViewer({ modelUrl, model, onBack }) {
                 animate={{ height: 96 }}
                 transition={{ duration: 0.5, delay: 0.8 }}
                 className="ml-auto w-0.5 bg-red-500"
-                // style={{ transform: "translateZ(25px)" }}
               />
 
               {/* KOTAK KIRI - Spesifikasi (sheetSize + price) */}
@@ -435,7 +422,6 @@ export default function ARViewer({ modelUrl, model, onBack }) {
             <div
               className="relative preserve-3d transition-transform duration-300 ease-out"
               style={{
-                // transform: "translateY(0%) rotateX(-15deg) rotateY(20deg) translateZ(30px)",
                 top: "50%",
                 willChange: "transform",
               }}
@@ -448,11 +434,7 @@ export default function ARViewer({ modelUrl, model, onBack }) {
                 const cy = rect.height / 2;
                 const rotateY = ((x - cx) / cx) * 18 + 0;
                 const rotateX = ((cy - y) / cy) * 18 - 0;
-                // card.style.transform = `translateY(0%) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(60px) scale(1.03)`;
               }}
-              // onMouseLeave={(e) => {
-              //   e.currentTarget.style.transform = "translateY(0%) rotateX(-15deg) rotateY(20deg) translateZ(30px) scale(1)";
-              // }}
             >
               {/* GARIS DEKORASI ATAS (BIRU) - TETAP */}
               <motion.div 
@@ -460,7 +442,6 @@ export default function ARViewer({ modelUrl, model, onBack }) {
                 animate={{ width: 64 }}
                 transition={{ duration: 0.6, delay: 0.6 }}
                 className="relative left-[-22%] flex items-center mb-2 overflow-hidden justify-start"
-                // style={{ transform: "translateZ(25px)" }}
               >
                 <div className="w-16 h-0.5 bg-blue-500"></div>
                 <div className="w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-r-8 border-r-blue-500"></div>
@@ -472,7 +453,6 @@ export default function ARViewer({ modelUrl, model, onBack }) {
                 animate={{ height: 96 }}
                 transition={{ duration: 0.5, delay: 0.8 }}
                 className="w-0.5 bg-red-500"
-                // style={{ transform: "translateZ(25px)" }}
               />
 
              {/* KOTAK KANAN - Category + Composition */}
@@ -497,11 +477,24 @@ export default function ARViewer({ modelUrl, model, onBack }) {
                 className="absolute -inset-6 bg-cyan-500/20 rounded-full blur-3xl opacity-50"
                 style={{ zIndex: -1, transform: "translateZ(-10px)" }}
               />
-            </div>
+            </div> 
           </motion.div>
 
         </div>
       </div>
+      
+      {
+        viewInfo ? (
+          <div className='absolute py-2 px-3 text-xs bottom-10 gap-3 bg-red-100 text-red-500 hidden md:flex items-center justify-center mx-auto left-1/2 -translate-x-[50%] rounded-lg border-2 border-red-400 z-[333] shadow-lg'>
+            <InfoIcon className='w-4 h-4' />
+            <p>Mode AR hanya tersedia di handphone</p>
+            <div onClick={() => setViewInfo(false)} className='w-max border border-red-400 rounded-md ml-2.5 bg-white h-full flex items-center justify-center cursor-pointer hover:brightness-95 active:scale-[0.98]'>
+              <X />
+            </div>
+          </div>
+        ):
+          <></>
+      }
 
         {/* Status Bar */}
         <div className="w-full absolute top-4 px-4 z-50">
