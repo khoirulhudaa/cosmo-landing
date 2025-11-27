@@ -460,7 +460,7 @@ import ModelSelector from './modelUploader';
 import UnityARViewer from './UnityARViewer';
 
 // === VIDEO BACKGROUND PATH ===
-const VIDEO_BG = '/videos/wave3.mp4'; // Ganti dengan path video kamu
+const VIDEO_BG = '/videos/wave4.mp4'; // Ganti dengan path video kamu
 
 // === Fallback RuleBot ===
 const ruleBot = (text, model) => {
@@ -668,11 +668,13 @@ export default function App() {
       const url = URL.createObjectURL(model);
       setBlobUrlToRevoke(url);
       setModelUrl(url);
-      setSelectedModel({ name: model.name, sizeFormatted: `${(model.size / 1024).toFixed(2)} KB` });
+      setSelectedModel({ name: model.name || 'Product Cosmo', sizeFormatted: `${(model.size / 1024).toFixed(2)} KB` || '0 KB', sheetSize: model.size || '-', composition: model.composition || ''  });
+      console.log('data', { name: model.name || 'Product Cosmo', sizeFormatted: `${(model.size / 1024).toFixed(2)} KB` || '0 KB', sheetSize: model.size || '-', composition: model.composition || ''  })
     } else {
       setBlobUrlToRevoke(null);
       setModelUrl(model.fullUrl);
       setSelectedModel(model);
+      console.log('model', model)
       setShowAR(true);
     }
   };
@@ -739,7 +741,7 @@ export default function App() {
         </motion.div>
 
         <div className='z-[900999] w-full md:w-max mx-auto relative justify-center items-center'>
-          <div className='relative w-max md:w-full h-[12vh] md:gap-0 gap-3 md:h-[16vh] flex items-center justify-center bottom-0 rounded-lg rounded-tr-xl z-[2333] mt-12 text-center'>
+          <div className='relative w-full h-[12vh] md:h-[16vh] flex items-center justify-between md:justify-center bottom-0 rounded-lg rounded-tr-xl z-[2333] mt-12 text-center'>
             
             {/* AR HOLOGRAM BUTTON */}
             <motion.button
@@ -779,10 +781,10 @@ export default function App() {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.6, type: "spring", stiffness: 100 }}
                     onClick={() => setShowChat(true)}
-                    className="relative overflow-hidden w-[96px] px-4 gap-2 hover:brightness-90 h-full cursor-pointer bg-white rounded-xl flex items-center justify-center hover:shadow-inner"
+                    className="relative overflow-hidden w-full md:w-[110px] px-4 gap-2 hover:brightness-90 h-full cursor-pointer bg-white rounded-lg flex items-center justify-center hover:shadow-inner"
                   >
-                    <Bot className="w-9 h-9 text-purple-600" />
-                    <p className='font-medium'>Chat</p>
+                    <Bot className="w-8.5 h-8.5 text-purple-600" />
+                    <p className='font-medium'>CHAT</p>
                   </motion.button>
                 ) : (
                   <motion.button
@@ -790,7 +792,7 @@ export default function App() {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.6, type: "spring", stiffness: 100 }}
                     onClick={() => setShowChat(false)}
-                    className="w-[96px] cursor-pointer hover:brightness-90 h-full bg-gradient-to-br from-red-400 to-pink-500 rounded-lg flex items-center justify-center text-white"
+                    className="w-[110px] cursor-pointer hover:brightness-90 h-full bg-gradient-to-br from-red-400 to-pink-500 rounded-lg flex items-center justify-center text-white"
                   >
                     <X className="w-6 h-6" />
                   </motion.button>
@@ -817,7 +819,7 @@ export default function App() {
         initial={{ opacity: 0, scale: 0.9, y: 100 }}
         animate={{ opacity: showChat ? 1 : 0, scale: showChat ? 1 : 0.9, y: showChat ? 0 : 100 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className={`fixed bottom-0 md:bottom-4 right-0 md:right-4 w-full md:w-96 h-[80vh] bg-black/30 backdrop-blur-2xl border border-gray-200 rounded-tl-3xl rounded-tr-3xl md:rounded-3xl shadow-2xl z-[9999] flex flex-col ${showChat ? 'pointer-events-auto' : 'pointer-events-none'}`}
+        className={`fixed bottom-0 md:bottom-4 right-0 md:right-4 w-full md:w-96 h-[80vh] bg-black/30 backdrop-blur-2xl border border-gray-200 rounded-3xl shadow-2xl z-[9999] flex flex-col ${showChat ? 'pointer-events-auto' : 'pointer-events-none'}`}
       >
         {/* Header */}
         <div className="p-4 border-b border-gray-200 flex items-center justify-between">

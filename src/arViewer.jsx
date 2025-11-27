@@ -31,21 +31,29 @@ export default function ARViewer({ modelUrl, model, onBack }) {
   // =================================================================
   // 1. DEFAULT FALLBACK (selalu ada, bahkan tanpa model)
   // =================================================================
-  const defaultLeft = {
-    title: "Fungsi",
-    list: ["Memuat detail..."]
-  };
+  const left = {
+      title: "Spesifikasi",
+      items: [
+        model?.size ? `Ukuran: ${model.size}` : null,
+        model?.price ? `Harga: ${new Intl.NumberFormat('id-ID', {
+          style: 'currency',
+          currency: 'IDR',
+          minimumFractionDigits: 0,
+        }).format(model.price)}` : null,
+      ].filter(Boolean),
+    };
 
-  const defaultRight = {
-    title: "Tujuan",
-    value: "Menampilkan model 3D dalam Augmented Reality untuk pengalaman interaktif."
-  };
+    const right = {
+      title: "Informasi Produk",
+      items: [
+        model?.category ? `Kategori: ${formatName(model.category)}` : null,
+        model?.composition ? `Komposisi: ${model.composition}` : null,
+      ].filter(Boolean),
+    };
 
-  // =================================================================
-  // 2. AMBIL DATA DARI MODEL (atau fallback)
-  // =================================================================
-  const left = model?.desc_left || defaultLeft;
-  const right = model?.desc_right || defaultRight;
+    // Kalau tidak ada data sama sekali, pakai fallback
+    const displayLeft = left.items.length > 0 ? left : { title: "Spesifikasi", items: ["Data tidak tersedia"] };
+    const displayRight = right.items.length > 0 ? right : { title: "Informasi Produk", items: ["Data tidak tersedia"] };
 
   // -------------------------------------------------
   // DEBUG: Cek modelUrl
@@ -391,22 +399,22 @@ export default function ARViewer({ modelUrl, model, onBack }) {
                 // style={{ transform: "translateZ(25px)" }}
               />
 
-              {/* KOTAK FUNGSI - TETAP 100% SAMA */}
+              {/* KOTAK KIRI - Spesifikasi (sheetSize + price) */}
               <motion.div 
                 layout
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 1 }}
-                className="mt-3 w-[400px] bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-4 text-white shadow-xl max-w-xs"
-                // style={{ transform: "tranzslateZ(30px)" }}
+                className="mt-3 min-w-[300px] w-max max-w-[400px] bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-5 text-white shadow-xl"
               >
-                <p className="text-xs font-medium text-cyan-300 mb-2">Sistem & Manfaat</p>
-                <p className="text-xs text-cyan-100 mb-2">{model.system}</p>
-                <ul className="text-xs space-y-1">
-                  {(model.benefits || []).map((b, i) => (
-                    <li key={i} className="flex items-center gap-2"><span className="text-cyan-400">•</span><span>{b}</span></li>
+                <p className="text-sm font-bold text-cyan-300 mb-3">{displayLeft.title}</p>
+                <div className="space-y-3 text-sm">
+                  {displayLeft.items.map((item, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <span>{item}</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </motion.div>
 
               {/* Glow halus di belakang */}
@@ -467,28 +475,23 @@ export default function ARViewer({ modelUrl, model, onBack }) {
                 // style={{ transform: "translateZ(25px)" }}
               />
 
-              {/* KOTAK TUJUAN - TETAP 100% SAMA */}
-              <motion.div 
-                layout
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 1 }}
-                className="mt-3 w-[300px] bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-4 text-white shadow-xl max-w-md"
-                // style={{ transform: "translateZ(30px)" }}
-              >
-                  <p className="text-xs font-medium text-cyan-300 mb-2">Kegunaan & Sertifikasi</p>
-                <ul className="text-xs space-y-1 mb-2">
-                  {(model.usage || []).map((u, i) => (
-                    <li key={i} className="flex items-center gap-2"><span className="text-pink-400">→</span><span>{u}</span></li>
-                  ))}
-                </ul>
-                <div className="flex flex-wrap gap-1">
-                  {(model.certifications || []).map((c, i) => (
-                    <span key={i} className="text-[10px] px-2 py-0.5 bg-cyan-500/20 rounded-full text-cyan-100">{c}</span>
-                  ))}
-                </div>
-              </motion.div>
-
+             {/* KOTAK KANAN - Category + Composition */}
+            <motion.div 
+              layout
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 1 }}
+              className="mt-3 min-w-[300px] w-max max-w-[400px] bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-5 text-white shadow-xl"
+            >
+              <p className="text-sm font-bold text-cyan-300 mb-3">{displayRight.title}</p>
+              <div className="space-y-3 text-sm">
+                {displayRight.items.map((item, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
               {/* Glow halus */}
               <div
                 className="absolute -inset-6 bg-cyan-500/20 rounded-full blur-3xl opacity-50"

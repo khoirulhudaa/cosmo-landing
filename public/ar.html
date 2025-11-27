@@ -389,6 +389,15 @@
       }
     }
 
+    @media screen and (max-width: 1200px) {
+      #micBtn, #stopAudioBtn, .sparkle-btn {
+        display: none;
+        opacity: 0;
+        z-index: -111;
+        cursor: default;
+      }
+    }
+
     #captionBox {
       position: fixed;
       bottom: 23%;
@@ -402,7 +411,7 @@
       border: 1px solid rgba(79,195,247,.4);
       border-radius: 18px;
       color: #fff;
-      font-size: 15px;
+      font-size: 13px;
       line-height: 1.5;
       text-align: center;
       z-index: 9997;
@@ -457,7 +466,7 @@
   <!-- LOADING -->
   <div id="loadingScreen">
     <div class="spinner"></div>
-    <div id="loadingText"><strong>Memuat AR...</strong><br>Katakan <strong>"Hallo Cosmo"</strong> untuk mulai</div>
+    <div id="loadingText"><strong>Memuat AR...</strong></div>
   </div>
 
   <!-- TOGGLE CONTAINER -->
@@ -569,11 +578,6 @@
     </svg>
   </div>
 
-  <div style="padding:0 16px 8px;color:#aaa;font-size:12px;">
-    Produk: <span id="currentProductLabel">Chat Umum</span> 
-    | SKU: <strong id="activeSkuLabel">—</strong>
-  </div>
-
   <!-- CHATBOT -->
   <div id="chatbotContainer" style="opacity: 0;transform: scale(0.1);">
     <div id="chatBody"></div>
@@ -596,10 +600,10 @@
 
   <!-- A-SCENE -->
   <a-scene embedded arjs="trackingMethod:best;sourceType:webcam;debugUIEnabled:false;" renderer="logarithmicDepthBuffer:true;" vr-mode-ui="enabled:false" loading-screen="dotsColor:#4fc3f7;backgroundColor:#000">
-    <a-marker type="pattern" url="/assets/jr60.patt" data-product-id="1"><a-entity class="ar-model" visible="false"></a-entity></a-marker>
-    <a-marker type="pattern" url="/assets/cosmoIMG.patt" data-product-id="2"><a-entity class="ar-model" visible="false"></a-entity></a-marker>
-    <a-marker type="pattern" url="/assets/flower.patt" data-product-id="3"><a-entity class="ar-model" visible="false"></a-entity></a-marker>
-    <a-marker type="pattern" url="/assets/astro.patt" data-product-id="4"><a-entity class="ar-model" visible="false"></a-entity></a-marker>
+    <a-marker type="pattern" url="/assets/qr1.patt" data-product-id="1"><a-entity class="ar-model" visible="false"></a-entity></a-marker>
+    <a-marker type="pattern" url="/assets/qr2.patt" data-product-id="2"><a-entity class="ar-model" visible="false"></a-entity></a-marker>
+    <a-marker type="pattern" url="/assets/qr3.patt" data-product-id="3"><a-entity class="ar-model" visible="false"></a-entity></a-marker>
+    <a-marker type="pattern" url="/assets/qr4.patt" data-product-id="4"><a-entity class="ar-model" visible="false"></a-entity></a-marker>
     <a-entity camera></a-entity>
   </a-scene>
 
