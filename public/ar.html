@@ -522,13 +522,12 @@
   </div>
 
   <!-- MIC BUTTON -->
- <div id="micBtn" class="sparkle-btn group cursor-pointer">
+ <div id="micBtn" class="sparkle-btn group cursor-pointer" style="z-index: -1;opacity: 0;">
   <svg style="position: relative;top: 2.5px;" class="mic-svg w-8 h-8 transition-all duration-300 group-hover:scale-110" 
        viewBox="0 0 24 24" 
        fill="none" 
        xmlns="http://www.w3.org/2000/svg">
     
-    <!-- Gradient untuk glow -->
     <defs>
       <linearGradient id="micGradient" x1="0%" y1="0%" x2="100%" y2="100%">
         <stop offset="0%" stop-color="#06b6d4" /> <!-- cyan-500 -->
@@ -536,7 +535,6 @@
       </linearGradient>
     </defs>
 
-    <!-- Body Mic (Rounded Capsule) -->
     <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3s-3 1.34-3 3v6c0 1.66 1.34 3 3 3z" 
           fill="url(#micGradient)" 
           stroke="#ffffff" 
@@ -544,20 +542,17 @@
           stroke-linecap="round" 
           stroke-linejoin="round"/>
 
-    <!-- Grill Mic (Garis Tengah) -->
     <path d="M12 14v2" 
           stroke="#ffffff" 
           stroke-width="2" 
           stroke-linecap="round"/>
 
-    <!-- Base Mic (Trapezoid) -->
     <path d="M19 10v1a7 7 0 01-14 0v-1" 
           stroke="#ffffff" 
           stroke-width="1.8" 
           stroke-linecap="round" 
           stroke-linejoin="round"/>
 
-    <!-- Sound Waves (Efek Suara Saat Aktif - bisa ditoggle dengan JS) -->
     <circle class="sound-wave wave-1" cx="12" cy="12" r="4" 
             fill="none" 
             stroke="#06b6d4" 
