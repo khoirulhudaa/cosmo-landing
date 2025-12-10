@@ -697,25 +697,35 @@ export default function App() {
   if (showUnityAR) return <UnityARViewer onBack={handleBackFromUnity} />;
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-gray-50 via-white to-blue-50 text-gray-800">
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-black via-cyan-950 to-black text-gray-800">
       {/* === VIDEO BACKGROUND (MP4) === */}
-      <div className='absolute bg-black opacity-[0.6] z-[1] w-screen h-[200vh]'></div>
-      <div className="absolute inset-0 overflow-hidden" aria-label='"https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=video&utm_content=202587'>
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          aria-label='"https://pixabay.com/users/olenchic-16658974/?utm_source=link-attribution&utm_medium=referral&utm_campaign=video&utm_content=202587'
-          loop
-          playsInline
-          className="w-full h-full object-cover brightness-80"
-        >
-          <source src={VIDEO_BG} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-        {/* Overlay Blur + Tint */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white/70 via-transparent to-blue-50/60 backdrop-blur-sm" />
+
+      {/* Background Grid */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div
+          className="absolute inset-0 opacity-50"
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, rgba(0, 255, 255, 0.5) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(0, 255, 255, 0.5) 1px, transparent 1px)
+            `,
+            backgroundSize: '60px 60px',
+            backgroundPosition: 'center bottom',
+            transform: 'perspective(0px) rotateX(0deg) scale(3.2) translateY(0%)',
+            transformOrigin: 'center bottom',
+            animation: 'gridMove 18s linear infinite',
+            filter: 'brightness(1.3)',
+          }}
+        />
       </div>
+
+      {/* Glow */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="w-96 h-96 bg-cyan-500 rounded-full filter blur-3xl opacity-10 animate-pulse" />
+      </div>
+
+
+      <div className='absolute bg-black opacity-[0.6] z-[1] w-screen h-[200vh]'></div>
 
       {/* === 3D PARTICLES (Soft Overlay) === */}
       <div className="fixed inset-0 z-[1] overflow-hidden opacity-50">
@@ -766,10 +776,10 @@ export default function App() {
               </div>
             </motion.button>
 
-            <div className='md:flex hidden w-[2px] h-[75%] bg-gray-300/60 mx-6'></div>
+            {/* <div className='md:flex hidden w-[2px] h-[75%] bg-gray-300/60 mx-6'></div> */}
 
             {/* CHAT TOGGLE ORB */}
-            <div className="relative md:left-0 md:-translate-x-0">
+            {/* <div className="relative md:left-0 md:-translate-x-0">
               <motion.div 
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -798,7 +808,7 @@ export default function App() {
                   </motion.button>
                 )}
               </motion.div>
-            </div>
+            </div> */}
           </div>
         </div>
 
